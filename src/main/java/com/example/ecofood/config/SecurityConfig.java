@@ -62,11 +62,10 @@ public class SecurityConfig {
                         .requestMatchers("/**").hasAnyRole("ADMIN","CUSTOMER")
                         .anyRequest().authenticated())
                 .logout(logout -> logout
-                        .logoutUrl("/logout") // URL kích hoạt logout
-                        .deleteCookies("jwtToken") // Tự động xóa cookie
-                        .logoutSuccessUrl("/login") // Chuyển hướng sau logout
-                        .permitAll()); // Cho phép tất cả truy cập /logout
-
+                        .logoutUrl("/logout")
+                        .deleteCookies("jwtToken")
+                        .logoutSuccessUrl("/login")
+                        .permitAll());
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

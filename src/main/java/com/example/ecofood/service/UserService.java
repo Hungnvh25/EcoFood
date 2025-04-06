@@ -9,6 +9,8 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -34,6 +36,11 @@ public class UserService {
 
         this.userRepository.save(user);
         this.userSettingService.createUserSetting(user);
+    }
+
+    public List<User> findAllUser(){
+        return this.userRepository.findAll();
+
     }
 
     public void saveUser(User user){
