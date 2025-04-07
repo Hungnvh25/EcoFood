@@ -6,6 +6,8 @@ import com.example.ecofood.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,11 +40,6 @@ public class UserService {
         this.userSettingService.createUserSetting(user);
     }
 
-    public List<User> findAllUser(){
-        return this.userRepository.findAll();
-
-    }
-
     public void saveUser(User user){
         this.userRepository.save(user);
     }
@@ -55,4 +52,29 @@ public class UserService {
         }
         return this.passwordEncoder.matches(passWord, user.getPasswordHash());
     }
+
+
+    public Page<User> getAllUsers(Pageable pageable) {
+        return this.userRepository.findAll(pageable);
+    }
+
+    public Page<User> searchUsers(String userName, String email, Pageable pageable) {
+        if (userName == null) userName = "";
+        if (email == null) email = "";
+        return this.userRepository.findByUserNameContainingAndEmailContaining(userName, email, pageable);
+    }
+
+    public long getTotalUsers() {
+        return this.userRepository.count();
+    }
+
+    public User findUserById(Long id) {
+        return this.userRepository.findById(id).orElse(null);
+    }
+
+    public void deleteUser(Long id) {
+        this.userRepository.deleteById(id);
+    }
+
+
 }

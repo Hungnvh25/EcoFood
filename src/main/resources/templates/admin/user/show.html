@@ -63,7 +63,7 @@
                 <h2>Users</h2>
 
                 <!-- Search Form -->
-                <form th:action="@{/admin/dashboard}" method="get" class="mb-3">
+                <form th:action="@{/admin/user}" method="get" class="mb-3">
                     <div class="row">
                         <div class="col-md-4">
                             <input type="text" name="userName" class="form-control" placeholder="Search by Username"
@@ -93,49 +93,60 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="user : ${users}">
+                    <tr th:each="user : ${users}"
+                        th:data-id="${user.id}"
+                        th:data-username="${user.userName}"
+                        th:data-email="${user.email}"
+                        th:data-joindate="${user.joinDate}"
+                        th:data-role="${user.role}"
+                        th:data-premium="${user.premium}"
+                        th:data-imageurl="${user.userSetting.urlImage}">
+
                         <td th:text="${user.id}"></td>
                         <td th:text="${user.userName}"></td>
                         <td th:text="${user.email}"></td>
                         <td th:text="${user.joinDate}"></td>
                         <td th:text="${user.role}"></td>
                         <td th:text="${user.premium}"></td>
+
+                        <td hidden th:text="${user.userSetting.urlImage}"></td>
+
                         <td class="dropdown">
                             <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown"
                                     style="background-color: #FFCB65;">
-                                Update
+                                Options
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a th:href="@{/admin/user/detail(id=${user.id})}" class="dropdown-item">Detail</a></li>
+                                <li><a class="dropdown-item detail-btn" data-bs-toggle="modal" data-bs-target="#userDetailModal">Detail</a></li>
                                 <li><a th:href="@{/admin/user/edit(id=${user.id})}" class="dropdown-item">Edit</a></li>
-                                <li><a th:href="@{/admin/user/delete(id=${user.id})}" class="dropdown-item"
-                                       onclick="return confirm('Are you sure?')">Delete</a></li>
+                                <li><a th:href="@{/admin/user/delete(id=${user.id})}" class="dropdown-item" onclick="return confirm('Are you sure?')">Delete</a></li>
                             </ul>
                         </td>
                     </tr>
+
                     </tbody>
                 </table>
 
-                <!--                &lt;!&ndash; Pagination &ndash;&gt;-->
-                <!--                <nav aria-label="Page navigation">-->
-                <!--                    <ul class="pagination">-->
-                <!--                        <li class="page-item" th:classappend="${users.number == 0 ? 'disabled' : ''}">-->
-                <!--                            <a class="page-link"-->
-                <!--                               th:href="@{/admin/dashboard(page=${users.number - 1}, userName=${param.userName}, email=${param.email})}">Previous</a>-->
-                <!--                        </li>-->
-                <!--                        <li class="page-item" th:each="i : ${#numbers.sequence(0, users.totalPages - 1)}"-->
-                <!--                            th:classappend="${i == users.number ? 'active' : ''}">-->
-                <!--                            <a class="page-link"-->
-                <!--                               th:href="@{/admin/dashboard(page=${i}, userName=${param.userName}, email=${param.email})}"-->
-                <!--                               th:text="${i + 1}"></a>-->
-                <!--                        </li>-->
-                <!--                        <li class="page-item"-->
-                <!--                            th:classappend="${users.number == users.totalPages - 1 ? 'disabled' : ''}">-->
-                <!--                            <a class="page-link"-->
-                <!--                               th:href="@{/admin/dashboard(page=${users.number + 1}, userName=${param.userName}, email=${param.email})}">Next</a>-->
-                <!--                        </li>-->
-                <!--                    </ul>-->
-                <!--                </nav>-->
+                <!-- Pagination -->
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <li class="page-item" th:classappend="${users.number == 0 ? 'disabled' : ''}">
+                            <a class="page-link"
+                               th:href="@{/admin/user(page=${users.number - 1}, userName=${param.userName}, email=${param.email})}">Previous</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, users.totalPages - 1)}"
+                            th:classappend="${i == users.number ? 'active' : ''}">
+                            <a class="page-link"
+                               th:href="@{/admin/user(page=${i}, userName=${param.userName}, email=${param.email})}"
+                               th:text="${i + 1}"></a>
+                        </li>
+                        <li class="page-item"
+                            th:classappend="${users.number == users.totalPages - 1 ? 'disabled' : ''}">
+                            <a class="page-link"
+                               th:href="@{/admin/user(page=${users.number + 1}, userName=${param.userName}, email=${param.email})}">Next</a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
         </main>
     </div>
@@ -144,8 +155,84 @@
 <!-- Import footer modal -->
 <th:block th:replace="~{admin/layout/footer :: footer-modal}"></th:block>
 
+<!-- User Detail Modal -->
+<div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="userDetailModalLabel">
+                    <i class="fas fa-user me-2"></i>User Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Cột trái: Thông tin văn bản -->
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">ID</label>
+                            <p id="detail-id" class="form-control-static text-dark"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Username</label>
+                            <p id="detail-userName" class="form-control-static text-dark"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Email</label>
+                            <p id="detail-email" class="form-control-static text-dark"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Join Date</label>
+                            <p id="detail-joinDate" class="form-control-static text-dark"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Role</label>
+                            <p id="detail-role" class="form-control-static text-dark"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Premium</label>
+                            <p id="detail-premium" class="form-control-static text-dark"></p>
+                        </div>
+                    </div>
+                    <!-- Cột phải: Ảnh -->
+                    <div class="col-md-4 text-center">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Profile Image</label>
+                            <img id="detail-image" class="img-fluid rounded shadow-sm" alt="Profile Image"
+                                 style="max-height: 200px; object-fit: cover;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light"> <!-- Thêm màu nền cho footer -->
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Import footer scripts -->
 <th:block th:replace="~{admin/layout/footer :: footer-scripts}"></th:block>
 
 </body>
+
+<script>
+    document.querySelectorAll('.detail-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const row = this.closest('tr');
+
+            document.getElementById('detail-id').innerText = row.dataset.id;
+            document.getElementById('detail-userName').innerText = row.dataset.username;
+            document.getElementById('detail-email').innerText = row.dataset.email;
+            document.getElementById('detail-joinDate').innerText = row.dataset.joindate;
+            document.getElementById('detail-role').innerText = row.dataset.role;
+            document.getElementById('detail-premium').innerText = row.dataset.premium;
+
+            // Gán ảnh đại diện
+            document.getElementById('detail-image').src = row.dataset.imageurl;
+        });
+    });
+
+</script>
 </html>
