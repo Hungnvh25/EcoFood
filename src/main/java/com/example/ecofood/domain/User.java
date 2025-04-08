@@ -43,7 +43,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     Role role;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserSetting userSetting;
 
     @OneToMany(mappedBy = "user")
