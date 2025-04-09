@@ -3,6 +3,7 @@ package com.example.ecofood.service;
 import com.example.ecofood.domain.DTO.UserDTO;
 import com.example.ecofood.domain.User;
 import com.example.ecofood.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -20,6 +21,7 @@ public class UserService {
     UserRepository userRepository;
     UserSettingService userSettingService;
     PasswordEncoder passwordEncoder;
+    HttpServletRequest request;
 
     public User findUserByUserName(String userName) {
         return this.userRepository.findUserByUserName(userName);
@@ -77,5 +79,8 @@ public class UserService {
         this.userRepository.deleteById(id);
     }
 
+    public User getCurrentUser(){
+        return (User) this.request.getAttribute("user");
+    }
 
 }
