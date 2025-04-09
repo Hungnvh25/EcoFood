@@ -1,10 +1,7 @@
 package com.example.ecofood.domain;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -25,6 +22,8 @@ public class User {
     Long id;
 
     @NotNull(message = "UserName not null")
+    @Size(min = 3, max = 50, message = "Username phải từ 3 đến 50 ký tự")
+    @Pattern(regexp = "[A-Za-z0-9_]+", message = "Username chỉ được chứa chữ cái, số và dấu gạch dưới")
     String userName;
 
 
@@ -43,7 +42,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     Role role;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserSetting userSetting;
 
     @OneToMany(mappedBy = "user")
