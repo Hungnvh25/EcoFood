@@ -175,7 +175,7 @@
             </div>
             <!-- Modal Body -->
             <div class="modal-body">
-                <form id="editUserForm" th:action="@{/admin/user/update}" method="post" th:object="${1}">
+                <form id="editUserForm" th:action="@{/admin/user/update}" method="post" th:object="${user}">
                     <input type="hidden" name="id" id="detail-id-input"/>
 
                     <div class="row">
@@ -291,8 +291,8 @@
         btn.addEventListener('click', function () {
 
             document.getElementById('delete-user-id').value =  this.closest('tr').dataset.id;
-            const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-            deleteModal.show();
+            // const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            // deleteModal.show();
         });
     });
 
