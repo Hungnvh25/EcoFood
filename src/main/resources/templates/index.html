@@ -11,257 +11,411 @@
 <div class="container-fluid p-0">
     <div class="row g-0">
         <!-- Sidebar trái -->
-        <div class="col-md-2 bg-white shadow-sm position-fixed top-0 start-0 vh-100 overflow-auto ">
-            <div class="mb-3 py-3">
-                <img src="/image/logo.png" class="rounded mx-auto d-block img-fluid " alt="Eco Food Logo" width="260" height="140" >
-            </div>
-            <div class="list-group list-group-flush mt-3 ps-3">
-                <a href="#" class="list-group-item list-group-item-action border-0 py-3 ms-3"
-                   onmouseover="this.style.backgroundColor='#C3E66E'"
-                    onmouseout="this.style.backgroundColor=''">
-                    <i class="fas fa-home me-2"></i> Trang chủ
-                </a>
-                <a href="#" class="list-group-item list-group-item-action border-0 py-3 ms-3"
-                   onmouseover="this.style.backgroundColor='#C3E66E'"
-                    onmouseout="this.style.backgroundColor=''">
-                    <i class="fas fa-bell me-2"></i> Thông báo
-                </a>
-                <a href="#" class="list-group-item list-group-item-action border-0 py-3 ms-3"
-                    onmouseover="this.style.backgroundColor='#C3E66E'"
-                    onmouseout="this.style.backgroundColor=''">
-                    <i class="fas fa-utensils me-2"></i>Kho món ngon
-                    <span class="d-block ps-4">của bạn</span>
-
-                </a>
-                <a href="#" class="list-group-item list-group-item-action border-0 py-3 ms-3"
-                   onmouseover="this.style.backgroundColor='#C3E66E'"
-                    onmouseout="this.style.backgroundColor=''">
-                    <i class="fas fa-bookmark me-2"></i> Đã lưu
-                </a>
-                <a href="#" class="list-group-item list-group-item-action border-0 py-3 ms-3"
-                   onmouseover="this.style.backgroundColor='#C3E66E'"
-                    onmouseout="this.style.backgroundColor=''">
-                    <i class="fas fa-user me-2"></i> Món của tôi
-                </a>
-                <a href="#" class="list-group-item list-group-item-action border-0 py-3 ms-3"
-                   onmouseover="this.style.backgroundColor='#C3E66E'"
-                    onmouseout="this.style.backgroundColor=''">
-                    <i class="fas fa-clock me-2"></i> Đã nấu
-                </a>
-                <a href="#" class="list-group-item list-group-item-action border-0 py-3 ms-3"
-                   onmouseover="this.style.backgroundColor='#C3E66E'"
-                    onmouseout="this.style.backgroundColor=''">
-                    <i class="fas fa-gem me-2"></i> Premium
-                </a>
-            </div>
-        </div>
-
+        <th:block th:replace="~{client/layout/sidebar-left :: sidebarLeft}"></th:block>
         <!-- Nội dung chính -->
-        <div class="col-md-8 offset-md-2 bg-white p-4">
+        <div class="col-md-7 offset-md-2 bg-white p-4">
             <h2 class="mb-4">Trang Chủ</h2>
             <h5 class="mt-4">Bài Viết</h5>
-            <div class="text-muted small mb-3">Hôm nay, 12:00</div>
 
-            <div class="card mb-4 border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="rounded-circle bg-light p-2 me-2">
-                            <i class="fas fa-user-circle fs-5"></i>
+            <!--            bài viết-->
+            <div class="card mb-3 border-0 shadow-sm" style="font-size: 0.9rem;">
+                <div class="card-body p-3">
+                    <!-- tiêu đề -->
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="me-2">
+                            <img src="/Avatars/avatar.jpg" class="rounded-circle" width="32" height="32">
                         </div>
-                        <span class="fw-bold">Nguyen Van C</span>
+                        <span class="fw-semibold me-auto">Nguyen Van C</span>
+                        <div class="text-muted small">Hôm nay, 12:00</div>
                     </div>
+
                     <div class="row">
+                        <!-- ảnh -->
                         <div class="col-md-4 border border-2">
-                            <img src="/Recipe/Ga.jpg" class="img-fluid rounded" alt="Gỏi cuốn">
+                            <img src="/Recipe/Ga.jpg" class="img-fluid w-100 rounded">
                         </div>
-                        <div class="col-md-8">
-                            <h4 class="mb-3">Gỏi cuốn</h4>
-                            <div class="row mb-3">
+
+                        <!-- thành phần -->
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Gà Chiên</h5>
+
+                            <div class="row mb-2">
                                 <div class="col-6">
-                                    <div class="d-flex align-items-center mb-2">
+                                    <div class="d-flex align-items-center mb-3">
                                         <i class="fas fa-chart-bar me-2"></i>
                                         <div>
-                                            <div class="small text-muted">Độ phức tạp</div>
-                                            <div class="fw-bold">Dễ</div>
+                                            <div class="text-muted small">Độ phức tạp</div>
+                                            <div class="fw-semibold">Dễ</div>
                                         </div>
                                     </div>
                                     <div class="d-flex align-items-center">
                                         <i class="fas fa-clock me-2"></i>
                                         <div>
-                                            <div class="small text-muted">Thời gian nấu</div>
-                                            <div class="fw-bold">20 phút</div>
+                                            <div class="text-muted small">Thời gian nấu</div>
+                                            <div class="fw-semibold">20 phút</div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-6">
-                                    <div class="d-flex align-items-center mb-2">
+                                    <div class="d-flex align-items-center mb-3">
                                         <i class="fas fa-check-circle me-2"></i>
                                         <div>
-                                            <div class="small text-muted">Độ thành công</div>
-                                            <div class="fw-bold">50 đánh giá</div>
+                                            <div class="text-muted small">Độ thành công</div>
+                                            <div class="fw-semibold">50 đánh giá</div>
                                         </div>
                                     </div>
                                     <div class="d-flex align-items-center">
                                         <i class="fas fa-list-ol me-2"></i>
                                         <div>
-                                            <div class="small text-muted">Các bước</div>
-                                            <div class="fw-bold">4 bước</div>
+                                            <div class="text-muted small">Các bước</div>
+                                            <div class="fw-semibold">4 bước</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="d-flex mt-2">
-                                <button class="btn btn-sm btn-light me-2">
+
+                            <div class="d-flex mt-3">
+                                <button class="btn btn-light btn-sm me-2">
                                     <i class="fas fa-heart text-danger"></i> 100k
                                 </button>
-                                <button class="btn btn-sm btn-light">
+                                <button class="btn btn-light btn-sm">
                                     <i class="fas fa-comment"></i> 50k
                                 </button>
                             </div>
                         </div>
+
+                        <!-- dinh dưỡng -->
+                        <div class="col-md-2">
+                            <div class="d-flex flex-column gap-1">
+                                <!-- Calories -->
+                                <div class="rounded p-1 d-flex align-items-center justify-content-center"
+                                     style="background-color: #d9f99d;">
+                                    <div class="me-1">
+                                        <i class="fas fa-fire text-dark fs-6"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Calories</div>
+                                        <div class="fw-semibold" style="font-size: 0.85rem;">300 <span class="fw-normal"
+                                                                                                       style="font-size: 0.7rem;">kcal</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Carbs -->
+                                <div class="rounded p-1 d-flex align-items-center justify-content-center"
+                                     style="background-color: #fde68a;">
+                                    <div class="me-1">
+                                        <i class="fas fa-bowl-rice text-dark fs-6"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Carbs</div>
+                                        <div class="fw-semibold" style="font-size: 0.85rem;">60 <span class="fw-normal"
+                                                                                                      style="font-size: 0.7rem;">gr</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Protein -->
+                                <div class="rounded p-1 d-flex align-items-center justify-content-center"
+                                     style="background-color: #fdba74;">
+                                    <div class="me-1">
+                                        <i class="fas fa-dumbbell text-dark fs-6"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Protein</div>
+                                        <div class="fw-semibold" style="font-size: 0.85rem;">35 <span class="fw-normal"
+                                                                                                      style="font-size: 0.7rem;">gr</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Fats -->
+                                <div class="rounded p-1 d-flex align-items-center justify-content-center"
+                                     style="background-color: #e5e7eb;">
+                                    <div class="me-1">
+                                        <i class="fas fa-tint text-dark fs-6"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Fats</div>
+                                        <div class="fw-semibold" style="font-size: 0.85rem;">12 <span class="fw-normal"
+                                                                                                      style="font-size: 0.7rem;">gr</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
                     </div>
                 </div>
             </div>
+            <div class="card mb-3 border-0 shadow-sm" style="font-size: 0.9rem;">
+                <div class="card-body p-3">
+                    <!-- tiêu đề -->
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="me-2">
+                            <img src="/Avatars/avatar.jpg" class="rounded-circle" width="32" height="32">
+                        </div>
+                        <span class="fw-semibold me-auto">Nguyen Van C</span>
+                        <div class="text-muted small">Hôm nay, 12:00</div>
+                    </div>
+
+                    <div class="row">
+                        <!-- ảnh -->
+                        <div class="col-md-4 border border-2">
+                            <img src="/Recipe/Ga.jpg" class="img-fluid w-100 rounded">
+                        </div>
+
+                        <!-- thành phần -->
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Gà Chiên</h5>
+
+                            <div class="row mb-2">
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <i class="fas fa-chart-bar me-2"></i>
+                                        <div>
+                                            <div class="text-muted small">Độ phức tạp</div>
+                                            <div class="fw-semibold">Dễ</div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-clock me-2"></i>
+                                        <div>
+                                            <div class="text-muted small">Thời gian nấu</div>
+                                            <div class="fw-semibold">20 phút</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <i class="fas fa-check-circle me-2"></i>
+                                        <div>
+                                            <div class="text-muted small">Độ thành công</div>
+                                            <div class="fw-semibold">50 đánh giá</div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-list-ol me-2"></i>
+                                        <div>
+                                            <div class="text-muted small">Các bước</div>
+                                            <div class="fw-semibold">4 bước</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex mt-3">
+                                <button class="btn btn-light btn-sm me-2">
+                                    <i class="fas fa-heart text-danger"></i> 100k
+                                </button>
+                                <button class="btn btn-light btn-sm">
+                                    <i class="fas fa-comment"></i> 50k
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- dinh dưỡng -->
+                        <div class="col-md-2">
+                            <div class="d-flex flex-column gap-1">
+                                <!-- Calories -->
+                                <div class="rounded p-1 d-flex align-items-center justify-content-center"
+                                     style="background-color: #d9f99d;">
+                                    <div class="me-1">
+                                        <i class="fas fa-fire text-dark fs-6"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Calories</div>
+                                        <div class="fw-semibold" style="font-size: 0.85rem;">300 <span class="fw-normal"
+                                                                                                       style="font-size: 0.7rem;">kcal</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Carbs -->
+                                <div class="rounded p-1 d-flex align-items-center justify-content-center"
+                                     style="background-color: #fde68a;">
+                                    <div class="me-1">
+                                        <i class="fas fa-bowl-rice text-dark fs-6"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Carbs</div>
+                                        <div class="fw-semibold" style="font-size: 0.85rem;">60 <span class="fw-normal"
+                                                                                                      style="font-size: 0.7rem;">gr</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Protein -->
+                                <div class="rounded p-1 d-flex align-items-center justify-content-center"
+                                     style="background-color: #fdba74;">
+                                    <div class="me-1">
+                                        <i class="fas fa-dumbbell text-dark fs-6"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Protein</div>
+                                        <div class="fw-semibold" style="font-size: 0.85rem;">35 <span class="fw-normal"
+                                                                                                      style="font-size: 0.7rem;">gr</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Fats -->
+                                <div class="rounded p-1 d-flex align-items-center justify-content-center"
+                                     style="background-color: #e5e7eb;">
+                                    <div class="me-1">
+                                        <i class="fas fa-tint text-dark fs-6"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Fats</div>
+                                        <div class="fw-semibold" style="font-size: 0.85rem;">12 <span class="fw-normal"
+                                                                                                      style="font-size: 0.7rem;">gr</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
 
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-3 border-0 shadow-sm" style="font-size: 0.9rem;">
+                <div class="card-body p-3">
+                    <!-- tiêu đề -->
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="me-2">
+                            <img src="/Avatars/avatar.jpg" class="rounded-circle" width="32" height="32">
+                        </div>
+                        <span class="fw-semibold me-auto">Nguyen Van C</span>
+                        <div class="text-muted small">Hôm nay, 12:00</div>
+                    </div>
+
+                    <div class="row">
+                        <!-- ảnh -->
+                        <div class="col-md-4 border border-2">
+                            <img src="/Recipe/Ga.jpg" class="img-fluid w-100 rounded">
+                        </div>
+
+                        <!-- thành phần -->
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Gà Chiên</h5>
+
+                            <div class="row mb-2">
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <i class="fas fa-chart-bar me-2"></i>
+                                        <div>
+                                            <div class="text-muted small">Độ phức tạp</div>
+                                            <div class="fw-semibold">Dễ</div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-clock me-2"></i>
+                                        <div>
+                                            <div class="text-muted small">Thời gian nấu</div>
+                                            <div class="fw-semibold">20 phút</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <i class="fas fa-check-circle me-2"></i>
+                                        <div>
+                                            <div class="text-muted small">Độ thành công</div>
+                                            <div class="fw-semibold">50 đánh giá</div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-list-ol me-2"></i>
+                                        <div>
+                                            <div class="text-muted small">Các bước</div>
+                                            <div class="fw-semibold">4 bước</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex mt-3">
+                                <button class="btn btn-light btn-sm me-2">
+                                    <i class="fas fa-heart text-danger"></i> 100k
+                                </button>
+                                <button class="btn btn-light btn-sm">
+                                    <i class="fas fa-comment"></i> 50k
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- dinh dưỡng -->
+                        <div class="col-md-2">
+                            <div class="d-flex flex-column gap-1">
+                                <!-- Calories -->
+                                <div class="rounded p-1 d-flex align-items-center justify-content-center"
+                                     style="background-color: #d9f99d;">
+                                    <div class="me-1">
+                                        <i class="fas fa-fire text-dark fs-6"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Calories</div>
+                                        <div class="fw-semibold" style="font-size: 0.85rem;">300 <span class="fw-normal"
+                                                                                                       style="font-size: 0.7rem;">kcal</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Carbs -->
+                                <div class="rounded p-1 d-flex align-items-center justify-content-center"
+                                     style="background-color: #fde68a;">
+                                    <div class="me-1">
+                                        <i class="fas fa-bowl-rice text-dark fs-6"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Carbs</div>
+                                        <div class="fw-semibold" style="font-size: 0.85rem;">60 <span class="fw-normal"
+                                                                                                      style="font-size: 0.7rem;">gr</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Protein -->
+                                <div class="rounded p-1 d-flex align-items-center justify-content-center"
+                                     style="background-color: #fdba74;">
+                                    <div class="me-1">
+                                        <i class="fas fa-dumbbell text-dark fs-6"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Protein</div>
+                                        <div class="fw-semibold" style="font-size: 0.85rem;">35 <span class="fw-normal"
+                                                                                                      style="font-size: 0.7rem;">gr</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Fats -->
+                                <div class="rounded p-1 d-flex align-items-center justify-content-center"
+                                     style="background-color: #e5e7eb;">
+                                    <div class="me-1">
+                                        <i class="fas fa-tint text-dark fs-6"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Fats</div>
+                                        <div class="fw-semibold" style="font-size: 0.85rem;">12 <span class="fw-normal"
+                                                                                                      style="font-size: 0.7rem;">gr</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Sidebar phải -->
-        <div class="col-md-2 bg-white border-start p-3 position-fixed top-0 end-0 vh-100 overflow-auto">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-dark p-2 me-2 text-white">
-                        <i class="fas fa-user-circle fs-5"></i>
-                    </div>
-                    <span class="fw-bold">Nguyen Van C</span>
-                </div>
-                <button class="btn btn-success btn-sm rounded-pill">
-                    <i class="fas fa-plus"></i> Thêm món
-                </button>
-            </div>
+        <th:block th:replace="~{client/layout/sidebar-right :: sidebarRight}"></th:block>
 
-            <div class="mb-4">
-                <h6 class="mb-3">Thực đơn phổ biến</h6>
-                <div class="card mb-3 border-0 shadow-sm">
-                    <div class="row g-0">
-                        <div class="col-4">
-                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-J4c1j931njBhw1HbpgoC7f58xSZPnX.png" class="img-fluid rounded" alt="Bún đậu">
-                        </div>
-                        <div class="col-8">
-                            <div class="card-body p-2">
-                                <h6 class="card-title">Bún đậu</h6>
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-heart text-warning me-1"></i>
-                                    <small>100k</small>
-                                </div>
-                                <div class="d-flex mt-2">
-                                    <span class="badge bg-success me-1">300</span>
-                                    <span class="badge bg-warning me-1">60</span>
-                                    <span class="badge bg-danger me-1">35</span>
-                                    <span class="badge bg-secondary">12</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card mb-3 border-0 shadow-sm">
-                    <div class="row g-0">
-                        <div class="col-4">
-                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-J4c1j931njBhw1HbpgoC7f58xSZPnX.png" class="img-fluid rounded" alt="Xôi gà">
-                        </div>
-                        <div class="col-8">
-                            <div class="card-body p-2">
-                                <h6 class="card-title">Xôi gà</h6>
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-heart text-warning me-1"></i>
-                                    <small>100k</small>
-                                </div>
-                                <div class="d-flex mt-2">
-                                    <span class="badge bg-success me-1">300</span>
-                                    <span class="badge bg-warning me-1">60</span>
-                                    <span class="badge bg-danger me-1">35</span>
-                                    <span class="badge bg-secondary">12</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card mb-3 border-0 shadow-sm">
-                    <div class="row g-0">
-                        <div class="col-4">
-                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-J4c1j931njBhw1HbpgoC7f58xSZPnX.png" class="img-fluid rounded" alt="Bánh mì">
-                        </div>
-                        <div class="col-8">
-                            <div class="card-body p-2">
-                                <h6 class="card-title">Bánh mì</h6>
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-heart text-warning me-1"></i>
-                                    <small>100k</small>
-                                </div>
-                                <div class="d-flex mt-2">
-                                    <span class="badge bg-success me-1">300</span>
-                                    <span class="badge bg-warning me-1">60</span>
-                                    <span class="badge bg-danger me-1">35</span>
-                                    <span class="badge bg-secondary">12</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <h6 class="mb-3">Các món xem gần đây</h6>
-                <div class="card mb-3 border-0 shadow-sm">
-                    <div class="row g-0">
-                        <div class="col-4">
-                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-J4c1j931njBhw1HbpgoC7f58xSZPnX.png" class="img-fluid rounded" alt="Nem nướng">
-                        </div>
-                        <div class="col-8">
-                            <div class="card-body p-2">
-                                <h6 class="card-title">Nem nướng</h6>
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-heart text-warning me-1"></i>
-                                    <small>100k</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card mb-3 border-0 shadow-sm">
-                    <div class="row g-0">
-                        <div class="col-4">
-                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-J4c1j931njBhw1HbpgoC7f58xSZPnX.png" class="img-fluid rounded" alt="Thịt nướng">
-                        </div>
-                        <div class="col-8">
-                            <div class="card-body p-2">
-                                <h6 class="card-title">Thịt nướng</h6>
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-heart text-warning me-1"></i>
-                                    <small>100k</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card mb-3 border-0 shadow-sm">
-                    <div class="row g-0">
-                        <div class="col-4">
-                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-J4c1j931njBhw1HbpgoC7f58xSZPnX.png" class="img-fluid rounded" alt="Phở">
-                        </div>
-                        <div class="col-8">
-                            <div class="card-body p-2">
-                                <h6 class="card-title">Phở</h6>
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-heart text-warning me-1"></i>
-                                    <small>100k</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 

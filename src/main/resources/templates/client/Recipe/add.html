@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco Food</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body class="bg-light">
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <!-- Sidebar trái -->
+        <th:block th:replace="~{client/layout/sidebar-left :: sidebarLeft}"></th:block>
+        <!-- Nội dung chính -->
+        <div class="col-md-7 offset-md-2 bg-white p-4">
+
+            <!-- Header -->
+            <div class="row mb-4 align-items-center">
+                <div class="col-md-6">
+                    <h2 class="fw-bold">Tạo món ăn của bạn</h2>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn rounded-pill px-4 me-2" style="background-color: #D9F99D;">Thoát</button>
+                    <button class="btn rounded-pill px-4 me-2" style="background-color: #D9F99D;">Lưu và đóng</button>
+                    <button class="btn rounded-pill px-4" style="background-color: #D9F99D;">Đăng lên</button>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="row">
+                <!-- Left Column - Food Image -->
+                <div class="col-md-5 mb-4">
+                    <div class="bg-warning bg-opacity-25 rounded p-2 text-center" style="height: 220px;">
+                        <img src="/Recipe/Ga.jpg" alt="Food Image" class="img-fluid mb-2 d-none">
+                        <div class="position-relative top-50 start-50 translate-middle">
+                            <p class="mb-0">Chọn ảnh<br>món ăn</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Form Fields -->
+                <div class="col-md-7 mb-4">
+                    <div class="mb-3">
+                        <input type="text" class="form-control bg-warning bg-opacity-25 border-0 py-3" placeholder="Nhập tên món ăn">
+                    </div>
+                    <div class="mb-3">
+                        <textarea class="form-control bg-warning bg-opacity-25 border-0 py-3" rows="4" placeholder="Hãy chia sẻ với mọi người ý tưởng nào bạn tạo ra món ăn này"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <button class="btn bg-warning bg-opacity-25 border-0 w-100 py-2">Dễ</button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn bg-warning bg-opacity-25 border-0 w-100 py-2">Bữa sáng</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ingredients Section -->
+            <div class="row mb-4">
+                <div class="col-md-5">
+                    <h4 class="mb-4">Nguyên liệu</h4>
+
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-2">Khẩu Phần</div>
+                        <div class="flex-grow-1">
+                            <input type="text" class="form-control bg-warning bg-opacity-25 border-0 w-100" placeholder="Nhập số người">
+                        </div>
+                    </div>
+
+                    <!-- Ingredient Item 1 -->
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <i class="fas fa-bars"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <button class="btn bg-warning bg-opacity-25 border-0 w-100">Bột gạo 4 cái</button>
+                        </div>
+                        <div class="ms-2">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </div>
+                    </div>
+
+                    <!-- Ingredient Item 2 -->
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <i class="fas fa-bars"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <button class="btn bg-warning bg-opacity-25 border-0 w-100">150g bột</button>
+                        </div>
+                        <div class="ms-2">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </div>
+                    </div>
+
+                    <!-- Ingredient Item 3 -->
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <i class="fas fa-bars"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <button class="btn bg-warning bg-opacity-25 border-0 w-100">100ml nước</button>
+                        </div>
+                        <div class="ms-2">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </div>
+                    </div>
+
+                    <!-- Add Ingredient Button -->
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <button class="btn btn-light rounded-circle border">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div>Thêm nguyên liệu</div>
+                    </div>
+                </div>
+
+                <!-- Steps Section -->
+                <div class="col-md-7">
+                    <div class="d-flex justify-content-between mb-4">
+                        <h4>Các bước</h4>
+                        <div class="d-flex align-items-center">
+                            <span class="me-2">Thời gian nấu</span>
+                            <input type="text" class="form-control bg-warning bg-opacity-25 border-0 " placeholder="Nhập thời gian nấu">
+                        </div>
+                    </div>
+
+                    <!-- Step 1 -->
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center me-2" style="width: 30px; height: 30px;">1</div>
+                            <div class="flex-grow-1">
+                                <div class="bg-warning bg-opacity-25 border-0 rounded p-3">
+                                    Trộn bột với nước đến khi đặc lại.
+                                </div>
+                            </div>
+                            <div class="ms-2">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                        </div>
+                        <div class="ms-5 mb-3">
+                            <div class="bg-warning bg-opacity-25 border-0 rounded p-5 text-center">
+                                Thêm ảnh
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center me-2" style="width: 30px; height: 30px;">2</div>
+                            <div class="flex-grow-1">
+                                <div class="bg-warning bg-opacity-25 border-0 rounded p-3">
+                                    Trộn bột với nước đến khi đặc lại.
+                                </div>
+                            </div>
+                            <div class="ms-2">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                        </div>
+                        <div class="ms-5 mb-3">
+                            <div class="bg-warning bg-opacity-25 border-0 rounded p-5 text-center">
+                                Thêm ảnh
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Ingredient Button -->
+                    <div class="mb-4 d-flex align-items-center">
+                        <div class="me-3">
+                            <button class="btn btn-light rounded-circle border">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div>Thêm bước làm< /div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Sidebar phải -->
+        <th:block th:replace="~{client/layout/sidebar-right :: sidebarRight}"></th:block>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap bundle.min.js"></script>
+</body>
+</html>
