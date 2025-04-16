@@ -55,4 +55,8 @@ public class IngredientService {
     public void deleteIngredient(Long id) {
         ingredientRepository.deleteById(id);
     }
+
+    public Ingredient findAllByName(String name){
+        return this.ingredientRepository.findAllByName(name);
+    }
 }

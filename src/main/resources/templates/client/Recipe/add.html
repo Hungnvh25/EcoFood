@@ -14,7 +14,6 @@
         <th:block th:replace="~{client/layout/sidebar-left :: sidebarLeft}"></th:block>
         <!-- Nội dung chính -->
         <div class="col-md-7 offset-md-2 bg-white p-4">
-
             <!-- Header -->
             <div class="row mb-4 align-items-center">
                 <div class="col-md-6">
@@ -29,34 +28,32 @@
 
             <!-- Main Content -->
             <form id="recipeForm" th:object="${recipe}" th:action="@{/recipes}" method="post" enctype="multipart/form-data">
+                <input type="hidden" th:field="*{id}">
                 <div class="row">
                     <!-- Left Column - Food Image -->
                     <div class="col-md-5 mb-4">
-                        <div id="imageSelector" class="bg-warning bg-opacity-25 rounded p-2 text-center position-relative"
-                             style="height: 280px; cursor: pointer;">
-                            <img id="previewImage" th:src="${recipe.imageUrl} ?: '/images/placeholder.png'" alt="Food Image"
-                                 class="img-fluid h-100 w-100 object-fit-cover rounded d-none" style="object-fit: cover;">
+                        <div id="imageSelector" class="bg-warning bg-opacity-25 rounded p-2 text-center position-relative" style="height: 280px; cursor: pointer;">
+                            <img id="previewImage" th:src="${recipe.imageUrl} ?: '/images/placeholder.png'" alt="Food Image" class="img-fluid h-100 w-100 object-fit-cover rounded d-none" style="object-fit: cover;">
                             <div id="placeholderText" class="position-absolute top-50 start-50 translate-middle text-muted">
                                 <p class="mb-0">Chọn ảnh<br>món ăn</p>
                             </div>
                         </div>
                         <input type="file" id="imageInput" accept="image/*" class="d-none" name="imageFile">
+                        <input type="hidden" th:field="*{imageUrl}">
                     </div>
 
                     <!-- Right Column - Form Fields -->
                     <div class="col-md-7 mb-4">
                         <div class="mb-3">
-                            <input type="text" class="form-control bg-warning bg-opacity-25 border-0 py-3"
-                                   placeholder="Nhập tên món ăn" th:field="*{title}">
+                            <input type="text" class="form-control bg-warning bg-opacity-25 border-0 py-3" placeholder="Nhập tên món ăn" th:field="*{title}" required>
+                            <div class="invalid-feedback" th:errors="*{title}"></div>
                         </div>
                         <div class="mb-3">
-                            <textarea class="form-control bg-warning bg-opacity-25 border-0 py-3" rows="4"
-                                      placeholder="Hãy chia sẻ với mọi người ý tưởng nào bạn tạo ra món ăn này"
-                                      th:field="*{description}"></textarea>
+                            <textarea class="form-control bg-warning bg-opacity-25 border-0 py-3" rows="4" placeholder="Hãy chia sẻ ý tưởng tạo ra món ăn này" th:field="*{description}"></textarea>
                         </div>
                         <div class="row">
                             <div class="col-3 mb-3 position-relative">
-                                <select class="form-control bg-warning bg-opacity-25 border-0 py-2 pe-4">
+                                <select class="form-control bg-warning bg-opacity-25 border-0 py-2 pe-4" name="difficulty">
                                     <option value="">Độ khó</option>
                                     <option value="Dễ">Dễ</option>
                                     <option value="Trung bình">Trung bình</option>
@@ -65,7 +62,7 @@
                                 <i class="fas fa-angle-down position-absolute end-0 top-50 translate-middle-y me-4 text-muted pointer-events-none"></i>
                             </div>
                             <div class="col-3 mb-3 position-relative">
-                                <select class="form-control bg-warning bg-opacity-25 border-0 py-2 pe-4">
+                                <select class="form-control bg-warning bg-opacity-25 border-0 py-2 pe-4" name="mealType">
                                     <option value="">Bữa ăn</option>
                                     <option value="Bữa sáng">Bữa sáng</option>
                                     <option value="Bữa trưa">Bữa trưa</option>
@@ -84,19 +81,28 @@
                         <div class="d-flex align-items-center mb-3">
                             <div class="me-2">Khẩu Phần</div>
                             <div class="flex-grow-1">
-                                <input type="number" class="form-control bg-warning bg-opacity-25 border-0 w-100"
-                                       placeholder="Nhập số người" th:field="*{servingSize}">
+                                <input type="number" class="form-control bg-warning bg-opacity-25 border-0 w-100" placeholder="Nhập số người" th:field="*{servingSize}" required>
+                                <div class="invalid-feedback" th:errors="*{servingSize}"></div>
                             </div>
                         </div>
                         <div id="selectedIngredients" class="mt-4">
-                            <div th:each="ingredient, iterStat : *{ingredients}" class="d-flex align-items-center mb-3">
-                                <div class="me-3"><i class="fas fa-bars"></i></div>
-                                <div class="flex-grow-1">
-                                    <input type="text" class="form-control bg-warning bg-opacity-25 border-0 w-100"
-                                           th:field="*{ingredients[__${iterStat.index}__].name}" th:value="${ingredient.name}">
+                            <!-- Existing ingredients -->
+                            <th:block th:each="ingredient, iterStat : ${recipe.ingredients}">
+                                <div class="d-flex align-items-center mb-3 ingredient-item">
+                                    <div class="me-3"><i class="fas fa-bars"></i></div>
+                                    <div class="flex-grow-1">
+                                        <input type="text" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="name" th:value="${ingredient.name}" placeholder="Tên nguyên liệu" required>
+                                        <div class="invalid-feedback">Vui lòng nhập tên nguyên liệu</div>
+                                        <input type="text" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="description" th:value="${ingredient.description}" placeholder="Mô tả (tùy chọn)">
+                                        <input type="hidden" name="id" th:value="${ingredient.id}" th:if="${ingredient.id != null}">
+                                    </div>
+                                    <div class="ms-2">
+                                        <button type="button" class="btn btn-link text-danger remove-ingredient" tabindex="-1">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="ms-2"><i class="fas fa-ellipsis-h"></i></div>
-                            </div>
+                            </th:block>
                         </div>
                         <div class="d-flex align-items-center position-relative">
                             <div class="me-3">
@@ -116,30 +122,36 @@
                     <div class="col-md-7">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h4>Các bước</h4>
-                            <input type="number" class="form-control bg-warning bg-opacity-25 border-0 w-50"
-                                   placeholder="Nhập thời gian nấu phút" th:field="*{cookingTime}">
+                            <input type="number" class="form-control bg-warning bg-opacity-25 border-0 w-50" placeholder="Nhập thời gian nấu phút" th:field="*{cookingTime}" required>
+                            <div class="invalid-feedback" th:errors="*{cookingTime}"></div>
                         </div>
                         <div id="stepsContainer">
-                            <!-- Chỉ hiển thị instructions nếu không rỗng -->
-                            <div th:if="${#lists.size(recipe.instructions) > 0}"
-                                 th:each="instruction, iterStat : *{instructions}" class="mb-4">
-                                <div class="d-flex align-items-center mb-2">
-                                    <div class="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center me-2" style="width: 30px; height: 30px;" th:text="${iterStat.count}"></div>
-                                    <div class="flex-grow-1">
-                                        <textarea class="form-control bg-warning bg-opacity-25 border-0 rounded p-2"
-                                                  placeholder="Nhập mô tả bước làm..."
-                                                  th:field="*{instructions[__${iterStat.index}__].description}"></textarea>
+                            <!-- Existing instructions -->
+                            <th:block th:each="instruction, iterStat : ${recipe.instructions}">
+                                <div class="mb-4 step-item">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center me-2 step-number" style="width: 30px; height: 30px;" th:text="${iterStat.count}"></div>
+                                        <div class="flex-grow-1">
+                                            <textarea class="form-control bg-warning bg-opacity-25 border-0 rounded p-2" placeholder="Nhập mô tả bước làm..." name="description" th:text="${instruction.description}" required></textarea>
+                                            <div class="invalid-feedback">Vui lòng nhập mô tả bước</div>
+                                            <input type="hidden" name="step" th:value="${iterStat.count}">
+                                        </div>
+                                        <div class="ms-2">
+                                            <button type="button" class="btn btn-link text-danger remove-step" tabindex="-1">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="ms-2"><i class="fas fa-ellipsis-h"></i></div>
-                                </div>
-                                <div class="ms-5 mb-3 position-relative">
-                                    <div class="image-select-box bg-warning bg-opacity-25 border-0 rounded text-center" style="height: 200px; cursor: pointer; width: 510px">
-                                        <img th:src="${instruction.imageUrl} ?: '/images/placeholder.png'" alt="Ảnh bước làm" class="img-fluid h-100 w-100 object-fit-cover rounded border border-gray d-none" style="object-fit: cover;">
-                                        <div class="position-absolute top-50 start-50 translate-middle text-muted">Thêm ảnh</div>
+                                    <div class="ms-5 mb-3 position-relative">
+                                        <div class="image-select-box bg-warning bg-opacity-25 border-0 rounded text-center" style="height: 200px; cursor: pointer; width: 510px">
+                                            <img th:src="${instruction.imageUrl} ?: '/images/placeholder.png'" alt="Ảnh bước làm" class="img-fluid h-100 w-100 object-fit-cover rounded border border-gray" th:classappend="${instruction.imageUrl == null} ? 'd-none' : ''" style="object-fit: cover;">
+                                            <div class="position-absolute top-50 start-50 translate-middle text-muted" th:classappend="${instruction.imageUrl != null} ? 'd-none' : ''">Thêm ảnh</div>
+                                        </div>
+                                        <input type="file" accept="image/*" class="d-none" name="image" />
+                                        <input type="hidden" name="imageUrl" th:value="${instruction.imageUrl}">
                                     </div>
-                                    <input type="file" accept="image/*" class="d-none" name="instructionImages[__${iterStat.index}__]">
                                 </div>
-                            </div>
+                            </th:block>
                         </div>
                         <div class="mb-4 d-flex align-items-center">
                             <div class="me-3">
@@ -151,139 +163,253 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Hidden fields -->
+                <input type="hidden" th:field="*{createdDate}" th:if="${recipe.createdDate != null}">
+                <input type="hidden" th:field="*{updatedDate}">
             </form>
-
-            <!-- Sidebar phải -->
-            <th:block th:replace="~{client/layout/sidebar-right :: sidebarRight}"></th:block>
         </div>
+        <!-- Sidebar phải -->
+        <th:block th:replace="~{client/layout/sidebar-right :: sidebarRight}"></th:block>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Chọn ảnh món ăn -->
-    <script>
-        const imageSelector = document.getElementById("imageSelector");
-        const imageInput = document.getElementById("imageInput");
-        const previewImage = document.getElementById("previewImage");
-        const placeholderText = document.getElementById("placeholderText");
+<!-- Chọn ảnh món ăn -->
+<script>
+    const imageSelector = document.getElementById("imageSelector");
+    const imageInput = document.getElementById("imageInput");
+    const previewImage = document.getElementById("previewImage");
+    const placeholderText = document.getElementById("placeholderText");
 
-        imageSelector.addEventListener("click", () => {
-            imageInput.click();
+    imageSelector.addEventListener("click", () => imageInput.click());
+    imageInput.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                previewImage.classList.remove("d-none");
+                placeholderText.classList.add("d-none");
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    if (previewImage.getAttribute('src') && previewImage.getAttribute('src') !== '/images/placeholder.png') {
+        previewImage.classList.remove("d-none");
+        placeholderText.classList.add("d-none");
+    }
+</script>
+
+<!-- Quản lý bước làm -->
+<script>
+    let stepCount = document.querySelectorAll("#stepsContainer .step-item").length;
+
+    function updateStepNumbers() {
+        document.querySelectorAll("#stepsContainer .step-item").forEach((item, index) => {
+            const stepNumber = item.querySelector(".step-number");
+            const stepInput = item.querySelector("input[name='step']");
+            stepNumber.textContent = index + 1;
+            stepInput.value = index + 1;
         });
+    }
 
+    document.getElementById("addStepBtn").addEventListener("click", function() {
+        stepCount++;
+        const stepElement = document.createElement("div");
+        stepElement.classList.add("mb-4", "step-item");
+        stepElement.innerHTML = `
+            <div class="d-flex align-items-center mb-2">
+                <div class="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center me-2 step-number" style="width: 30px; height: 30px;">${stepCount}</div>
+                <div class="flex-grow-1">
+                    <textarea class="form-control bg-warning bg-opacity-25 border-0 rounded p-2" placeholder="Nhập mô tả bước làm..." name="description" required></textarea>
+                    <div class="invalid-feedback">Vui lòng nhập mô tả bước</div>
+                    <input type="hidden" name="step" value="${stepCount}">
+                </div>
+                <div class="ms-2">
+                    <button type="button" class="btn btn-link text-danger remove-step" tabindex="-1">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="ms-5 mb-3 position-relative">
+                <div class="image-select-box bg-warning bg-opacity-25 border-0 rounded text-center" style="height: 200px; cursor: pointer; width: 510px">
+                    <img src="/images/placeholder.png" alt="Ảnh bước làm" class="img-fluid h-100 w-100 object-fit-cover rounded border border-gray d-none" style="object-fit: cover;">
+                    <div class="position-absolute top-50 start-50 translate-middle text-muted">Thêm ảnh</div>
+                </div>
+                <input type="file" accept="image/*" class="d-none" name="image">
+                <input type="hidden" name="imageUrl" value="">
+            </div>
+        `;
+        document.getElementById("stepsContainer").appendChild(stepElement);
+
+        const imageBox = stepElement.querySelector(".image-select-box");
+        const imageInput = stepElement.querySelector("input[type='file']");
+        const previewImg = stepElement.querySelector("img");
+        const placeholder = stepElement.querySelector(".position-absolute");
+
+        imageBox.addEventListener("click", () => imageInput.click());
         imageInput.addEventListener("change", (event) => {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function (e) {
-                    previewImage.src = e.target.result;
-                    previewImage.classList.remove("d-none");
-                    placeholderText.classList.add("d-none");
+                reader.onload = (e) => {
+                    previewImg.src = e.target.result;
+                    previewImg.classList.remove("d-none");
+                    placeholder.classList.add("d-none");
                 };
                 reader.readAsDataURL(file);
             }
         });
-    </script>
 
-    <!-- Thêm bước làm -->
-    <script>
-        let stepCount = document.querySelectorAll("#stepsContainer .mb-4").length;
+        updateStepNumbers();
+    });
 
-        document.getElementById("addStepBtn").addEventListener("click", function () {
-            stepCount++;
-            const stepElement = document.createElement("div");
-            stepElement.classList.add("mb-4");
-            stepElement.innerHTML = `
-                <div class="d-flex align-items-center mb-2">
-                    <div class="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center me-2" style="width: 30px; height: 30px;">${stepCount}</div>
-                    <div class="flex-grow-1">
-                        <textarea class="form-control bg-warning bg-opacity-25 border-0 rounded p-2" placeholder="Nhập mô tả bước làm..." name="newInstructions[${stepCount - 1}].description"></textarea>
-                    </div>
-                    <div class="ms-2"><i class="fas fa-ellipsis-h"></i></div>
-                </div>
-                <div class="ms-5 mb-3 position-relative">
-                    <div class="image-select-box bg-warning bg-opacity-25 border-0 rounded text-center" style="height: 200px; cursor: pointer; width: 510px">
-                        <img src="#" alt="Ảnh bước làm" class="img-fluid h-100 w-100 object-fit-cover rounded border border-gray d-none" style="object-fit: cover;">
-                        <div class="position-absolute top-50 start-50 translate-middle text-muted">Thêm ảnh</div>
-                    </div>
-                    <input type="file" accept="image/*" class="d-none" name="newInstructionImages[${stepCount - 1}]">
-                </div>
-            `;
-            document.getElementById("stepsContainer").appendChild(stepElement);
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-step')) {
+            const stepItem = e.target.closest('.step-item');
+            stepItem.remove();
+            stepCount--;
+            updateStepNumbers();
+        }
+    });
 
-            const imageBox = stepElement.querySelector(".image-select-box");
-            const imageInput = stepElement.querySelector("input[type='file']");
-            const previewImg = stepElement.querySelector("img");
-            const placeholder = stepElement.querySelector(".position-absolute");
+    document.querySelectorAll(".image-select-box").forEach(box => {
+        const fileInput = box.nextElementSibling;
+        const previewImg = box.querySelector("img");
+        const placeholder = box.querySelector(".position-absolute");
 
-            imageBox.addEventListener("click", () => imageInput.click());
-            imageInput.addEventListener("change", (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        previewImg.src = e.target.result;
-                        previewImg.classList.remove("d-none");
-                        placeholder.classList.add("d-none");
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-        });
-    </script>
-
-    <!-- Thêm nguyên liệu -->
-    <script>
-        const ingredients = ["Bột gạo", "Trứng", "Đường", "Sữa", "Muối"];
-        const ingredientSearch = document.getElementById('ingredientSearch');
-        const ingredientList = document.getElementById('ingredientList');
-        const selectedIngredients = document.getElementById('selectedIngredients');
-        const ingredientSearchContainer = document.getElementById('ingredientSearchContainer');
-        const toggleIngredientSearch = document.getElementById('toggleIngredientSearch');
-
-        toggleIngredientSearch.addEventListener('click', () => {
-            ingredientSearchContainer.classList.toggle('d-none');
-            if (!ingredientSearchContainer.classList.contains('d-none')) {
-                ingredientSearch.focus();
+        box.addEventListener("click", () => fileInput.click());
+        fileInput.addEventListener("change", (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImg.src = e.target.result;
+                    previewImg.classList.remove("d-none");
+                    placeholder.classList.add("d-none");
+                };
+                reader.readAsDataURL(file);
             }
         });
+    });
+</script>
 
-        ingredientSearch.addEventListener('input', () => {
-            const keyword = ingredientSearch.value.toLowerCase();
-            ingredientList.innerHTML = '';
-            ingredients
-                .filter(item => item.toLowerCase().includes(keyword))
-                .forEach(item => {
-                    const el = document.createElement('button');
-                    el.className = 'list-group-item list-group-item-action p-2';
-                    el.style.fontSize = '14px';
-                    el.textContent = item;
-                    el.onclick = () => addIngredient(item);
-                    ingredientList.appendChild(el);
-                });
-        });
+<!-- Quản lý nguyên liệu -->
+<script>
+    const ingredients = ["Bột gạo", "Trứng", "Đường", "Sữa", "Muối", "Thịt gà", "Thịt bò", "Rau cải", "Cà rốt", "Khoai tây"];
+    const ingredientSearch = document.getElementById('ingredientSearch');
+    const ingredientList = document.getElementById('ingredientList');
+    const selectedIngredients = document.getElementById('selectedIngredients');
+    const ingredientSearchContainer = document.getElementById('ingredientSearchContainer');
+    const toggleIngredientSearch = document.getElementById('toggleIngredientSearch');
 
-        function addIngredient(name) {
-            const div = document.createElement('div');
-            div.className = 'd-flex align-items-center mb-3';
-            div.innerHTML = `
-                <div class="me-3"><i class="fas fa-bars"></i></div>
-                <div class="flex-grow-1">
-                    <input type="text" class="form-control bg-warning bg-opacity-25 border-0 w-100" name="newIngredients[${selectedIngredients.children.length}].name" value="${name}">
-                </div>
-                <div class="ms-2"><i class="fas fa-ellipsis-h"></i></div>
-            `;
-            selectedIngredients.appendChild(div);
-            ingredientSearch.value = '';
-            ingredientList.innerHTML = '';
+    let ingredientCount = document.querySelectorAll("#selectedIngredients .ingredient-item").length;
+
+    toggleIngredientSearch.addEventListener('click', () => {
+        ingredientSearchContainer.classList.toggle('d-none');
+        if (!ingredientSearchContainer.classList.contains('d-none')) {
+            ingredientSearch.focus();
+            showIngredientList('');
+        }
+    });
+
+    ingredientSearch.addEventListener('input', () => {
+        const keyword = ingredientSearch.value.toLowerCase();
+        showIngredientList(keyword);
+    });
+
+    function showIngredientList(keyword) {
+        ingredientList.innerHTML = '';
+        ingredients
+            .filter(item => item.toLowerCase().includes(keyword))
+            .forEach(item => {
+                const el = document.createElement('button');
+                el.className = 'list-group-item list-group-item-action p-2';
+                el.style.fontSize = '14px';
+                el.textContent = item;
+                el.onclick = () => addIngredient(item);
+                ingredientList.appendChild(el);
+            });
+    }
+
+    function addIngredient(name) {
+        const div = document.createElement('div');
+        div.className = 'd-flex align-items-center mb-3 ingredient-item';
+        div.innerHTML = `
+            <div class="me-3"><i class="fas fa-bars"></i></div>
+            <div class="flex-grow-1">
+                <input type="text" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="name" value="${name}" placeholder="Tên nguyên liệu" required>
+                <div class="invalid-feedback">Vui lòng nhập tên nguyên liệu</div>
+                <input type="text" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="description" placeholder="Mô tả (tùy chọn)">
+            </div>
+            <div class="ms-2">
+                <button type="button" class="btn btn-link text-danger remove-ingredient" tabindex="-1">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        selectedIngredients.appendChild(div);
+        ingredientCount++;
+        ingredientSearch.value = '';
+        ingredientList.innerHTML = '';
+        ingredientSearchContainer.classList.add('d-none');
+    }
+
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-ingredient')) {
+            const ingredientItem = e.target.closest('.ingredient-item');
+            ingredientItem.remove();
+            ingredientCount--;
+        }
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!ingredientSearchContainer.contains(event.target) && !toggleIngredientSearch.contains(event.target)) {
             ingredientSearchContainer.classList.add('d-none');
         }
+    });
 
-        document.addEventListener('click', (event) => {
-            if (!ingredientSearchContainer.contains(event.target) && !toggleIngredientSearch.contains(event.target)) {
-                ingredientSearchContainer.classList.add('d-none');
+    document.getElementById('recipeForm').addEventListener('submit', function(e) {
+        const ingredientItems = document.querySelectorAll("#selectedIngredients .ingredient-item");
+        if (ingredientItems.length === 0) {
+            alert('Vui lòng thêm ít nhất một nguyên liệu');
+            e.preventDefault();
+            return false;
+        }
+        const stepItems = document.querySelectorAll("#stepsContainer .step-item");
+        if (stepItems.length === 0) {
+            alert('Vui lòng thêm ít nhất một bước làm');
+            e.preventDefault();
+            return false;
+        }
+        let valid = true;
+        ingredientItems.forEach(item => {
+            const nameInput = item.querySelector("input[name='name']");
+            if (!nameInput.value) {
+                nameInput.classList.add('is-invalid');
+                valid = false;
+            } else {
+                nameInput.classList.remove('is-invalid');
             }
         });
-    </script>
+        stepItems.forEach(item => {
+            const descInput = item.querySelector("textarea[name='description']");
+            if (!descInput.value) {
+                descInput.classList.add('is-invalid');
+                valid = false;
+            } else {
+                descInput.classList.remove('is-invalid');
+            }
+        });
+        if (!valid) {
+            alert('Vui lòng điền đầy đủ các trường bắt buộc');
+            e.preventDefault();
+            return false;
+        }
+    });
+</script>
 </body>
 </html>
