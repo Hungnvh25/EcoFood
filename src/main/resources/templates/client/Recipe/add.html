@@ -52,7 +52,7 @@
                             <textarea class="form-control bg-warning bg-opacity-25 border-0 py-3" rows="4" placeholder="Hãy chia sẻ ý tưởng tạo ra món ăn này" th:field="*{description}"></textarea>
                         </div>
                         <div class="row">
-                            <div class="col-3 mb-3 position-relative">
+                            <div class="col-4 mb-3 position-relative">
                                 <select class="form-control bg-warning bg-opacity-25 border-0 py-2 pe-4" name="difficulty">
                                     <option value="">Độ khó</option>
                                     <option value="Dễ">Dễ</option>
@@ -61,7 +61,7 @@
                                 </select>
                                 <i class="fas fa-angle-down position-absolute end-0 top-50 translate-middle-y me-4 text-muted pointer-events-none"></i>
                             </div>
-                            <div class="col-3 mb-3 position-relative">
+                            <div class="col-4 mb-3 position-relative">
                                 <select class="form-control bg-warning bg-opacity-25 border-0 py-2 pe-4" name="mealType">
                                     <option value="">Bữa ăn</option>
                                     <option value="Bữa sáng">Bữa sáng</option>
@@ -92,9 +92,8 @@
                                     <div class="me-3"><i class="fas fa-bars"></i></div>
                                     <div class="flex-grow-1">
                                         <input type="text" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="name" th:value="${ingredient.name}" placeholder="Tên nguyên liệu" required>
+                                        <input type="hidden" name="ingredientId" th:value="${ingredient.id}">
                                         <div class="invalid-feedback">Vui lòng nhập tên nguyên liệu</div>
-                                        <input type="text" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="description" th:value="${ingredient.description}" placeholder="Mô tả (tùy chọn)">
-                                        <input type="hidden" name="id" th:value="${ingredient.id}" th:if="${ingredient.id != null}">
                                     </div>
                                     <div class="ms-2">
                                         <button type="button" class="btn btn-link text-danger remove-ingredient" tabindex="-1">
@@ -132,7 +131,7 @@
                                     <div class="d-flex align-items-center mb-2">
                                         <div class="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center me-2 step-number" style="width: 30px; height: 30px;" th:text="${iterStat.count}"></div>
                                         <div class="flex-grow-1">
-                                            <textarea class="form-control bg-warning bg-opacity-25 border-0 rounded p-2" placeholder="Nhập mô tả bước làm..." name="description" th:text="${instruction.description}" required></textarea>
+                                            <textarea class="form-control bg-warning bg-opacity-25 border-0 rounded p-2" placeholder="Nhập mô tả bước làm..." name="instructionDescriptions" th:text="${instruction.description}" required></textarea>
                                             <div class="invalid-feedback">Vui lòng nhập mô tả bước</div>
                                             <input type="hidden" name="step" th:value="${iterStat.count}">
                                         </div>
@@ -224,7 +223,7 @@
             <div class="d-flex align-items-center mb-2">
                 <div class="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center me-2 step-number" style="width: 30px; height: 30px;">${stepCount}</div>
                 <div class="flex-grow-1">
-                    <textarea class="form-control bg-warning bg-opacity-25 border-0 rounded p-2" placeholder="Nhập mô tả bước làm..." name="description" required></textarea>
+                    <textarea class="form-control bg-warning bg-opacity-25 border-0 rounded p-2" placeholder="Nhập mô tả bước làm..." name="instructionDescriptions" required></textarea>
                     <div class="invalid-feedback">Vui lòng nhập mô tả bước</div>
                     <input type="hidden" name="step" value="${stepCount}">
                 </div>
@@ -299,7 +298,6 @@
 
 <!-- Quản lý nguyên liệu -->
 <script>
-    const ingredients = ["Bột gạo", "Trứng", "Đường", "Sữa", "Muối", "Thịt gà", "Thịt bò", "Rau cải", "Cà rốt", "Khoai tây"];
     const ingredientSearch = document.getElementById('ingredientSearch');
     const ingredientList = document.getElementById('ingredientList');
     const selectedIngredients = document.getElementById('selectedIngredients');
@@ -322,28 +320,31 @@
     });
 
     function showIngredientList(keyword) {
-        ingredientList.innerHTML = '';
-        ingredients
-            .filter(item => item.toLowerCase().includes(keyword))
-            .forEach(item => {
-                const el = document.createElement('button');
-                el.className = 'list-group-item list-group-item-action p-2';
-                el.style.fontSize = '14px';
-                el.textContent = item;
-                el.onclick = () => addIngredient(item);
-                ingredientList.appendChild(el);
-            });
+        fetch(`/api/ingredients/search?keyword=${encodeURIComponent(keyword)}`)
+            .then(response => response.json())
+            .then(data => {
+                ingredientList.innerHTML = '';
+                data.forEach(item => {
+                    const el = document.createElement('button');
+                    el.className = 'list-group-item list-group-item-action p-2';
+                    el.style.fontSize = '14px';
+                    el.textContent = item.name;
+                    el.onclick = () => addIngredient(item);
+                    ingredientList.appendChild(el);
+                });
+            })
+            .catch(error => console.error('Error:', error));
     }
 
-    function addIngredient(name) {
+    function addIngredient(ingredient) {
         const div = document.createElement('div');
         div.className = 'd-flex align-items-center mb-3 ingredient-item';
         div.innerHTML = `
             <div class="me-3"><i class="fas fa-bars"></i></div>
             <div class="flex-grow-1">
-                <input type="text" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="name" value="${name}" placeholder="Tên nguyên liệu" required>
+                <input type="text" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="name" value="${ingredient.name}" placeholder="Tên nguyên liệu" required>
+                <input type="hidden" name="ingredientId" value="${ingredient.id}">
                 <div class="invalid-feedback">Vui lòng nhập tên nguyên liệu</div>
-                <input type="text" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="description" placeholder="Mô tả (tùy chọn)">
             </div>
             <div class="ms-2">
                 <button type="button" class="btn btn-link text-danger remove-ingredient" tabindex="-1">
@@ -396,7 +397,7 @@
             }
         });
         stepItems.forEach(item => {
-            const descInput = item.querySelector("textarea[name='description']");
+            const descInput = item.querySelector("textarea[name='instructionDescriptions']");
             if (!descInput.value) {
                 descInput.classList.add('is-invalid');
                 valid = false;

@@ -3,8 +3,12 @@ package com.example.ecofood.controller.client;
 import com.example.ecofood.domain.Ingredient;
 import com.example.ecofood.domain.Instruction;
 import com.example.ecofood.domain.Recipe;
+import com.example.ecofood.service.IngredientService;
 import com.example.ecofood.service.RecipeService;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,27 +19,33 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Controller
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RecipeController {
 
-    private final RecipeService recipeService;
+    RecipeService recipeService;
+    IngredientService ingredientService;
 
-    public RecipeController(RecipeService recipeService) {
-        this.recipeService = recipeService;
-    }
+
 
     @GetMapping("/recipe")
     public String showCreateForm(Model model) {
+        List<Ingredient> ingredients = this.ingredientService.findAll();
         Recipe recipe = new Recipe();
         recipe.setIngredients(new HashSet<>());
         recipe.setInstructions(new HashSet<>());
         model.addAttribute("recipe", recipe);
+        model.addAttribute("ingredients", ingredients);
         return "client/Recipe/add";
+    }
+
+    @GetMapping("/api/ingredients/search")
+    @ResponseBody
+    public List<Ingredient> searchIngredients(@RequestParam("keyword") String keyword) {
+        return this.ingredientService.findAllByNameContaining(keyword);
     }
 
     @PostMapping("/recipes")
@@ -43,24 +53,11 @@ public class RecipeController {
             @Valid @ModelAttribute Recipe recipe,
             BindingResult result,
             @RequestParam("imageFile") MultipartFile imageFile,
-            @RequestParam(value = "name", required = false) List<String> ingredientNames,
-            @RequestParam(value = "description", required = false) List<String> ingredientDescriptions,
-            @RequestParam(value = "id", required = false) List<Long> ingredientIds,
-            @RequestParam(value = "description", required = false) List<String> instructionDescriptions,
-            @RequestParam(value = "step", required = false) List<Long> instructionSteps,
-            @RequestParam(value = "image", required = false) List<MultipartFile> instructionImages,
-            @RequestParam(value = "imageUrl", required = false) List<String> instructionImageUrls) throws IOException {
+            @RequestParam(value = "ingredientId", required = false) List<Long> ingredientIds,
+            @RequestParam(value = "instructionDescriptions", required = false) List<String> instructionDescriptions,
+            @RequestParam(value = "image", required = false) List<MultipartFile> instructionImages) {
 
-        if (result.hasErrors()) {
-            System.err.println("Validation errors: " + result.getAllErrors());
-            return "client/Recipe/add";
-        }
-
-
-
-        // Save recipe
-        recipeService.save(recipe);
-
+        // Xử lý các phần khác như imageFile, instructions...
         return "client/Recipe/add";
     }
 }

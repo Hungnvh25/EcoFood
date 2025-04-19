@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -31,6 +33,10 @@ public class IngredientService {
     public  Ingredient findAllById(Long id){
         return this.ingredientRepository.findAllById(id);
     }
+    public List<Ingredient> findAll(){
+        return this.ingredientRepository.findAll();
+    }
+
     public long getTotalIngredients() {
         return ingredientRepository.count();
     }
@@ -50,6 +56,10 @@ public class IngredientService {
 
         this.ingredientRepository.save(ingredient1);
 
+    }
+
+    public List<Ingredient> findAllByNameContaining(String name){
+        return this.ingredientRepository.findAllByNameContaining(name);
     }
 
     public void deleteIngredient(Long id) {
