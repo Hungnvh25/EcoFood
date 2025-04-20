@@ -1,6 +1,9 @@
 package com.example.ecofood.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -19,11 +22,17 @@ public class Ingredient {
     Long id;
 
     String name;
+
     String description;
 
+    String urlImage;
+
     Float caloriesPer100g;
+
     Float proteinPer100g;
+
     Float fatPer100g;
+
     Float carbohydratesPer100g;
 
 

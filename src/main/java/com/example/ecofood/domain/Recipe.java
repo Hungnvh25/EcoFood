@@ -1,4 +1,5 @@
 package com.example.ecofood.domain;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -6,6 +7,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -46,36 +48,34 @@ public class Recipe {
     Float totalCarbohydrates;
 
     @ElementCollection
-    Set<Instruction> instructions;
+    Set<Instruction> instructions = new HashSet<>(); // Initialized
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
-
+    User user;
 
     @ManyToOne
     @JoinColumn(name = "cookSnap_id")
-    private CookSnap cookSnap;
+    CookSnap cookSnap;
 
     @ManyToMany(mappedBy = "recipes")
-    private Set<CookUtensil> cookUtensils;
+    Set<CookUtensil> cookUtensils = new HashSet<>();
 
     @OneToMany(mappedBy = "recipe")
-    private Set<Comment> comments;
+    Set<Comment> comments = new HashSet<>();
 
     @OneToMany(mappedBy = "recipe")
-    private Set<Audio> audios;
+    Set<Audio> audios = new HashSet<>();
 
     @ManyToMany(mappedBy = "recipes")
-    private Set<Category> categories;
+    Set<Category> categories = new HashSet<>();
 
     @ManyToMany(mappedBy = "recipes")
-    private Set<Ingredient> ingredients;
+    Set<Ingredient> ingredients = new HashSet<>(); // Initialized
 
     @ManyToOne
     @JoinColumn(name = "collection_id")
-    private Collection collection;
-
+    Collection collection;
 
     @PrePersist
     protected void onCreate() {
@@ -86,7 +86,4 @@ public class Recipe {
     protected void onUpdate() {
         updatedDate = LocalDate.now();
     }
-
-
-
 }

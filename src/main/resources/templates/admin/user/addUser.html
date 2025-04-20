@@ -19,70 +19,74 @@
 
     <!-- Main content -->
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-      <!-- Header content -->
-      <th:block th:replace="~{admin/layout/header :: header-content}"></th:block>
+      <!-- Import header content -->
+      <div class="w-100">
+        <th:block th:replace="~{admin/layout/header :: header-content}"></th:block>
+      </div>
 
       <!-- Form Add User -->
-      <div class="mt-4">
-        <h2>Add New User</h2>
+      <div class="d-flex justify-content-center align-items-center">
+        <div class="mt-4 col-md-6">
+          <h2 class="text-center">Add New User</h2>
 
-        <!-- Display Error/Success Messages -->
-        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-          <span th:text="${error}"></span>
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-          <span th:text="${success}"></span>
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+          <!-- Display Error/Success Messages -->
+          <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+          <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
 
-        <!-- Form -->
-        <form th:action="@{/admin/user/create}" th:object="${newUser}" method="post" class="mt-4">
-          <div class="row">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="userName" class="form-label">Username</label>
-                <input type="text" class="form-control" id="userName" th:field="*{userName}" placeholder="Username">
-                <span th:if="${#fields.hasErrors('userName')}" th:errors="*{userName}" class="text-danger"></span>
-              </div>
+          <!-- Form -->
+          <form th:action="@{/admin/user/add}" th:object="${newUser}" method="post" class="mt-4">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="mb-3">
+                  <label for="userName" class="form-label">Username</label>
+                  <input type="text" class="form-control" id="userName" th:field="*{userName}" placeholder="Username">
+                  <span th:if="${#fields.hasErrors('userName')}" th:errors="*{userName}" class="text-danger"></span>
+                </div>
 
-              <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" th:field="*{email}" placeholder="Email">
-                <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></span>
-              </div>
+                <div class="mb-3">
+                  <label for="email" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="email" th:field="*{email}" placeholder="Email">
+                  <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></span>
+                </div>
 
-              <div class="mb-3">
-                <label for="passwordHash" class="form-label">Password</label>
-                <input type="password" class="form-control" id="passwordHash" th:field="*{passwordHash}" placeholder="Password">
-                <span th:if="${#fields.hasErrors('passwordHash')}" th:errors="*{passwordHash}" class="text-danger"></span>
-              </div>
+                <div class="mb-3">
+                  <label for="passwordHash" class="form-label">Password</label>
+                  <input type="password" class="form-control" id="passwordHash" th:field="*{passwordHash}" placeholder="Password">
+                  <span th:if="${#fields.hasErrors('passwordHash')}" th:errors="*{passwordHash}" class="text-danger"></span>
+                </div>
 
-              <div class="mb-3">
-                <label for="role" class="form-label">Role</label>
-                <select class="form-select" id="role" th:field="*{role}">
-                  <option value="CUSTOMER">CUSTOMER</option>
-                  <option value="ADMIN">ADMIN</option>
-                </select>
-                <span th:if="${#fields.hasErrors('role')}" th:errors="*{role}" class="text-danger"></span>
-              </div>
+                <div class="mb-3">
+                  <label for="role" class="form-label">Role</label>
+                  <select class="form-select" id="role" th:field="*{role}">
+                    <option value="CUSTOMER">CUSTOMER</option>
+                    <option value="ADMIN">ADMIN</option>
+                  </select>
+                  <span th:if="${#fields.hasErrors('role')}" th:errors="*{role}" class="text-danger"></span>
+                </div>
 
-              <div class="mb-3">
-                <label for="premium" class="form-label">Premium</label>
-                <select class="form-select" id="premium" th:field="*{premium}">
-                  <option value="true">True</option>
-                  <option value="false">False</option>
-                </select>
-                <span th:if="${#fields.hasErrors('premium')}" th:errors="*{premium}" class="text-danger"></span>
-              </div>
+                <div class="mb-3">
+                  <label for="premium" class="form-label">Premium</label>
+                  <select class="form-select" id="premium" th:field="*{premium}">
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                  </select>
+                  <span th:if="${#fields.hasErrors('premium')}" th:errors="*{premium}" class="text-danger"></span>
+                </div>
 
-              <div class="d-flex justify-content-between gap-3 mb-2">
-                <a href="/admin/user" class="btn btn-secondary w-50">Back</a>
-                <button type="submit" class="btn btn-primary w-50">Add User</button>
+                <div class="d-flex justify-content-between gap-3 mb-2">
+                  <a href="/admin/user" class="btn btn-secondary w-50">Back</a>
+                  <button type="submit" class="btn btn-primary w-50">Add User</button>
+                </div>
               </div>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </main>
   </div>
