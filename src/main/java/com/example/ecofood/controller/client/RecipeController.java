@@ -33,12 +33,8 @@ public class RecipeController {
 
     @GetMapping("/recipe")
     public String showCreateForm(Model model) {
-        List<Ingredient> ingredients = this.ingredientService.findAll();
         Recipe recipe = new Recipe();
-        recipe.setIngredients(new HashSet<>());
-        recipe.setInstructions(new HashSet<>());
         model.addAttribute("recipe", recipe);
-        model.addAttribute("ingredients", ingredients);
         return "client/Recipe/add";
     }
 
@@ -54,8 +50,13 @@ public class RecipeController {
             BindingResult result,
             @RequestParam("imageFile") MultipartFile imageFile,
             @RequestParam(value = "ingredientId", required = false) List<Long> ingredientIds,
+            @RequestParam(value = "ingredientQuantities", required = false) List<Float> ingredientQuantities,
+            @RequestParam(value = "ingredientUnits", required = false) List<String> ingredientUnits,
             @RequestParam(value = "instructionDescriptions", required = false) List<String> instructionDescriptions,
             @RequestParam(value = "image", required = false) List<MultipartFile> instructionImages) {
+
+
+
 
         // Xử lý các phần khác như imageFile, instructions...
         return "client/Recipe/add";

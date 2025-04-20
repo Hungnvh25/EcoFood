@@ -27,6 +27,11 @@ public class Ingredient {
 
     String urlImage;
 
+    Float quantity;
+
+    @Enumerated(EnumType.STRING)
+    Unit unit;
+
     Float caloriesPer100g;
 
     Float proteinPer100g;
@@ -51,5 +56,14 @@ public class Ingredient {
             inverseJoinColumns = @JoinColumn(name = "allergen_id")
     )
     private Set<Allergen> allergens;
+
+
+    public enum Unit {
+        GRAM,
+        ML,
+        PIECE,
+        TABLESPOON,
+        TEASPOON
+    }
 
 }

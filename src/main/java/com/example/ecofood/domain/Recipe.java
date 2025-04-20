@@ -35,6 +35,9 @@ public class Recipe {
 
     String imageUrl;
 
+    String difficulty ;
+
+    String mealType ;
     LocalDate createdDate = LocalDate.now();
 
     LocalDate updatedDate;
