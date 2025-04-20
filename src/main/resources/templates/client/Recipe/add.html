@@ -86,24 +86,23 @@
                         </div>
                         <div id="selectedIngredients" class="mt-4">
                             <!-- Existing ingredients -->
-                            <th:block th:each="ingredient, iterStat : ${recipe.ingredients}">
+                            <th:block th:each="RecipeIngredient, iterStat : ${recipe.getRecipeIngredients}">
                                 <div class="d-flex align-items-center mb-3 ingredient-item">
                                     <div class="me-3"><i class="fas fa-bars"></i></div>
                                     <div class="flex-grow-1">
-                                        <input type="text" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="name" th:value="${ingredient.name}" placeholder="Tên nguyên liệu" required>
-                                        <input type="hidden" name="ingredientId" th:value="${ingredient.id}">
+                                        <input type="text" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="name" th:value="${RecipeIngredient.ingredient.name}" placeholder="Tên nguyên liệu" required>                                        <input type="hidden" name="ingredientId" th:value="${ingredient.id}">
                                         <div class="row">
                                             <div class="col-6">
-                                                <input type="number" step="0.1" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="ingredientQuantities" th:value="${ingredient.quantity}" placeholder="Số lượng" required>
+                                                <input type="number" step="0.1" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="ingredientQuantities" th:value="${RecipeIngredient.quantity}" placeholder="Số lượng" required>
                                             </div>
                                             <div class="col-6 position-relative">
                                                 <select class="form-control bg-warning bg-opacity-25 border-0 mb-2 pe-4" name="ingredientUnits" required>
-                                                    <option value="" th:text="'Chọn đơn vị'" th:selected="${ingredient.unit == null}"></option>
-                                                    <option value="GRAM" th:selected="${ingredient.unit == 'GRAM'}">Gram</option>
-                                                    <option value="ML" th:selected="${ingredient.unit == 'ML'}">ml</option>
-                                                    <option value="PIECE" th:selected="${ingredient.unit == 'PIECE'}">Cái</option>
-                                                    <option value="TABLESPOON" th:selected="${ingredient.unit == 'TABLESPOON'}">Thìa canh</option>
-                                                    <option value="TEASPOON" th:selected="${ingredient.unit == 'TEASPOON'}">Thìa cà phê</option>
+                                                    <option value="" th:text="'Chọn đơn vị'" th:selected="${RecipeIngredient.unit == null}"></option>
+                                                    <option value="GRAM" th:selected="${RecipeIngredient.unit == 'GRAM'}">Gram</option>
+                                                    <option value="ML" th:selected="${RecipeIngredient.unit == 'ML'}">ml</option>
+                                                    <option value="PIECE" th:selected="${RecipeIngredient.unit == 'PIECE'}">Cái</option>
+                                                    <option value="TABLESPOON" th:selected="${RecipeIngredient.unit == 'TABLESPOON'}">Thìa canh</option>
+                                                    <option value="TEASPOON" th:selected="${RecipeIngredient.unit == 'TEASPOON'}">Thìa cà phê</option>
                                                 </select>
                                                 <i class="fas fa-angle-down position-absolute end-0 top-50 translate-middle-y me-4 text-muted pointer-events-none"></i>
                                             </div>

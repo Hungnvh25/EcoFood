@@ -1,7 +1,9 @@
 package com.example.ecofood.service;
 
 import com.example.ecofood.domain.Ingredient;
+import com.example.ecofood.domain.Instruction;
 import com.example.ecofood.domain.Recipe;
+import com.example.ecofood.domain.RecipeIngredient;
 import com.example.ecofood.repository.IngredientRepository;
 import com.example.ecofood.repository.RecipeRepository;
 import lombok.AccessLevel;
@@ -31,21 +33,48 @@ import java.util.Set;
                              List<String> instructionDescriptions,
                              List<MultipartFile> instructionImages) {
 
-        // lưu các bước làm
-        try {
-            this.imageService.saveImage(imageFile,"Recipe");
 
+        try {
+           String imageUrlRecipe =  this.imageService.saveImage(imageFile,"Recipe");
+            recipe.setImageUrl(imageUrlRecipe);
+            HashSet<RecipeIngredient> recipeIngredientHashSet = new HashSet<>();
+            // lưu nguyên liệu
             for (int i = 0; i < ingredientIds.size(); i++) {
 
+                Ingredient ingredient = this.ingredientRepository.findAllById(ingredientIds.get(i));
 
+                RecipeIngredient recipeIngredient = RecipeIngredient.builder()
+                        .ingredient(ingredient)
+                        .recipe(recipe)
+                        .quantity(ingredientQuantities.get(i))
+                        .unit(RecipeIngredient.Unit.valueOf(ingredientUnits.get(i)))
+                        .build();
+                recipeIngredientHashSet.add(recipeIngredient);
             }
+
+            recipe.setRecipeIngredients(recipeIngredientHashSet);
+
+            // Lưu bước làm
+
+            HashSet<Instruction> instructionHashSet = new HashSet<>();
+            for (int i = 0; i < instructionDescriptions.size(); i++) {
+
+                String imageUrl = this.imageService.saveImage(instructionImages.get(i),"instruction");
+                Instruction instruction = Instruction.builder()
+                        .imageUrl(imageUrl)
+                        .description(instructionDescriptions.get(i))
+                        .build();
+                instructionHashSet.add(instruction);
+            }
+            recipe.setInstructions(instructionHashSet);
+
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
 
-        recipeRepository.save(recipe);
+        this.recipeRepository.save(recipe);
     }
 
 }

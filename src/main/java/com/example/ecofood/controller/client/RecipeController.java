@@ -55,8 +55,11 @@ public class RecipeController {
             @RequestParam(value = "instructionDescriptions", required = false) List<String> instructionDescriptions,
             @RequestParam(value = "image", required = false) List<MultipartFile> instructionImages) {
 
+        if (result.hasErrors()) {
+            return "client/Recipe/add";
+        }
 
-
+        this.recipeService.createRecipe(recipe,imageFile,ingredientIds,ingredientQuantities,ingredientUnits,instructionDescriptions,instructionImages);
 
         // Xử lý các phần khác như imageFile, instructions...
         return "client/Recipe/add";

@@ -73,8 +73,8 @@ public class Recipe {
     @ManyToMany(mappedBy = "recipes")
     Set<Category> categories = new HashSet<>();
 
-    @ManyToMany(mappedBy = "recipes")
-    Set<Ingredient> ingredients = new HashSet<>(); // Initialized
+    @OneToMany(mappedBy = "recipe",cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<RecipeIngredient> recipeIngredients = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "collection_id")

@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -27,10 +28,7 @@ public class Ingredient {
 
     String urlImage;
 
-    Float quantity;
 
-    @Enumerated(EnumType.STRING)
-    Unit unit;
 
     Float caloriesPer100g;
 
@@ -41,13 +39,8 @@ public class Ingredient {
     Float carbohydratesPer100g;
 
 
-    @ManyToMany
-    @JoinTable(
-            name = "recipe_ingredient",
-            joinColumns = @JoinColumn(name = "ingredient_id"),
-            inverseJoinColumns = @JoinColumn(name = "recipe_id")
-    )
-    private Set<Recipe> recipes;
+    @OneToMany(mappedBy = "ingredient")
+    Set<RecipeIngredient> recipeIngredients = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
@@ -57,13 +50,5 @@ public class Ingredient {
     )
     private Set<Allergen> allergens;
 
-
-    public enum Unit {
-        GRAM,
-        ML,
-        PIECE,
-        TABLESPOON,
-        TEASPOON
-    }
 
 }
