@@ -1,5 +1,7 @@
 package com.example.ecofood.controller.client;
 
+import com.example.ecofood.domain.DTO.IngredientDTO;
+import com.example.ecofood.domain.DTO.RecipeDTO;
 import com.example.ecofood.domain.Ingredient;
 import com.example.ecofood.domain.Instruction;
 import com.example.ecofood.domain.Recipe;
@@ -20,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -40,8 +43,15 @@ public class RecipeController {
 
     @GetMapping("/api/ingredients/search")
     @ResponseBody
-    public List<Ingredient> searchIngredients(@RequestParam("keyword") String keyword) {
-        return this.ingredientService.findAllByNameContaining(keyword);
+    public List<IngredientDTO> searchIngredients(@RequestParam("keyword") String keyword) {
+        List<Ingredient> ingredients = this.ingredientService.findAllByNameContaining(keyword);
+
+        return ingredients.stream()
+                .map(ingredient -> IngredientDTO.builder()
+                        .id(ingredient.getId())
+                        .name(ingredient.getName())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @PostMapping("/recipes")
@@ -61,8 +71,7 @@ public class RecipeController {
 
         this.recipeService.createRecipe(recipe,imageFile,ingredientIds,ingredientQuantities,ingredientUnits,instructionDescriptions,instructionImages);
 
-        // Xử lý các phần khác như imageFile, instructions...
-        return "client/Recipe/add";
+        return "redirect:/recipe";
     }
 }
 

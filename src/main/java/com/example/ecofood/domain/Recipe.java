@@ -1,8 +1,6 @@
 package com.example.ecofood.domain;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -35,20 +33,20 @@ public class Recipe {
 
     String imageUrl;
 
-    String difficulty ;
+    String difficulty;
 
-    String mealType ;
+    String mealType;
     LocalDate createdDate = LocalDate.now();
 
     LocalDate updatedDate;
 
-    Float totalCalories;
+    Float totalCalories = 0.0f;
 
-    Float totalProtein;
+    Float totalProtein = 0.0f;
 
-    Float totalFat;
+    Float totalFat = 0.0f;
 
-    Float totalCarbohydrates;
+    Float totalCarbohydrates = 0.0f;
 
     @ElementCollection
     Set<Instruction> instructions = new HashSet<>(); // Initialized
@@ -73,7 +71,7 @@ public class Recipe {
     @ManyToMany(mappedBy = "recipes")
     Set<Category> categories = new HashSet<>();
 
-    @OneToMany(mappedBy = "recipe",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     Set<RecipeIngredient> recipeIngredients = new HashSet<>();
 
     @ManyToOne

@@ -28,7 +28,7 @@ public class Ingredient {
 
     String urlImage;
 
-
+    Float avgG;
 
     Float caloriesPer100g;
 
