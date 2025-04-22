@@ -1,10 +1,9 @@
 package com.example.ecofood.service;
 
+import com.example.ecofood.domain.*;
+import com.example.ecofood.domain.DTO.InstructionDTO;
 import com.example.ecofood.domain.DTO.RecipeDTO;
-import com.example.ecofood.domain.Ingredient;
-import com.example.ecofood.domain.Instruction;
-import com.example.ecofood.domain.Recipe;
-import com.example.ecofood.domain.RecipeIngredient;
+import com.example.ecofood.domain.DTO.RecipeIngredientDTO;
 import com.example.ecofood.repository.IngredientRepository;
 import com.example.ecofood.repository.RecipeRepository;
 import lombok.AccessLevel;
@@ -16,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +25,43 @@ public class RecipeService {
     RecipeRepository recipeRepository;
     IngredientRepository ingredientRepository;
     ImageService imageService;
+    UserService userService;
+
+
+
+    public List<RecipeDTO> getAllRecipes() {
+        return recipeRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private RecipeDTO convertToDTO(Recipe recipe) {
+        return RecipeDTO.builder()
+                .id(recipe.getId())
+                .title(recipe.getTitle())
+                .description(recipe.getDescription())
+                .preparationTime(recipe.getPreparationTime())
+                .cookingTime(recipe.getCookingTime())
+                .servingSize(recipe.getServingSize())
+                .imageUrl(recipe.getImageUrl())
+                .difficulty(recipe.getDifficulty())
+                .mealType(recipe.getMealType())
+                .createdDate(recipe.getCreatedDate())
+                .updatedDate(recipe.getUpdatedDate())
+                .totalCalories(recipe.getTotalCalories())
+                .totalProtein(recipe.getTotalProtein())
+                .totalFat(recipe.getTotalFat())
+                .totalCarbohydrates(recipe.getTotalCarbohydrates())
+                .user(recipe.getUser())
+                .instructions(recipe.getInstructions().stream()
+                        .map(instruction -> new InstructionDTO(/* map fields */))
+                        .collect(Collectors.toSet()))
+                .recipeIngredients(recipe.getRecipeIngredients().stream()
+                        .map(ingredient -> new RecipeIngredientDTO(/* map fields */))
+                        .collect(Collectors.toSet()))
+                .build();
+    }
+
 
     public void createRecipe(Recipe recipe, MultipartFile imageFile,
                              List<Long> ingredientIds,
@@ -38,6 +75,10 @@ public class RecipeService {
         try {
             String imageUrlRecipe = this.imageService.saveImage(imageFile, "Recipe");
             recipe.setImageUrl(imageUrlRecipe);
+            User user = this.userService.getCurrentUser();
+
+            recipe.setUser(user);
+
             HashSet<RecipeIngredient> recipeIngredientHashSet = new HashSet<>();
             // lưu nguyên liệu
             for (int i = 0; i < ingredientIds.size(); i++) {

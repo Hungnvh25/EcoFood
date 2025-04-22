@@ -3,8 +3,10 @@ package com.example.ecofood.controller.client;
 
 import com.example.ecofood.auth.JwtUtil;
 import com.example.ecofood.domain.DTO.LoginDTO;
+import com.example.ecofood.domain.DTO.RecipeDTO;
 import com.example.ecofood.domain.DTO.UserDTO;
 import com.example.ecofood.domain.User;
+import com.example.ecofood.service.RecipeService;
 import com.example.ecofood.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,18 +25,26 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class HomePage {
 
     UserService userService;
+    RecipeService recipeService;
 
     @GetMapping ("/")
     public String getEcoFood(Model model, HttpServletRequest request,HttpSession session){
         // lưu currentUser
         User user = this.userService.getCurrentUser();
         session.setAttribute("currentUser", user);
+
+        // Lấy danh sách recipes từ service
+        List<RecipeDTO> recipes = this.recipeService.getAllRecipes();
+        model.addAttribute("recipes", recipes);
+
         return "index";
     }
 

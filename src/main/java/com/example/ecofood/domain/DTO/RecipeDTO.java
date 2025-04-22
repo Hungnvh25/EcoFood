@@ -33,7 +33,7 @@ public class RecipeDTO {
     Float totalCarbohydrates;
 
     Set<InstructionDTO> instructions = new HashSet<>();
-    Long userId;
+    User user;
     Long cookSnapId;
     Set<RecipeIngredientDTO> recipeIngredients = new HashSet<>();
     Long collectionId;
