@@ -27,8 +27,7 @@
             </div>
 
             <!-- Main Content -->
-            <form id="recipeForm" th:object="${recipe}" th:action="@{/recipes}" method="post" enctype="multipart/form-data">
-                <input type="hidden" th:field="*{id}">
+            <form id="recipeForm" th:action="@{/recipes}" method="post" enctype="multipart/form-data">
                 <div class="row">
                     <!-- Left Column - Food Image -->
                     <div class="col-md-5 mb-4">
@@ -39,34 +38,34 @@
                             </div>
                         </div>
                         <input type="file" id="imageInput" accept="image/*" class="d-none" name="imageFile">
-                        <input type="hidden" th:field="*{imageUrl}">
+                        <input type="hidden" name="imageUrl" th:value="${recipe.imageUrl}">
                     </div>
 
                     <!-- Right Column - Form Fields -->
                     <div class="col-md-7 mb-4">
                         <div class="mb-3">
-                            <input type="text" class="form-control bg-warning bg-opacity-25 border-0 py-3" placeholder="Nhập tên món ăn" th:field="*{title}" required>
-                            <div class="invalid-feedback" th:errors="*{title}"></div>
+                            <input type="text" class="form-control bg-warning bg-opacity-25 border-0 py-3" placeholder="Nhập tên món ăn" name="title" th:value="${recipe.title}" required>
+                            <div class="invalid-feedback">Vui lòng nhập tên món ăn</div>
                         </div>
                         <div class="mb-3">
-                            <textarea class="form-control bg-warning bg-opacity-25 border-0 py-3" rows="4" placeholder="Hãy chia sẻ ý tưởng tạo ra món ăn này" th:field="*{description}"></textarea>
+                            <textarea class="form-control bg-warning bg-opacity-25 border-0 py-3" rows="4" placeholder="Hãy chia sẻ ý tưởng tạo ra món ăn này" name="description" th:text="${recipe.description}"></textarea>
                         </div>
                         <div class="row">
                             <div class="col-4 mb-3 position-relative">
                                 <select class="form-control bg-warning bg-opacity-25 border-0 py-2 pe-4" name="difficulty">
                                     <option value="">Độ khó</option>
-                                    <option value="Dễ">Dễ</option>
-                                    <option value="Trung bình">Trung bình</option>
-                                    <option value="Khó">Khó</option>
+                                    <option value="Dễ" th:selected="${recipe.difficulty == 'Dễ'}">Dễ</option>
+                                    <option value="Trung bình" th:selected="${recipe.difficulty == 'Trung bình'}">Trung bình</option>
+                                    <option value="Khó" th:selected="${recipe.difficulty == 'Khó'}">Khó</option>
                                 </select>
                                 <i class="fas fa-angle-down position-absolute end-0 top-50 translate-middle-y me-4 text-muted pointer-events-none"></i>
                             </div>
                             <div class="col-4 mb-3 position-relative">
                                 <select class="form-control bg-warning bg-opacity-25 border-0 py-2 pe-4" name="mealType">
                                     <option value="">Bữa ăn</option>
-                                    <option value="Bữa sáng">Bữa sáng</option>
-                                    <option value="Bữa trưa">Bữa trưa</option>
-                                    <option value="Bữa tối">Bữa tối</option>
+                                    <option value="Bữa sáng" th:selected="${recipe.mealType == 'Bữa sáng'}">Bữa sáng</option>
+                                    <option value="Bữa trưa" th:selected="${recipe.mealType == 'Bữa trưa'}">Bữa trưa</option>
+                                    <option value="Bữa tối" th:selected="${recipe.mealType == 'Bữa tối'}">Bữa tối</option>
                                 </select>
                                 <i class="fas fa-angle-down position-absolute end-0 top-50 translate-middle-y me-4 text-muted pointer-events-none"></i>
                             </div>
@@ -81,19 +80,34 @@
                         <div class="d-flex align-items-center mb-3">
                             <div class="me-2">Khẩu Phần</div>
                             <div class="flex-grow-1">
-                                <input type="number" class="form-control bg-warning bg-opacity-25 border-0 w-100" placeholder="Nhập số người" th:field="*{servingSize}" required>
-                                <div class="invalid-feedback" th:errors="*{servingSize}"></div>
+                                <input type="number" class="form-control bg-warning bg-opacity-25 border-0 w-100" placeholder="Nhập số người" th:field="*{recipe.servingSize}" required>
+                                <div class="invalid-feedback" th:errors="*{recipe.servingSize}"></div>
                             </div>
                         </div>
                         <div id="selectedIngredients" class="mt-4">
                             <!-- Existing ingredients -->
-                            <th:block th:each="ingredient, iterStat : ${recipe.ingredients}">
+                            <th:block th:each="RecipeIngredient, iterStat : ${recipe.getRecipeIngredients}">
                                 <div class="d-flex align-items-center mb-3 ingredient-item">
                                     <div class="me-3"><i class="fas fa-bars"></i></div>
                                     <div class="flex-grow-1">
-                                        <input type="text" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="name" th:value="${ingredient.name}" placeholder="Tên nguyên liệu" required>
-                                        <input type="hidden" name="ingredientId" th:value="${ingredient.id}">
-                                        <div class="invalid-feedback">Vui lòng nhập tên nguyên liệu</div>
+                                        <input type="text" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="name" th:value="${RecipeIngredient.ingredient.name}" placeholder="Tên nguyên liệu" required>                                        <input type="hidden" name="ingredientId" th:value="${ingredient.id}">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <input type="number" step="0.1" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="ingredientQuantities" th:value="${RecipeIngredient.quantity}" placeholder="Số lượng" required>
+                                            </div>
+                                            <div class="col-6 position-relative">
+                                                <select class="form-control bg-warning bg-opacity-25 border-0 mb-2 pe-4" name="ingredientUnits" required>
+                                                    <option value="" th:text="'Chọn đơn vị'" th:selected="${RecipeIngredient.unit == null}"></option>
+                                                    <option value="GRAM" th:selected="${RecipeIngredient.unit == 'GRAM'}">Gram</option>
+                                                    <option value="ML" th:selected="${RecipeIngredient.unit == 'ML'}">ml</option>
+                                                    <option value="PIECE" th:selected="${RecipeIngredient.unit == 'PIECE'}">Cái</option>
+                                                    <option value="TABLESPOON" th:selected="${RecipeIngredient.unit == 'TABLESPOON'}">Thìa canh</option>
+                                                    <option value="TEASPOON" th:selected="${RecipeIngredient.unit == 'TEASPOON'}">Thìa cà phê</option>
+                                                </select>
+                                                <i class="fas fa-angle-down position-absolute end-0 top-50 translate-middle-y me-4 text-muted pointer-events-none"></i>
+                                            </div>
+                                        </div>
+                                        <div class="invalid-feedback">Vui lòng nhập đầy đủ thông tin nguyên liệu</div>
                                     </div>
                                     <div class="ms-2">
                                         <button type="button" class="btn btn-link text-danger remove-ingredient" tabindex="-1">
@@ -121,8 +135,8 @@
                     <div class="col-md-7">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h4>Các bước</h4>
-                            <input type="number" class="form-control bg-warning bg-opacity-25 border-0 w-50" placeholder="Nhập thời gian nấu phút" th:field="*{cookingTime}" required>
-                            <div class="invalid-feedback" th:errors="*{cookingTime}"></div>
+                            <input type="number" class="form-control bg-warning bg-opacity-25 border-0 w-50" placeholder="Nhập thời gian nấu phút" name="cookingTime" th:value="${recipe.cookingTime}" required>
+                            <div class="invalid-feedback">Vui lòng nhập thời gian nấu</div>
                         </div>
                         <div id="stepsContainer">
                             <!-- Existing instructions -->
@@ -164,8 +178,8 @@
                 </div>
 
                 <!-- Hidden fields -->
-                <input type="hidden" th:field="*{createdDate}" th:if="${recipe.createdDate != null}">
-                <input type="hidden" th:field="*{updatedDate}">
+                <input type="hidden" name="createdDate" th:value="${recipe.createdDate}" th:if="${recipe.createdDate != null}">
+                <input type="hidden" name="updatedDate" th:value="${recipe.updatedDate}">
             </form>
         </div>
         <!-- Sidebar phải -->
@@ -340,18 +354,34 @@
         const div = document.createElement('div');
         div.className = 'd-flex align-items-center mb-3 ingredient-item';
         div.innerHTML = `
-            <div class="me-3"><i class="fas fa-bars"></i></div>
-            <div class="flex-grow-1">
-                <input type="text" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="name" value="${ingredient.name}" placeholder="Tên nguyên liệu" required>
-                <input type="hidden" name="ingredientId" value="${ingredient.id}">
-                <div class="invalid-feedback">Vui lòng nhập tên nguyên liệu</div>
+        <div class="me-3"><i class="fas fa-bars"></i></div>
+        <div class="flex-grow-1">
+            <input type="text" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="name" value="${ingredient.name}" placeholder="Tên nguyên liệu" required>
+            <input type="hidden" name="ingredientId" value="${ingredient.id}">
+            <div class="row">
+                <div class="col-6">
+                    <input type="number" step="0.1" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="ingredientQuantities" placeholder="Số lượng" required>
+                </div>
+                <div class="col-6 position-relative">
+                    <select class="form-control bg-warning bg-opacity-25 border-0 mb-2 pe-4" name="ingredientUnits" required>
+                        <option value="">Chọn đơn vị</option>
+                        <option value="GRAM">Gram</option>
+                        <option value="ML">ml</option>
+                        <option value="PIECE">Cái</option>
+                        <option value="TABLESPOON">Thìa canh</option>
+                        <option value="TEASPOON">Thìa cà phê</option>
+                    </select>
+                    <i class="fas fa-angle-down position-absolute end-0 top-50 translate-middle-y me-4 text-muted pointer-events-none"></i>
+                </div>
             </div>
-            <div class="ms-2">
-                <button type="button" class="btn btn-link text-danger remove-ingredient" tabindex="-1">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
+            <div class="invalid-feedback">Vui lòng nhập đầy đủ thông tin nguyên liệu</div>
+        </div>
+        <div class="ms-2">
+            <button type="button" class="btn btn-link text-danger remove-ingredient" tabindex="-1">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
         selectedIngredients.appendChild(div);
         ingredientCount++;
         ingredientSearch.value = '';
@@ -388,12 +418,26 @@
         }
         let valid = true;
         ingredientItems.forEach(item => {
-            const nameInput = item.querySelector("input[name='name']");
+            const nameInput = item.querySelector("input[name='ingredientNames']");
+            const quantityInput = item.querySelector("input[name='ingredientQuantities']");
+            const unitSelect = item.querySelector("select[name='ingredientUnits']");
             if (!nameInput.value) {
                 nameInput.classList.add('is-invalid');
                 valid = false;
             } else {
                 nameInput.classList.remove('is-invalid');
+            }
+            if (!quantityInput.value || quantityInput.value <= 0) {
+                quantityInput.classList.add('is-invalid');
+                valid = false;
+            } else {
+                quantityInput.classList.remove('is-invalid');
+            }
+            if (!unitSelect.value) {
+                unitSelect.classList.add('is-invalid');
+                valid = false;
+            } else {
+                unitSelect.classList.remove('is-invalid');
             }
         });
         stepItems.forEach(item => {

@@ -62,6 +62,11 @@
                                 <input type="number" step="0.1" class="form-control" id="carbohydratesPer100g" th:field="*{carbohydratesPer100g}" placeholder="Enter carbohydrates" required>
                                 <div class="text-danger" th:errors="*{carbohydratesPer100g}"></div>
                             </div>
+                            <div class="mb-3">
+                                <label for="avgG" class="form-label">avgG (1 piece)</label>
+                                <input type="number" step="0.1" class="form-control" id="avgG" th:field="*{avgG}" placeholder="Enter avgG" required>
+                                <div class="text-danger" th:errors="*{avgG}"></div>
+                            </div>
                         </div>
                         <div class="col-md-4 text-center">
                             <label class="form-label">Preview Image</label>

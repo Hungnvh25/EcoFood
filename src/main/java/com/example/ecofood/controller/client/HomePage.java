@@ -31,8 +31,10 @@ public class HomePage {
     UserService userService;
 
     @GetMapping ("/")
-    public String getEcoFood(Model model, HttpServletRequest request){
-
+    public String getEcoFood(Model model, HttpServletRequest request,HttpSession session){
+        // lưu currentUser
+        User user = this.userService.getCurrentUser();
+        session.setAttribute("currentUser", user);
         return "index";
     }
 
@@ -81,11 +83,13 @@ public class HomePage {
             return "client/login";
         }
         try {
+            // lưu token
             String token = JwtUtil.generateToken(loginDTO.getUsername());
             Cookie cookie = new Cookie("jwtToken", token);
             cookie.setMaxAge(3600);
             cookie.setPath("/");
             response.addCookie(cookie);
+
             return "redirect:/";
 
         } catch (Exception e) {
