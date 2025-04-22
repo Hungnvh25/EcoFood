@@ -5,8 +5,10 @@ import com.example.ecofood.domain.DTO.RecipeDTO;
 import com.example.ecofood.domain.Ingredient;
 import com.example.ecofood.domain.Instruction;
 import com.example.ecofood.domain.Recipe;
+import com.example.ecofood.domain.User;
 import com.example.ecofood.service.IngredientService;
 import com.example.ecofood.service.RecipeService;
+import com.example.ecofood.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -31,12 +33,17 @@ public class RecipeController {
 
     RecipeService recipeService;
     IngredientService ingredientService;
+    UserService userService;
+
 
 
 
     @GetMapping("/recipe")
     public String showCreateForm(Model model) {
         Recipe recipe = new Recipe();
+        User currentUser = this.userService.getCurrentUser();
+
+        model.addAttribute("currentUser",currentUser);
         model.addAttribute("recipe", recipe);
         return "client/Recipe/add";
     }
