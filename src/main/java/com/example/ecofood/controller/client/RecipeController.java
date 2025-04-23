@@ -9,6 +9,8 @@ import com.example.ecofood.domain.User;
 import com.example.ecofood.service.IngredientService;
 import com.example.ecofood.service.RecipeService;
 import com.example.ecofood.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,25 @@ public class RecipeController {
 
 
 
+    @GetMapping ("/")
+    public String getEcoFood(Model model, HttpServletRequest request, HttpSession session){
+        // lưu currentUser
+        User user = this.userService.getCurrentUser();
+        session.setAttribute("currentUser", user);
+
+        // Lấy danh sách recipes từ service
+        List<RecipeDTO> recipes = this.recipeService.getAllRecipes();
+        model.addAttribute("recipes", recipes);
+
+        return "index";
+    }
+    @GetMapping("/search")
+    public String searchRecipes(@RequestParam("keyword") String keyword, Model model) {
+        List<RecipeDTO> searchResults = this.recipeService.searchRecipesByTitle(keyword);
+        model.addAttribute("searchResults", searchResults);
+        model.addAttribute("keyword", keyword);
+        return "client/Search/search";
+    }
 
     @GetMapping("/recipe")
     public String showCreateForm(Model model) {
@@ -79,6 +100,18 @@ public class RecipeController {
         this.recipeService.createRecipe(recipe,imageFile,ingredientIds,ingredientQuantities,ingredientUnits,instructionDescriptions,instructionImages);
 
         return "redirect:/recipe";
+    }
+
+    @GetMapping("/recipe/{id}")
+    public String getRecipeDetail(@PathVariable Long id, Model model, HttpSession session) {
+        try {
+            RecipeDTO recipe = this.recipeService.convertToDTO(this.recipeService.getRecipeById(id));
+            model.addAttribute("recipe", recipe);
+            return "client/Recipe/recipe-detail";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("errorMessage", "Không tìm thấy món ăn với ID: " + id);
+            return "error"; // Giả định bạn có template error.html
+        }
     }
 }
 

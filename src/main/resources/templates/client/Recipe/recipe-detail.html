@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${recipe.title != null ? recipe.title + ' - Eco Food' : 'Chi Tiết Món Ăn - Eco Food'}">Chi Tiết Món Ăn - Eco Food</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body>
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <!-- Sidebar trái -->
+        <th:block th:replace="~{client/layout/sidebar-left :: sidebarLeft}"></th:block>
+
+        <!-- Nội dung chính -->
+        <div class="col-md-7 offset-md-2 bg-white p-4">
+            <!-- Tiêu đề và thông tin người đăng -->
+            <h1 class="mb-3 fw-bold" th:text="${recipe.title != null ? recipe.title : 'Tên món ăn'}">Cánh gà, đùi gà chiên xù</h1>
+            <div class="d-flex align-items-center mb-3">
+                <img th:src="@{/Avatars/avatar.jpg}" class="rounded-circle me-2" width="32" height="32">
+                <span class="me-2" th:text="${recipe.userId != null ? 'Người dùng ' + recipe.userId : 'Không rõ'}">Nguyễn Văn A</span>
+            </div>
+
+            <!-- Ảnh món ăn và ảnh của người dùng khác -->
+            <div class="mb-4 w-50" >
+                <img th:src="${recipe.imageUrl != null ? recipe.imageUrl : '/Recipe/default.jpg'}"
+            class="img-fluid rounded mb-2"
+            style=" object-fit: cover;"
+            alt="Hình ảnh món ăn">
+            <div class="d-flex gap-2">
+                <div th:each="snap : ${recipe.cookSnaps}" class="d-flex flex-column align-items-center">
+                    <img th:src="${snap.imageUrl != null ? snap.imageUrl : '/Recipe/default.jpg'}"
+                         class="rounded"
+                         width="60" height="60">
+                    <small th:text="${snap.userId != null ? 'Người dùng ' + snap.userId : 'Không rõ'}">Nguyễn Văn B</small>
+                    <small th:text="${snap.description != null ? snap.description : 'Thành quả đây cảm ơn bạn'}">Thành quả đây cảm ơn bạn</small>
+                </div>
+                <div th:if="${recipe.cookSnaps.isEmpty()}" class="text-muted small">
+                    Chưa có người dùng nào thử món ăn này.
+                </div>
+            </div>
+        </div>
+
+        <!-- Mô tả món ăn -->
+        <p class="mb-4" th:text="${recipe.description != null ? recipe.description : 'Không có mô tả'}">
+            Gà chiên luôn là món mình thích, và cũng là món mình rất thích tự làm ở nhà ^_^ Hôm nào nhà đông người lại chiên 1 đĩa thật to, chỉ 1 loáng là mọi người chiên hết bay.
+        </p>
+
+        <!-- Nút nghe hướng dẫn -->
+        <div class="mb-4">
+            <a href="#" class="btn btn-outline-secondary">
+                <i class="fas fa-play-circle me-2"></i> Nghe hướng dẫn nấu ăn
+            </a>
+        </div>
+
+        <!-- Thông tin dinh dưỡng -->
+        <div class="d-flex gap-3 mb-4">
+            <div class="rounded p-2 d-flex align-items-center justify-content-center bg-warning-subtle">
+                <div>
+                    <div class="text-muted small">Calories</div>
+                    <div class="fw-semibold" th:text="${#numbers.formatDecimal(recipe.totalCalories != null ? recipe.totalCalories : 0, 0, 0)}">300</div>
+                </div>
+            </div>
+            <div class="rounded p-2 d-flex align-items-center justify-content-center bg-warning-subtle">
+                <div>
+                    <div class="text-muted small">Carbs</div>
+                    <div class="fw-semibold" th:text="${#numbers.formatDecimal(recipe.totalCarbohydrates != null ? recipe.totalCarbohydrates : 0, 0, 0)}">60</div>
+                </div>
+            </div>
+            <div class="rounded p-2 d-flex align-items-center justify-content-center bg-warning-subtle">
+                <div>
+                    <div class="text-muted small">Protein</div>
+                    <div class="fw-semibold" th:text="${#numbers.formatDecimal(recipe.totalProtein != null ? recipe.totalProtein : 0, 0, 0)}">35</div>
+                </div>
+            </div>
+            <div class="rounded p-2 d-flex align-items-center justify-content-center bg-secondary-subtle">
+                <div>
+                    <div class="text-muted small">Fats</div>
+                    <div class="fw-semibold" th:text="${#numbers.formatDecimal(recipe.totalFat != null ? recipe.totalFat : 0, 0, 0)}">12</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Các bước thực hiện -->
+        <h5 class="mb-3">Các Bước Thực Hiện</h5>
+        <div th:if="${recipe.instructions.isEmpty()}" class="alert alert-warning">
+            Chưa có hướng dẫn cho món ăn này.
+        </div>
+        <div th:each="instruction : ${recipe.instructions}" class="d-flex mb-3">
+            <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px;">
+                <span class="fw-bold" th:text="${instructionStat.index + 1}">1</span>
+            </div>
+            <div>
+                <p class="mb-2" th:text="${instruction != null ? instruction.description : 'Không có mô tả'}">Mô tả bước</p>
+                <img th:src="${instruction.imageUrl != null ? instruction.imageUrl : '/Recipe/default.jpg'}"
+                     class="img-fluid rounded"
+                     style="width: 200px; height: 150px; object-fit: cover;"
+                     alt="Hình ảnh bước">
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar phải -->
+    <div class="col-md-3 p-3">
+        <div class="card border-0 mb-4">
+            <div class="card-body">
+                <!-- Số người đã nấu -->
+                <div class="d-flex align-items-center mb-3">
+                    <img th:src="${recipe.imageUrl != null ? recipe.imageUrl : '/Recipe/default.jpg'}"
+                         class="img-fluid rounded me-2"
+                         style="width: 50px; height: 50px; object-fit: cover;"
+                         alt="Thumbnail">
+                    <h5 class="m-0" th:text="${recipe.cookSnapCount != null ? recipe.cookSnapCount + ' Đã nấu' : '0 Đã nấu'}">12 Đã nấu</h5>
+                </div>
+
+                <!-- Thông tin món ăn -->
+                <div class="row text-center g-3 mb-3">
+                    <div class="col-6">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-bar-chart-line fs-4 me-2"></i>
+                            <div class="text-start">
+                                <div class="small text-muted">Độ phức tạp</div>
+                                <div class="fw-bold" th:text="${recipe.difficulty != null ? recipe.difficulty : 'N/A'}">Dễ</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-check-circle fs-4 me-2"></i>
+                            <div class="text-start">
+                                <div class="small text-muted">Độ thành công</div>
+                                <div class="fw-bold" th:text="${recipe.commentIds != null ? recipe.commentIds.size() + ' đánh giá' : '0 đánh giá'}">100 đánh giá</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-clock fs-4 me-2"></i>
+                            <div class="text-start">
+                                <div class="small text-muted">Thời gian</div>
+                                <div class="fw-bold" th:text="${recipe.cookingTime != null ? recipe.cookingTime + ' phút' : 'N/A'}">20 phút</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-list-ol fs-4 me-2"></i>
+                            <div class="text-start">
+                                <div class="small text-muted">Các bước</div>
+                                <div class="fw-bold" th:text="${recipe.instructions != null ? recipe.instructions.size() + ' bước' : '0 bước'}">2 bước</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nguyên liệu -->
+                <div class="mt-4">
+                    <h5 class="mb-3">Nguyên Liệu</h5>
+                    <div th:if="${recipe.recipeIngredients.isEmpty()}" class="alert alert-warning">
+                        Chưa có nguyên liệu cho món ăn này.
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <div th:each="ingredient : ${recipe.recipeIngredients}" class="list-group-item border-0 d-flex align-items-center px-0">
+                            <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 25px; height: 25px;">
+                                <span class="small fw-bold" th:text="${ingredientStat.index + 1}">1</span>
+                            </div>
+                            <span th:text="${ingredient != null ? ingredient.name : 'Không rõ'}">Nguyên liệu</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

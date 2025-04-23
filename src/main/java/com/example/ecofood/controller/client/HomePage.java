@@ -35,18 +35,6 @@ public class HomePage {
     UserService userService;
     RecipeService recipeService;
 
-    @GetMapping ("/")
-    public String getEcoFood(Model model, HttpServletRequest request,HttpSession session){
-        // lưu currentUser
-        User user = this.userService.getCurrentUser();
-        session.setAttribute("currentUser", user);
-
-        // Lấy danh sách recipes từ service
-        List<RecipeDTO> recipes = this.recipeService.getAllRecipes();
-        model.addAttribute("recipes", recipes);
-
-        return "index";
-    }
 
 
     @GetMapping("/login")
@@ -96,7 +84,7 @@ public class HomePage {
             // lưu token
             String token = JwtUtil.generateToken(loginDTO.getUsername());
             Cookie cookie = new Cookie("jwtToken", token);
-            cookie.setMaxAge(3600);
+            cookie.setMaxAge(10800); // 3h
             cookie.setPath("/");
             response.addCookie(cookie);
 
