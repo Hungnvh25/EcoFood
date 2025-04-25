@@ -1,9 +1,9 @@
 package com.example.ecofood.service;
 
 import com.example.ecofood.domain.*;
-import com.example.ecofood.domain.DTO.InstructionDTO;
-import com.example.ecofood.domain.DTO.RecipeDTO;
-import com.example.ecofood.domain.DTO.RecipeIngredientDTO;
+import com.example.ecofood.DTO.InstructionDTO;
+import com.example.ecofood.DTO.RecipeDTO;
+import com.example.ecofood.DTO.RecipeIngredientDTO;
 import com.example.ecofood.repository.IngredientRepository;
 import com.example.ecofood.repository.RecipeRepository;
 import lombok.AccessLevel;

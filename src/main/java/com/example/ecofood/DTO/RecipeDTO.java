@@ -1,7 +1,6 @@
-package com.example.ecofood.domain.DTO;
+package com.example.ecofood.DTO;
 
 import com.example.ecofood.domain.*;
-import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

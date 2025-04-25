@@ -2,21 +2,16 @@ package com.example.ecofood.controller.client;
 
 
 import com.example.ecofood.auth.JwtUtil;
-import com.example.ecofood.domain.DTO.LoginDTO;
-import com.example.ecofood.domain.DTO.RecipeDTO;
-import com.example.ecofood.domain.DTO.UserDTO;
-import com.example.ecofood.domain.User;
+import com.example.ecofood.DTO.LoginDTO;
+import com.example.ecofood.DTO.UserDTO;
 import com.example.ecofood.service.RecipeService;
 import com.example.ecofood.service.UserService;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,8 +19,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -39,6 +32,11 @@ public class HomePage {
 
     @GetMapping("/login")
     public String showLoginForm(Model model) {
+        // kiem tra đã đăng nhập chưa
+        if(this.userService.getCurrentUser() != null){
+          return   "redirect:/";
+        }
+
         model.addAttribute("loginDTO", new LoginDTO());
         return "client/login"; // Đảm bảo file nằm trong templates/client/login.html
     }
@@ -46,6 +44,10 @@ public class HomePage {
 
     @GetMapping("/register")
     public String getRegister(Model model) {
+        // kiem tra đã đăng nhập chưa
+        if(this.userService.getCurrentUser() != null){
+            return   "redirect:/";
+        }
         model.addAttribute("userDTO", new UserDTO());
         return "client/register";
     }

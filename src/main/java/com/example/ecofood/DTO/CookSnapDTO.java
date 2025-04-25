@@ -1,4 +1,4 @@
-package com.example.ecofood.domain.DTO;
+package com.example.ecofood.DTO;
 
 import com.example.ecofood.domain.Recipe;
 import lombok.*;
