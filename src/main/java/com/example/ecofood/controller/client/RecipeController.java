@@ -35,10 +35,8 @@ public class RecipeController {
 
 
     @GetMapping ("/")
-    public String getEcoFood(Model model, HttpServletRequest request, HttpSession session){
-        // lưu currentUser
-        User user = this.userService.getCurrentUser();
-        session.setAttribute("currentUser", user);
+    public String getEcoFood(Model model, HttpServletRequest request){
+
 
         // Lấy danh sách recipes từ service
         List<RecipeDTO> recipes = this.recipeService.getAllRecipes();
@@ -98,9 +96,9 @@ public class RecipeController {
     }
 
     @GetMapping("/recipe/{id}")
-    public String getRecipeDetail(@PathVariable Long id, Model model, HttpSession session) {
+    public String getRecipeDetail(@PathVariable Long id, Model model) {
         try {
-            RecipeDTO recipe = this.recipeService.convertToDTO(this.recipeService.getRecipeById(id));
+            Recipe recipe = this.recipeService.getRecipeById(id);
             model.addAttribute("recipe", recipe);
             return "client/Recipe/recipe-detail";
         } catch (IllegalArgumentException e) {

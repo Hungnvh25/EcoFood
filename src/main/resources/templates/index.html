@@ -37,129 +37,130 @@
                         <span class="fw-semibold me-auto" th:text="${recipe.user.userName != null ?  recipe.user.userName : 'Unknown'}"></span>
                         <div class="text-muted small" th:text="${recipe.createdDate}"></div>
                     </div>
+                    <a th:href="@{'/recipe/' + ${recipe.id}}" class="text-decoration-none text-dark">
+                        <div class="row clickable-recipe">
+                            <!-- Ảnh -->
+                            <div class="col-md-4 border border-2">
+                                <img th:src="${recipe.imageUrl != null ? recipe.imageUrl : '/Recipe/default.jpg'}"
+                                     class="img-fluid w-100 rounded"
+                                     style="width: 200px; height: 200px; object-fit: cover;">
+                            </div>
 
-                    <div class="row">
-                        <!-- Ảnh -->
-                        <div class="col-md-4 border border-2">
-                            <img th:src="${recipe.imageUrl != null ? recipe.imageUrl : '/Recipe/default.jpg'}"
-                                 class="img-fluid w-100 rounded"
-                                 style="width: 200px; height: 200px; object-fit: cover;">
-                        </div>
+                            <!-- Thành phần -->
+                            <div class="col-md-6">
+                                <h5 class="mb-3" th:text="${recipe.title}">Gà Chiên</h5>
 
-                        <!-- Thành phần -->
-                        <div class="col-md-6">
-                            <h5 class="mb-3" th:text="${recipe.title}">Gà Chiên</h5>
-
-                            <div class="row mb-2">
-                                <div class="col-6">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <i class="fas fa-chart-bar me-2"></i>
-                                        <div>
-                                            <div class="text-muted small">Độ phức tạp</div>
-                                            <div class="fw-semibold" th:text="${recipe.difficulty}">Dễ</div>
+                                <div class="row mb-2">
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <i class="fas fa-chart-bar me-2"></i>
+                                            <div>
+                                                <div class="text-muted small">Độ phức tạp</div>
+                                                <div class="fw-semibold" th:text="${recipe.difficulty}">Dễ</div>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-clock me-2"></i>
+                                            <div>
+                                                <div class="text-muted small">Thời gian nấu</div>
+                                                <div class="fw-semibold" th:text="${recipe.cookingTime != null ? recipe.cookingTime + ' phút' : 'N/A'}">20 phút</div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-clock me-2"></i>
-                                        <div>
-                                            <div class="text-muted small">Thời gian nấu</div>
-                                            <div class="fw-semibold" th:text="${recipe.cookingTime != null ? recipe.cookingTime + ' phút' : 'N/A'}">20 phút</div>
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <i class="fas fa-check-circle me-2"></i>
+                                            <div>
+                                                <div class="text-muted small">Độ thành công</div>
+                                                <div class="fw-semibold">50 đánh giá</div>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-list-ol me-2"></i>
+                                            <div>
+                                                <div class="text-muted small">Các bước</div>
+                                                <div class="fw-semibold" th:text="${recipe.instructions.size()} + ' bước'">4 bước</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-6">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <i class="fas fa-check-circle me-2"></i>
+
+                                <div class="d-flex mt-3">
+                                    <button class="btn btn-light btn-sm me-2 " onclick="event.stopPropagation();">
+                                        <i class="fas fa-heart text-danger"></i> 100k
+                                    </button>
+                                    <button class="btn btn-light btn-sm" onclick="event.stopPropagation();">
+                                        <i class="fas fa-comment"></i> 50k
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Dinh dưỡng -->
+                            <div class="col-md-2">
+                                <div class="d-flex flex-column gap-1">
+                                    <!-- Calories -->
+                                    <div class="rounded p-1 d-flex align-items-center justify-content-center"
+                                         style="background-color: #d9f99d;">
+                                        <div class="me-1">
+                                            <i class="fas fa-fire text-dark fs-6"></i>
+                                        </div>
                                         <div>
-                                            <div class="text-muted small">Độ thành công</div>
-                                            <div class="fw-semibold">50 đánh giá</div>
+                                            <div class="text-muted small">Calories</div>
+                                            <div class="fw-semibold" style="font-size: 0.85rem;">
+                                                <span th:text="${#numbers.formatDecimal(recipe.totalCalories != null ? recipe.totalCalories : 0, 0, 1)}">300</span>
+                                                <span class="fw-normal" style="font-size: 0.7rem;">kcal</span>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-list-ol me-2"></i>
+
+                                    <!-- Carbs -->
+                                    <div class="rounded p-1 d-flex align-items-center justify-content-center"
+                                         style="background-color: #fde68a;">
+                                        <div class="me-1">
+                                            <i class="fas fa-bowl-rice text-dark fs-6"></i>
+                                        </div>
                                         <div>
-                                            <div class="text-muted small">Các bước</div>
-                                            <div class="fw-semibold" th:text="${recipe.instructions.size()} + ' bước'">4 bước</div>
+                                            <div class="text-muted small">Carbs</div>
+                                            <div class="fw-semibold" style="font-size: 0.85rem;">
+                                                <span th:text="${#numbers.formatDecimal(recipe.totalCarbohydrates != null ? recipe.totalCarbohydrates : 0, 0, 1)}">60</span>
+                                                <span class="fw-normal" style="font-size: 0.7rem;">gr</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Protein -->
+                                    <div class="rounded p-1 d-flex align-items-center justify-content-center"
+                                         style="background-color: #fdba74;">
+                                        <div class="me-1">
+                                            <i class="fas fa-dumbbell text-dark fs-6"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-muted small">Protein</div>
+                                            <div class="fw-semibold" style="font-size: 0.85rem;">
+                                                <span th:text="${#numbers.formatDecimal(recipe.totalProtein != null ? recipe.totalProtein : 0, 0, 1)}">35</span>
+                                                <span class="fw-normal" style="font-size: 0.7rem;">gr</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Fats -->
+                                    <div class="rounded p-1 d-flex align-items-center justify-content-center"
+                                         style="background-color: #e5e7eb;">
+                                        <div class="me-1">
+                                            <i class="fas fa-tint text-dark fs-6"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-muted small">Fats</div>
+                                            <div class="fw-semibold" style="font-size: 0.85rem;">
+                                                <span th:text="${#numbers.formatDecimal(recipe.totalFat != null ? recipe.totalFat : 0, 0, 1)}">12</span>
+                                                <span class="fw-normal" style="font-size: 0.7rem;">gr</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="d-flex mt-3">
-                                <button class="btn btn-light btn-sm me-2">
-                                    <i class="fas fa-heart text-danger"></i> 100k
-                                </button>
-                                <button class="btn btn-light btn-sm">
-                                    <i class="fas fa-comment"></i> 50k
-                                </button>
-                            </div>
                         </div>
-
-                        <!-- Dinh dưỡng -->
-                        <div class="col-md-2">
-                            <div class="d-flex flex-column gap-1">
-                                <!-- Calories -->
-                                <div class="rounded p-1 d-flex align-items-center justify-content-center"
-                                     style="background-color: #d9f99d;">
-                                    <div class="me-1">
-                                        <i class="fas fa-fire text-dark fs-6"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-muted small">Calories</div>
-                                        <div class="fw-semibold" style="font-size: 0.85rem;">
-                                            <span th:text="${#numbers.formatDecimal(recipe.totalCalories != null ? recipe.totalCalories : 0, 0, 1)}">300</span>
-                                            <span class="fw-normal" style="font-size: 0.7rem;">kcal</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Carbs -->
-                                <div class="rounded p-1 d-flex align-items-center justify-content-center"
-                                     style="background-color: #fde68a;">
-                                    <div class="me-1">
-                                        <i class="fas fa-bowl-rice text-dark fs-6"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-muted small">Carbs</div>
-                                        <div class="fw-semibold" style="font-size: 0.85rem;">
-                                            <span th:text="${#numbers.formatDecimal(recipe.totalCarbohydrates != null ? recipe.totalCarbohydrates : 0, 0, 1)}">60</span>
-                                            <span class="fw-normal" style="font-size: 0.7rem;">gr</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Protein -->
-                                <div class="rounded p-1 d-flex align-items-center justify-content-center"
-                                     style="background-color: #fdba74;">
-                                    <div class="me-1">
-                                        <i class="fas fa-dumbbell text-dark fs-6"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-muted small">Protein</div>
-                                        <div class="fw-semibold" style="font-size: 0.85rem;">
-                                            <span th:text="${#numbers.formatDecimal(recipe.totalProtein != null ? recipe.totalProtein : 0, 0, 1)}">35</span>
-                                            <span class="fw-normal" style="font-size: 0.7rem;">gr</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Fats -->
-                                <div class="rounded p-1 d-flex align-items-center justify-content-center"
-                                     style="background-color: #e5e7eb;">
-                                    <div class="me-1">
-                                        <i class="fas fa-tint text-dark fs-6"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-muted small">Fats</div>
-                                        <div class="fw-semibold" style="font-size: 0.85rem;">
-                                            <span th:text="${#numbers.formatDecimal(recipe.totalFat != null ? recipe.totalFat : 0, 0, 1)}">12</span>
-                                            <span class="fw-normal" style="font-size: 0.7rem;">gr</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    </a>
                 </div>
             </div>
         </div>

@@ -4,10 +4,12 @@ package com.example.ecofood.controller.client;
 import com.example.ecofood.auth.JwtUtil;
 import com.example.ecofood.DTO.LoginDTO;
 import com.example.ecofood.DTO.UserDTO;
+import com.example.ecofood.domain.User;
 import com.example.ecofood.service.RecipeService;
 import com.example.ecofood.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -72,7 +74,7 @@ public class HomePage {
 
     @PostMapping("/login")
     public String processLogin(Model model, @Valid @ModelAttribute("loginDTO") LoginDTO loginDTO,
-                               BindingResult result, HttpServletResponse response) {
+                               BindingResult result, HttpServletResponse response, HttpSession session) {
         if (result.hasErrors()) {
             return "client/login";
         }
@@ -89,6 +91,10 @@ public class HomePage {
             cookie.setMaxAge(10800); // 3h
             cookie.setPath("/");
             response.addCookie(cookie);
+
+            // lưu currentUser
+            User user = this.userService.getCurrentUser();
+            session.setAttribute("currentUser", user);
 
             return "redirect:/";
 

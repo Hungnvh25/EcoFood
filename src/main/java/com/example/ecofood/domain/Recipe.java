@@ -40,6 +40,8 @@ public class Recipe {
 
     LocalDate updatedDate;
 
+
+
     Float totalCalories = 0.0f;
 
     Float totalProtein = 0.0f;
