@@ -1,7 +1,6 @@
-package com.example.ecofood.domain.DTO;
+package com.example.ecofood.DTO;
 
 import com.example.ecofood.domain.*;
-import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -31,15 +30,17 @@ public class RecipeDTO {
     Float totalProtein;
     Float totalFat;
     Float totalCarbohydrates;
-
     Set<InstructionDTO> instructions = new HashSet<>();
+    User user;
     Long userId;
     Long cookSnapId;
     Set<RecipeIngredientDTO> recipeIngredients = new HashSet<>();
     Long collectionId;
-
-    // Thêm các thuộc tính cần thiết khác mà không gây vòng lặp
-    // Ví dụ: chỉ lấy id của các đối tượng liên quan
     Set<Long> cookUtensilIds = new HashSet<>();
     Set<Long> categoryIds = new HashSet<>();
+    Set<Long> commentIds = new HashSet<>(); // Để tính độ thành công
+    Integer cookSnapCount; // Số người đã nấu
+    Set<CookSnapDTO> cookSnaps = new HashSet<>(); // Ảnh của người dùng khác
+
+    // Getters và Setters
 }

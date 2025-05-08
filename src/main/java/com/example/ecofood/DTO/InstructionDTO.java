@@ -1,4 +1,5 @@
-package com.example.ecofood.domain.DTO;
+package com.example.ecofood.DTO;
+
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -9,7 +10,9 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class LoginDTO {
-    String username;
-    String password;
+public class InstructionDTO {
+    Long id;
+    String description;
+    Integer step;
+    String imageUrl;
 }

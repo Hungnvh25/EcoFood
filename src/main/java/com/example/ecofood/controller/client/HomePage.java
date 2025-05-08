@@ -2,19 +2,18 @@ package com.example.ecofood.controller.client;
 
 
 import com.example.ecofood.auth.JwtUtil;
-import com.example.ecofood.domain.DTO.LoginDTO;
-import com.example.ecofood.domain.DTO.UserDTO;
+import com.example.ecofood.DTO.LoginDTO;
+import com.example.ecofood.DTO.UserDTO;
 import com.example.ecofood.domain.User;
+import com.example.ecofood.service.RecipeService;
 import com.example.ecofood.service.UserService;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -29,18 +28,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class HomePage {
 
     UserService userService;
+    RecipeService recipeService;
 
-    @GetMapping ("/")
-    public String getEcoFood(Model model, HttpServletRequest request,HttpSession session){
-        // lưu currentUser
-        User user = this.userService.getCurrentUser();
-        session.setAttribute("currentUser", user);
-        return "index";
-    }
 
 
     @GetMapping("/login")
     public String showLoginForm(Model model) {
+        // kiem tra đã đăng nhập chưa
+        if(this.userService.getCurrentUser() != null){
+          return   "redirect:/";
+        }
+
         model.addAttribute("loginDTO", new LoginDTO());
         return "client/login"; // Đảm bảo file nằm trong templates/client/login.html
     }
@@ -48,6 +46,10 @@ public class HomePage {
 
     @GetMapping("/register")
     public String getRegister(Model model) {
+        // kiem tra đã đăng nhập chưa
+        if(this.userService.getCurrentUser() != null){
+            return   "redirect:/";
+        }
         model.addAttribute("userDTO", new UserDTO());
         return "client/register";
     }
@@ -72,7 +74,7 @@ public class HomePage {
 
     @PostMapping("/login")
     public String processLogin(Model model, @Valid @ModelAttribute("loginDTO") LoginDTO loginDTO,
-                               BindingResult result, HttpServletResponse response) {
+                               BindingResult result, HttpServletResponse response, HttpSession session) {
         if (result.hasErrors()) {
             return "client/login";
         }
@@ -86,9 +88,13 @@ public class HomePage {
             // lưu token
             String token = JwtUtil.generateToken(loginDTO.getUsername());
             Cookie cookie = new Cookie("jwtToken", token);
-            cookie.setMaxAge(3600);
+            cookie.setMaxAge(10800); // 3h
             cookie.setPath("/");
             response.addCookie(cookie);
+
+            // lưu currentUser
+            User user = this.userService.getCurrentUser();
+            session.setAttribute("currentUser", user);
 
             return "redirect:/";
 

@@ -1,8 +1,7 @@
 package com.example.ecofood.controller.admin;
 
 
-import com.example.ecofood.domain.DTO.LoginDTO;
-import com.example.ecofood.domain.DTO.UserDTO;
+import com.example.ecofood.DTO.UserDTO;
 import com.example.ecofood.domain.User;
 import com.example.ecofood.service.ImageService;
 import com.example.ecofood.service.UserService;
@@ -17,11 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.io.IOException;
-import java.util.List;
 
 @Controller
 @RequestMapping("/admin")

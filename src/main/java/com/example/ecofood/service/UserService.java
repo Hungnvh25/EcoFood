@@ -1,6 +1,6 @@
 package com.example.ecofood.service;
 
-import com.example.ecofood.domain.DTO.UserDTO;
+import com.example.ecofood.DTO.UserDTO;
 import com.example.ecofood.domain.User;
 import com.example.ecofood.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,8 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -80,7 +78,11 @@ public class UserService {
     }
 
     public User getCurrentUser(){
-        return (User) this.request.getAttribute("user");
+        User user = (User) this.request.getAttribute("user");
+        if (user!=null){
+            return user;
+        }
+         return null;
     }
 
 }

@@ -1,5 +1,4 @@
-package com.example.ecofood.domain.DTO;
-
+package com.example.ecofood.DTO;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -10,10 +9,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class RecipeIngredientDTO {
+public class IngredientDTO {
     Long id;
-    Long ingredientId;
-    String ingredientName;
-    Float quantity;
-    String unit;
+    String name;
+
 }
