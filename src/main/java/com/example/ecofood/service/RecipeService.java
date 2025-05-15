@@ -30,10 +30,8 @@ public class RecipeService {
 
 
 
-    public List<RecipeDTO> getAllRecipes() {
-        return recipeRepository.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public List<Recipe> getAllRecipes() {
+        return recipeRepository.findAll();
     }
 
     public RecipeDTO convertToDTO(Recipe recipe) {
@@ -45,8 +43,6 @@ public class RecipeService {
                 .cookingTime(recipe.getCookingTime())
                 .servingSize(recipe.getServingSize())
                 .imageUrl(recipe.getImageUrl())
-                .difficulty(recipe.getDifficulty())
-                .mealType(recipe.getMealType())
                 .user(recipe.getUser())
                 .createdDate(recipe.getCreatedDate())
                 .updatedDate(recipe.getUpdatedDate())
@@ -162,10 +158,8 @@ public class RecipeService {
 
     }
 
-    public List<RecipeDTO> searchRecipesByTitle(String keyword) {
-        return recipeRepository.findByTitleContainingIgnoreCase(keyword).stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public List<Recipe> searchRecipesByTitle(String keyword) {
+        return recipeRepository.findByTitleContainingIgnoreCase(keyword);
     }
 
     public Recipe getRecipeById(Long id){

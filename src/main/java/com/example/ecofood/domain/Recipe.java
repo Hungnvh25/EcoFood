@@ -33,14 +33,18 @@ public class Recipe {
 
     String imageUrl;
 
-    String difficulty;
 
-    String mealType;
     LocalDate createdDate = LocalDate.now();
 
     LocalDate updatedDate;
 
+    boolean related;
 
+    Long parent_id;
+
+    String tileName;
+
+    Boolean isPendingRecipe = true;
 
     Float totalCalories = 0.0f;
 

@@ -39,14 +39,14 @@ public class RecipeController {
 
 
         // Lấy danh sách recipes từ service
-        List<RecipeDTO> recipes = this.recipeService.getAllRecipes();
+        List<Recipe> recipes = this.recipeService.getAllRecipes();
         model.addAttribute("recipes", recipes);
 
         return "index";
     }
     @GetMapping("/search")
     public String searchRecipes(@RequestParam("keyword") String keyword, Model model) {
-        List<RecipeDTO> searchResults = this.recipeService.searchRecipesByTitle(keyword);
+        List<Recipe> searchResults = this.recipeService.searchRecipesByTitle(keyword);
         model.addAttribute("searchResults", searchResults);
         model.addAttribute("keyword", keyword);
         return "client/Search/search";
