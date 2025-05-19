@@ -46,6 +46,9 @@ public class User {
     private UserSetting userSetting;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private UserActivity userActivity;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Comment comment;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)

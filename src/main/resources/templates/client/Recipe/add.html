@@ -119,7 +119,7 @@
                                             </div>
                                             <div class="col-6 position-relative">
                                                 <select class="form-control bg-warning bg-opacity-25 border-0 mb-2 pe-4" name="ingredientUnits" required>
-                                                    <option value="" th:text="'Chọn đơn vị'" th:selected="${recipeIngredient.unit == null}"></option>
+                                                    <option value="" th:text="'Đơn vị'" th:selected="${recipeIngredient.unit == null}"></option>
                                                     <option value="GRAM" th:selected="${recipeIngredient.unit == 'GRAM'}">Gram</option>
                                                     <option value="ML" th:selected="${recipeIngredient.unit == 'ML'}">ml</option>
                                                     <option value="PIECE" th:selected="${recipeIngredient.unit == 'PIECE'}">Cái</option>
@@ -394,7 +394,7 @@
                     </div>
                     <div class="col-6 position-relative">
                         <select class="form-control bg-warning bg-opacity-25 border-0 mb-2 pe-4" name="ingredientUnits" required>
-                            <option value="">Chọn đơn vị</option>
+                            <option value="">Đơn vị</option>
                             <option value="GRAM">Gram</option>
                             <option value="ML">ml</option>
                             <option value="PIECE">Cái</option>

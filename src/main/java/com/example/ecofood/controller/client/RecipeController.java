@@ -2,11 +2,10 @@ package com.example.ecofood.controller.client;
 
 import com.example.ecofood.DTO.IngredientDTO;
 import com.example.ecofood.DTO.RecipeDTO;
-import com.example.ecofood.domain.Ingredient;
-import com.example.ecofood.domain.Recipe;
-import com.example.ecofood.domain.User;
+import com.example.ecofood.domain.*;
 import com.example.ecofood.service.IngredientService;
 import com.example.ecofood.service.RecipeService;
+import com.example.ecofood.service.UserActivityService;
 import com.example.ecofood.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -31,6 +30,7 @@ public class RecipeController {
     RecipeService recipeService;
     IngredientService ingredientService;
     UserService userService;
+    UserActivityService userActivityService;
 
 
 
@@ -103,6 +103,8 @@ public class RecipeController {
         try {
             Recipe recipe = this.recipeService.getRecipeById(id);
             model.addAttribute("recipe", recipe);
+
+            this.userActivityService.saveHistoryViewRecipe(recipe);
             return "client/Recipe/recipe-detail";
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", "Không tìm thấy món ăn với ID: " + id);

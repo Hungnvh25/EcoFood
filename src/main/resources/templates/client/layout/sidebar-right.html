@@ -104,154 +104,86 @@
                 </div>
             </div>
         </div>
-        <div class="card mb-3 border-0 shadow-sm">
-            <div class="row g-0">
-                <div class="col-4">
-                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-J4c1j931njBhw1HbpgoC7f58xSZPnX.png"
-                         class="img-fluid rounded" alt="Bánh mì">
-                </div>
-                <div class="col-8">
-                    <div class="card-body p-2">
-                        <h6 class="card-title">Bánh mì</h6>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-heart text-warning me-1"></i>
-                            <small>100k</small>
-                        </div>
-                        <div class="d-flex mt-2">
-                            <span class="badge bg-success me-1">300</span>
-                            <span class="badge bg-warning me-1">60</span>
-                            <span class="badge bg-danger me-1">35</span>
-                            <span class="badge bg-secondary">12</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="card mb-3 border-0 shadow-sm">
-            <div class="row g-0">
-                <div class="col-4">
-                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-J4c1j931njBhw1HbpgoC7f58xSZPnX.png"
-                         class="img-fluid rounded" alt="Bánh mì">
-                </div>
-                <div class="col-8">
-                    <div class="card-body p-2">
-                        <h6 class="card-title">Bánh mì</h6>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-heart text-warning me-1"></i>
-                            <small>100k</small>
-                        </div>
-                        <div class="d-flex mt-2">
-                            <span class="badge bg-success me-1">300</span>
-                            <span class="badge bg-warning me-1">60</span>
-                            <span class="badge bg-danger me-1">35</span>
-                            <span class="badge bg-secondary">12</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="card mb-3 border-0 shadow-sm">
-            <div class="row g-0">
-                <div class="col-4">
-                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-J4c1j931njBhw1HbpgoC7f58xSZPnX.png"
-                         class="img-fluid rounded" alt="Bánh mì">
-                </div>
-                <div class="col-8">
-                    <div class="card-body p-2">
-                        <h6 class="card-title">Bánh mì</h6>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-heart text-warning me-1"></i>
-                            <small>100k</small>
-                        </div>
-                        <div class="d-flex mt-2">
-                            <span class="badge bg-success me-1">300</span>
-                            <span class="badge bg-warning me-1">60</span>
-                            <span class="badge bg-danger me-1">35</span>
-                            <span class="badge bg-secondary">12</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="card mb-3 border-0 shadow-sm">
-            <div class="row g-0">
-                <div class="col-4">
-                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-J4c1j931njBhw1HbpgoC7f58xSZPnX.png"
-                         class="img-fluid rounded" alt="Bánh mì">
-                </div>
-                <div class="col-8">
-                    <div class="card-body p-2">
-                        <h6 class="card-title">Bánh mì</h6>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-heart text-warning me-1"></i>
-                            <small>100k</small>
-                        </div>
-                        <div class="d-flex mt-2">
-                            <span class="badge bg-success me-1">300</span>
-                            <span class="badge bg-warning me-1">60</span>
-                            <span class="badge bg-danger me-1">35</span>
-                            <span class="badge bg-secondary">12</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <div>
         <h6 class="mb-3">Các món xem gần đây</h6>
-        <div class="card mb-3 border-0 shadow-sm">
+
+        <div th:each="recipe : ${RecipeHistory}" class="card mb-3 border-0 shadow-sm">
             <div class="row g-0">
                 <div class="col-4">
-                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-J4c1j931njBhw1HbpgoC7f58xSZPnX.png"
-                         class="img-fluid rounded" alt="Nem nướng">
+                    <img th:src="${recipe.imageUrl != null ? recipe.imageUrl : '/Recipe/default.jpg'}"
+                         class="img-fluid rounded" alt="" th:alt="${recipe.title}">
                 </div>
                 <div class="col-8">
                     <div class="card-body p-2">
-                        <h6 class="card-title">Nem nướng</h6>
+                        <h6 class="card-title" th:text="${recipe.title}">Tên món ăn</h6>
                         <div class="d-flex align-items-center">
                             <i class="fas fa-heart text-warning me-1"></i>
-                            <small>100k</small>
+                            <small th:text="100k">100k</small>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="card mb-3 border-0 shadow-sm">
-            <div class="row g-0">
-                <div class="col-4">
-                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-J4c1j931njBhw1HbpgoC7f58xSZPnX.png"
-                         class="img-fluid rounded" alt="Thịt nướng">
-                </div>
-                <div class="col-8">
-                    <div class="card-body p-2">
-                        <h6 class="card-title">Thịt nướng</h6>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-heart text-warning me-1"></i>
-                            <small>100k</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="card mb-3 border-0 shadow-sm">
-            <div class="row g-0">
-                <div class="col-4">
-                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-J4c1j931njBhw1HbpgoC7f58xSZPnX.png"
-                         class="img-fluid rounded" alt="Phở">
-                </div>
-                <div class="col-8">
-                    <div class="card-body p-2">
-                        <h6 class="card-title">Phở</h6>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-heart text-warning me-1"></i>
-                            <small>100k</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
     </div>
+
+
+    <!--    <div>-->
+<!--        <h6 class="mb-3">Các món xem gần đây</h6>-->
+<!--        <div class="card mb-3 border-0 shadow-sm">-->
+<!--            <div class="row g-0">-->
+<!--                <div class="col-4">-->
+<!--                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-J4c1j931njBhw1HbpgoC7f58xSZPnX.png"-->
+<!--                         class="img-fluid rounded" alt="Nem nướng">-->
+<!--                </div>-->
+<!--                <div class="col-8">-->
+<!--                    <div class="card-body p-2">-->
+<!--                        <h6 class="card-title">Nem nướng</h6>-->
+<!--                        <div class="d-flex align-items-center">-->
+<!--                            <i class="fas fa-heart text-warning me-1"></i>-->
+<!--                            <small>100k</small>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="card mb-3 border-0 shadow-sm">-->
+<!--            <div class="row g-0">-->
+<!--                <div class="col-4">-->
+<!--                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-J4c1j931njBhw1HbpgoC7f58xSZPnX.png"-->
+<!--                         class="img-fluid rounded" alt="Thịt nướng">-->
+<!--                </div>-->
+<!--                <div class="col-8">-->
+<!--                    <div class="card-body p-2">-->
+<!--                        <h6 class="card-title">Thịt nướng</h6>-->
+<!--                        <div class="d-flex align-items-center">-->
+<!--                            <i class="fas fa-heart text-warning me-1"></i>-->
+<!--                            <small>100k</small>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="card mb-3 border-0 shadow-sm">-->
+<!--            <div class="row g-0">-->
+<!--                <div class="col-4">-->
+<!--                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-J4c1j931njBhw1HbpgoC7f58xSZPnX.png"-->
+<!--                         class="img-fluid rounded" alt="Phở">-->
+<!--                </div>-->
+<!--                <div class="col-8">-->
+<!--                    <div class="card-body p-2">-->
+<!--                        <h6 class="card-title">Phở</h6>-->
+<!--                        <div class="d-flex align-items-center">-->
+<!--                            <i class="fas fa-heart text-warning me-1"></i>-->
+<!--                            <small>100k</small>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
 </div>
 
 <!-- Modal -->
