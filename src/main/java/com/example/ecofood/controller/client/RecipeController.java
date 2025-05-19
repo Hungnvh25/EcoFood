@@ -39,14 +39,14 @@ public class RecipeController {
 
 
         // Lấy danh sách recipes từ service
-        List<RecipeDTO> recipes = this.recipeService.getAllRecipes();
+        List<Recipe> recipes = this.recipeService.getAllRecipes();
         model.addAttribute("recipes", recipes);
 
         return "index";
     }
     @GetMapping("/search")
     public String searchRecipes(@RequestParam("keyword") String keyword, Model model) {
-        List<RecipeDTO> searchResults = this.recipeService.searchRecipesByTitle(keyword);
+        List<Recipe> searchResults = this.recipeService.searchRecipesByTitle(keyword);
         model.addAttribute("searchResults", searchResults);
         model.addAttribute("keyword", keyword);
         return "client/Search/search";
@@ -84,13 +84,16 @@ public class RecipeController {
             @RequestParam(value = "ingredientQuantities", required = false) List<Float> ingredientQuantities,
             @RequestParam(value = "ingredientUnits", required = false) List<String> ingredientUnits,
             @RequestParam(value = "instructionDescriptions", required = false) List<String> instructionDescriptions,
-            @RequestParam(value = "image", required = false) List<MultipartFile> instructionImages) {
+            @RequestParam(value = "image", required = false) List<MultipartFile> instructionImages,
+            @RequestParam(value = "difficulty", required = true) String difficulty,
+            @RequestParam(value = "mealType", required = true) String mealType,
+            @RequestParam(value = "publish", defaultValue = "false") boolean publish) {
 
         if (result.hasErrors()) {
             return "client/Recipe/add";
         }
 
-        this.recipeService.createRecipe(recipe,imageFile,ingredientIds,ingredientQuantities,ingredientUnits,instructionDescriptions,instructionImages);
+        this.recipeService.createRecipe(recipe,imageFile,ingredientIds,ingredientQuantities,ingredientUnits,instructionDescriptions,instructionImages,difficulty,mealType);
 
         return "redirect:/recipe";
     }

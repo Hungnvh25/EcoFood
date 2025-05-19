@@ -21,7 +21,9 @@ public class Comment {
     String content;
     LocalDate createdDate = LocalDate.now();
 
-    Long userId;
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "recipe_id")

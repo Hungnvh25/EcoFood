@@ -33,14 +33,18 @@ public class Recipe {
 
     String imageUrl;
 
-    String difficulty;
 
-    String mealType;
     LocalDate createdDate = LocalDate.now();
 
     LocalDate updatedDate;
 
+    boolean related;
 
+    Long parent_id;
+
+    String tileName;
+
+    Boolean isPendingRecipe = true;
 
     Float totalCalories = 0.0f;
 
@@ -70,8 +74,8 @@ public class Recipe {
     @OneToMany(mappedBy = "recipe")
     Set<Audio> audios = new HashSet<>();
 
-    @ManyToMany(mappedBy = "recipes")
-    Set<Category> categories = new HashSet<>();
+    @OneToOne(mappedBy = "recipe", cascade = CascadeType.ALL)
+    Category category;
 
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     Set<RecipeIngredient> recipeIngredients = new HashSet<>();

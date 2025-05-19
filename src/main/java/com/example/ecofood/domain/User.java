@@ -45,8 +45,17 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserSetting userSetting;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Comment comment;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Collection collection;
+
     @OneToMany(mappedBy = "user")
     private List<Recipe> recipes;
+
+    @OneToMany(mappedBy = "user")
+    private List<CookSnap> cookSnaps;
 
     public enum Role {
         CUSTOMER,

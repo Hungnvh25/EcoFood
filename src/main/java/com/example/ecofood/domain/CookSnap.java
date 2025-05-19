@@ -22,7 +22,9 @@ public class CookSnap {
     String content;
     String urlImage;
 
-    Long userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    User user;
 
     @OneToMany(mappedBy = "cookSnap")
     private List<Recipe> recipes;

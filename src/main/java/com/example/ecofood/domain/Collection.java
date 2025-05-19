@@ -22,7 +22,9 @@ public class Collection {
     String content;
     String urlImage;
 
-    Long userId;
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @OneToMany(mappedBy = "collection")
     private List<Recipe> recipes;

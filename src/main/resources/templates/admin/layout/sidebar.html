@@ -1,8 +1,58 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en" xmlns:th="http://www.thymeleaf.org">-->
+<!--<body>-->
+<!--<nav th:fragment="sidebar" class="col-md-3 col-lg-2 d-md-block collapse min-vh-100" style="background-color: #FFCB65">-->
+<!--    <div class="position-sticky pt-3">-->
+<!--        <ul class="nav flex-column">-->
+<!--            <li class="nav-item">-->
+<!--                <a class="nav-link text-white active" href="#">-->
+<!--                    <i class="fas fa-tachometer-alt me-2"></i>-->
+<!--                    Dashboard-->
+<!--                </a>-->
+<!--            </li>-->
+<!--            <li class="nav-item">-->
+<!--                <a class="nav-link text-white" href="/admin/user">-->
+<!--                    <i class="fas fa-users me-2"></i>-->
+<!--                    Users-->
+<!--                </a>-->
+<!--            </li>-->
+<!--            <li class="nav-item">-->
+<!--                <a class="nav-link text-white" href="/admin/category">-->
+<!--                    <i class="fas fa-utensils me-2"></i>-->
+<!--                    Recipe-->
+<!--                </a>-->
+<!--            </li>-->
+<!--            <li class="nav-item">-->
+<!--                <a class="nav-link text-white" href="/admin/ingredient">-->
+<!--                    <i class="fas fa-apple-alt me-2"></i>-->
+<!--                    Ingredient-->
+<!--                </a>-->
+<!--            </li>-->
+<!--            <li class="nav-item">-->
+<!--                <a class="nav-link text-white" href="/admin/category">-->
+<!--                    <i class="fas fa-table-list me-2"></i>-->
+<!--                    Category-->
+<!--                </a>-->
+<!--            </li>-->
+<!--        </ul>-->
+<!--    </div>-->
+<!--</nav>-->
+<!--</body>-->
+<!--</html>-->
+
+
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <body>
-<nav th:fragment="sidebar" class="col-md-3 col-lg-2 d-md-block collapse min-vh-100" style="background-color: #C3E66E">
+<nav th:fragment="sidebar" class="col-md-3 col-lg-2 d-md-block collapse min-vh-100" style="background-color: #FFCB65">
     <div class="position-sticky pt-3">
+
+        <div class="text-center mb-3">
+            <h2 style="color: #e5e7eb; font-family: 'Lobster', cursive;">
+                EcoFood
+            </h2>
+        </div>
+
         <ul class="nav flex-column">
             <li class="nav-item">
                 <a class="nav-link text-white active" href="#">
@@ -17,9 +67,21 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link text-white" href="/admin/category">
+                    <i class="fas fa-utensils me-2"></i>
+                    Recipe
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link text-white" href="/admin/ingredient">
                     <i class="fas fa-apple-alt me-2"></i>
                     Ingredient
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="/admin/category">
+                    <i class="fas fa-table-list me-2"></i>
+                    Category
                 </a>
             </li>
         </ul>
