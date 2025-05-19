@@ -74,8 +74,8 @@ public class Recipe {
     @OneToMany(mappedBy = "recipe")
     Set<Audio> audios = new HashSet<>();
 
-    @ManyToMany(mappedBy = "recipes")
-    Set<Category> categories = new HashSet<>();
+    @OneToOne(mappedBy = "recipe", cascade = CascadeType.ALL)
+    Category category;
 
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     Set<RecipeIngredient> recipeIngredients = new HashSet<>();

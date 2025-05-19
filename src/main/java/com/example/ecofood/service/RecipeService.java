@@ -68,7 +68,9 @@ public class RecipeService {
                              List<Float> ingredientQuantities,
                              List<String> ingredientUnits,
                              List<String> instructionDescriptions,
-                             List<MultipartFile> instructionImages) {
+                             List<MultipartFile> instructionImages,
+                             String difficulty,
+                             String mealType) {
 
 
 
@@ -112,6 +114,17 @@ public class RecipeService {
                 instructionHashSet.add(instruction);
             }
             recipe.setInstructions(instructionHashSet);
+            HashSet<Category> categoryHashSet = new HashSet<>();
+
+            // Lưu độ khó, ...
+            Category category = Category.builder()
+                    .difficulty(Category.Difficulty.valueOf(difficulty))
+                    .mealType(Category.MealType.valueOf(mealType))
+                    .recipe(recipe)
+                    .build();
+
+            recipe.setCategory(category);
+
 
 
         } catch (IOException e) {

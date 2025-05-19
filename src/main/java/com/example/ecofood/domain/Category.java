@@ -20,13 +20,10 @@ public class Category {
 
     String name;
 
-    @ManyToMany
-    @JoinTable(
-            name = "recipe_category",
-            joinColumns = @JoinColumn(name = "category_id"),
-            inverseJoinColumns = @JoinColumn(name = "recipe_id")
-    )
-    Set<Recipe> recipes;
+    @OneToOne
+    @JoinColumn(name = "recipe_id",referencedColumnName = "id")
+    private Recipe recipe;
+
 
     @Enumerated(EnumType.STRING)
     Difficulty difficulty;

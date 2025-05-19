@@ -84,13 +84,16 @@ public class RecipeController {
             @RequestParam(value = "ingredientQuantities", required = false) List<Float> ingredientQuantities,
             @RequestParam(value = "ingredientUnits", required = false) List<String> ingredientUnits,
             @RequestParam(value = "instructionDescriptions", required = false) List<String> instructionDescriptions,
-            @RequestParam(value = "image", required = false) List<MultipartFile> instructionImages) {
+            @RequestParam(value = "image", required = false) List<MultipartFile> instructionImages,
+            @RequestParam(value = "difficulty", required = true) String difficulty,
+            @RequestParam(value = "mealType", required = true) String mealType,
+            @RequestParam(value = "publish", defaultValue = "false") boolean publish) {
 
         if (result.hasErrors()) {
             return "client/Recipe/add";
         }
 
-        this.recipeService.createRecipe(recipe,imageFile,ingredientIds,ingredientQuantities,ingredientUnits,instructionDescriptions,instructionImages);
+        this.recipeService.createRecipe(recipe,imageFile,ingredientIds,ingredientQuantities,ingredientUnits,instructionDescriptions,instructionImages,difficulty,mealType);
 
         return "redirect:/recipe";
     }
