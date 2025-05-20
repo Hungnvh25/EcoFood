@@ -21,7 +21,7 @@ public class Comment {
     String content;
     LocalDate createdDate = LocalDate.now();
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 

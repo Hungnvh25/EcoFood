@@ -50,8 +50,8 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserActivity userActivity;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private Comment comment;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Comment> comments = new HashSet<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Collection collection;

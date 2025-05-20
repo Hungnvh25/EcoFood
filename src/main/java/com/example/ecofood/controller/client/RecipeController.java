@@ -1,8 +1,6 @@
 package com.example.ecofood.controller.client;
 
-import com.example.ecofood.DTO.IngredientDTO;
-import com.example.ecofood.DTO.LikeResponse;
-import com.example.ecofood.DTO.RecipeDTO;
+import com.example.ecofood.DTO.*;
 import com.example.ecofood.domain.*;
 import com.example.ecofood.service.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,7 +32,7 @@ public class RecipeController {
     UserService userService;
     UserActivityService userActivityService;
     UserRecipeLikeService userRecipeLikeService;
-
+    CommentService commentService;
 
 
     @GetMapping ("/")
@@ -148,6 +147,42 @@ public class RecipeController {
 
         // Trả về response với likeCount và trạng thái likedByCurrentUser
         return ResponseEntity.ok(new LikeResponse(recipe.getLikeCount(), !alreadyLiked));
+    }
+
+    @GetMapping("/recipe/{id}/comments")
+    public ResponseEntity<List<CommentResponse>> getCommentsByRecipe(@PathVariable Long id) {
+        List<Comment> comments = this.commentService.getCommentsByRecipeId(id);
+        List<CommentResponse> responses = comments.stream()
+                .map(comment -> new CommentResponse(
+                        comment.getContent(),
+                        comment.getUser().getUserName(),
+                        comment.getUser().getUserSetting().getUrlImage(),
+                        comment.getCreatedDate().toString()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(responses);
+    }
+    @PostMapping("/recipe/{id}/comments")
+    public ResponseEntity<?> addComment(@PathVariable Long id, @RequestBody CommentRequest request) {
+        User currentUser = userService.getCurrentUser();
+        Recipe recipe = recipeService.getRecipeById(id);
+
+        Comment comment = Comment.builder()
+                .content(request.getContent())
+                .user(currentUser)
+                .recipe(recipe)
+                .createdDate(LocalDate.now())
+                .build();
+
+        this.commentService.saveComment(comment);
+
+        return ResponseEntity.ok(new CommentResponse(
+                comment.getContent(),
+                currentUser.getUserName(),
+                currentUser.getUserSetting().getUrlImage(),
+                comment.getCreatedDate().toString()
+        ));
     }
 
 }

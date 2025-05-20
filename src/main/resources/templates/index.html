@@ -94,11 +94,13 @@
                                         <span th:id="'like-count-' + ${recipe.id}"
                                               th:text="${recipe.likeCount != null ? recipe.likeCount : '0'}">0</span>
                                     </button>
-                                    <button class="btn btn-light btn-sm" type="button" onclick="event.preventDefault(); event.stopPropagation();">
-                                        <i class="fas fa-comment"></i> <span th:text="${recipe.comments != null ? recipe.comments.size() : '0'}">0</span>
+                                    <button class="btn btn-light btn-sm"
+                                            type="button"
+                                            th:attr="onclick=|event.preventDefault(); event.stopPropagation(); openRecipeModal(${recipe.id}, '${recipe.title}', '${recipe.imageUrl}', '${recipe.cookingTime}', '${recipe.description}', '${recipe.user?.userName}')|">
+                                        <i class="fas fa-comment"></i>
+                                        <span th:text="${recipe.comments != null ? recipe.comments.size() : '0'}">0</span>
                                     </button>
                                 </div>
-
                             </div>
 
                             <!-- Dinh dưỡng -->
@@ -137,7 +139,7 @@
                                     <!-- Protein -->
                                     <div class="rounded p-1 d-flex align-items-center justify-content-center"
                                          style="background-color: #fdba74;">
-                                        <div class="me-1">F
+                                        <div class="me-1">
                                             <i class="fas fa-dumbbell text-dark fs-6"></i>
                                         </div>
                                         <div>
@@ -176,7 +178,27 @@
     </div>
 </div>
 
+<!-- Modal Chi Tiết Recipe -->
+<div class="modal fade" id="recipeModal" tabindex="-1" aria-labelledby="recipeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="recipeModalLabel">Chi Tiết Món Ăn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Nội dung sẽ được thêm bằng JavaScript -->
+                <div id="recipeModalContent">
+                    <p>Đang tải dữ liệu...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!--Tim -->
 <script>
     function toggleLike(event, recipeId) {
         event.preventDefault();
@@ -185,13 +207,10 @@
         const heartIcon = document.getElementById(`heart-icon-${recipeId}`);
         const likeCountSpan = document.getElementById(`like-count-${recipeId}`);
 
-        // Gửi yêu cầu API
         fetch(`/recipe/${recipeId}/toggle-like`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                // Nếu cần token xác thực, thêm vào đây
-                // 'Authorization': 'Bearer ' + getAuthToken()
+                'Content-Type': 'application/json'
             }
         })
             .then(response => {
@@ -199,7 +218,6 @@
                 return response.json();
             })
             .then(data => {
-                // Cập nhật màu icon và số likeCount
                 heartIcon.classList.toggle('text-danger', data.likedByCurrentUser);
                 likeCountSpan.textContent = data.likeCount;
             })
@@ -210,5 +228,108 @@
     }
 </script>
 
+<!--comment-->
+<script>
+    function openRecipeModal(recipeId, title, imageUrl, cookingTime, description, userName) {
+        const modalContent = document.getElementById('recipeModalContent');
+
+        // Hiển thị thông tin công thức từ dữ liệu đã có trong HTML
+        modalContent.innerHTML = `
+            <div class="row">
+                <div class="col-md-4">
+                    <img src="${imageUrl || '/Recipe/default.jpg'}" class="img-fluid rounded mb-3">
+                </div>
+                <div class="col-md-8">
+                    <h5>${title || 'Không có tiêu đề'}</h5>
+                    <p><strong>Người đăng:</strong> ${userName || 'Ẩn danh'}</p>
+                    <p><strong>Thời gian nấu:</strong> ${cookingTime || 'N/A'} phút</p>
+                    <p><strong>Mô tả:</strong> ${description || 'Không có mô tả'}</p>
+                </div>
+            </div>
+            <hr>
+            <h6>Bình luận</h6>
+            <ul class="list-group mb-3" id="commentList">
+                <!-- Lấy danh sách bình luận từ backend -->
+            </ul>
+            <form onsubmit="return submitComment(event, ${recipeId})">
+                <div class="mb-3">
+                    <textarea class="form-control" id="newComment" rows="2" placeholder="Nhập bình luận..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">Gửi bình luận</button>
+            </form>
+        `;
+
+        // Lấy danh sách bình luận từ backend
+        fetch(`/recipe/${recipeId}/comments`)
+            .then(response => {
+                if (!response.ok) throw new Error("Không thể lấy dữ liệu bình luận");
+                return response.json();
+            })
+            .then(comments => {
+                const commentList = document.getElementById('commentList');
+                if (comments && comments.length > 0) {
+                    commentList.innerHTML = comments.map(c => `
+                        <li class="list-group-item">
+                            <strong>${c.userName || 'Ẩn danh'}:</strong> ${c.content}
+                        </li>
+                    `).join('');
+                } else {
+                    commentList.innerHTML = '<li class="list-group-item">Chưa có bình luận nào.</li>';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                const commentList = document.getElementById('commentList');
+                commentList.innerHTML = '<li class="list-group-item text-danger">Lỗi khi tải bình luận!</li>';
+            });
+
+        new bootstrap.Modal(document.getElementById('recipeModal')).show();
+    }
+
+    function submitComment(event, recipeId) {
+        event.preventDefault();
+        const textarea = document.getElementById('newComment');
+        const content = textarea.value.trim();
+        if (!content) {
+            alert('Vui lòng nhập nội dung bình luận!');
+            return false;
+        }
+
+        // Giả định username (cần thay bằng cách lấy username thực tế từ session hoặc backend)
+        const userName = "GuestUser"; // Thay bằng cách lấy username thực tế nếu có
+        fetch(`/recipe/${recipeId}/comments`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ content, userName })
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('Lỗi khi gửi bình luận');
+                return res.json();
+            })
+            .then(comment => {
+                const list = document.getElementById('commentList');
+
+                // Nếu đang hiển thị "Chưa có bình luận nào", thì xóa nó đi
+                if (list.children.length === 1 && list.children[0].innerText === 'Chưa có bình luận nào.') {
+                    list.innerHTML = ''; // Xóa nội dung cũ
+                }
+
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
+                li.innerHTML = `<strong>${comment.userName || 'Ẩn danh'}:</strong> ${comment.content}`;
+                list.appendChild(li);
+                textarea.value = '';
+            })
+
+            .catch(err => {
+                console.error(err);
+                alert('Lỗi khi gửi bình luận.');
+            });
+
+        return false; // Ngăn form submit mặc định
+    }
+</script>
 </body>
 </html>
