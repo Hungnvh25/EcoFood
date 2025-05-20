@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -13,21 +14,15 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Collection {
-
+public class UserActivity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    String content;
-    String urlImage;
+    @ElementCollection(fetch = FetchType.EAGER)
+    List<Long> recipeIds = new ArrayList<>();
 
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
-
-    @OneToMany(mappedBy = "collection")
-    private List<Recipe> recipes;
-
-
 }

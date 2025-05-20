@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -27,14 +28,19 @@ public class RecipeService {
     IngredientRepository ingredientRepository;
     ImageService imageService;
     UserService userService;
+    UserRecipeLikeService userRecipeLikeService;
 
 
 
-    public List<RecipeDTO> getAllRecipes() {
-        return recipeRepository.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+
+    public List<Recipe> getAllRecipes() {
+        List<Recipe> recipeList = recipeRepository.findAll();
+        for (Recipe recipe : recipeList) {
+            userRecipeLikeService.getUserLikeRecipe(recipe);
+        }
+        return recipeList;
     }
+
 
     public RecipeDTO convertToDTO(Recipe recipe) {
         return RecipeDTO.builder()
@@ -45,8 +51,6 @@ public class RecipeService {
                 .cookingTime(recipe.getCookingTime())
                 .servingSize(recipe.getServingSize())
                 .imageUrl(recipe.getImageUrl())
-                .difficulty(recipe.getDifficulty())
-                .mealType(recipe.getMealType())
                 .user(recipe.getUser())
                 .createdDate(recipe.getCreatedDate())
                 .updatedDate(recipe.getUpdatedDate())
@@ -72,7 +76,9 @@ public class RecipeService {
                              List<Float> ingredientQuantities,
                              List<String> ingredientUnits,
                              List<String> instructionDescriptions,
-                             List<MultipartFile> instructionImages) {
+                             List<MultipartFile> instructionImages,
+                             String difficulty,
+                             String mealType) {
 
 
 
@@ -116,6 +122,17 @@ public class RecipeService {
                 instructionHashSet.add(instruction);
             }
             recipe.setInstructions(instructionHashSet);
+            HashSet<Category> categoryHashSet = new HashSet<>();
+
+            // Lưu độ khó, ...
+            Category category = Category.builder()
+                    .difficulty(Category.Difficulty.valueOf(difficulty))
+                    .mealType(Category.MealType.valueOf(mealType))
+                    .recipe(recipe)
+                    .build();
+
+            recipe.setCategory(category);
+
 
 
         } catch (IOException e) {
@@ -162,14 +179,16 @@ public class RecipeService {
 
     }
 
-    public List<RecipeDTO> searchRecipesByTitle(String keyword) {
-        return recipeRepository.findByTitleContainingIgnoreCase(keyword).stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public List<Recipe> searchRecipesByTitle(String keyword) {
+        return recipeRepository.findByTitleContainingIgnoreCase(keyword);
     }
 
     public Recipe getRecipeById(Long id){
         return this.recipeRepository.findById(id).orElseThrow(null);
+    }
+
+    public void saveRecipe(Recipe recipe){
+        this.recipeRepository.save(recipe);
     }
 
 }
