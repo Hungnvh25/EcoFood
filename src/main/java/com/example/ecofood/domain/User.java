@@ -6,7 +6,9 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -46,7 +48,10 @@ public class User {
     private UserSetting userSetting;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private Comment comment;
+    private UserActivity userActivity;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Comment> comments = new HashSet<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Collection collection;
@@ -56,6 +61,10 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<CookSnap> cookSnaps;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<UserRecipeLike> likedRecipes = new HashSet<>();
+
 
     public enum Role {
         CUSTOMER,

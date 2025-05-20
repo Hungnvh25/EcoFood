@@ -1,25 +1,24 @@
 package com.example.ecofood.controller.client;
 
-import com.example.ecofood.DTO.IngredientDTO;
-import com.example.ecofood.DTO.RecipeDTO;
-import com.example.ecofood.domain.Ingredient;
-import com.example.ecofood.domain.Recipe;
-import com.example.ecofood.domain.User;
-import com.example.ecofood.service.IngredientService;
-import com.example.ecofood.service.RecipeService;
-import com.example.ecofood.service.UserService;
+import com.example.ecofood.DTO.*;
+import com.example.ecofood.domain.*;
+import com.example.ecofood.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.Principal;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,7 +30,9 @@ public class RecipeController {
     RecipeService recipeService;
     IngredientService ingredientService;
     UserService userService;
-
+    UserActivityService userActivityService;
+    UserRecipeLikeService userRecipeLikeService;
+    CommentService commentService;
 
 
     @GetMapping ("/")
@@ -53,12 +54,13 @@ public class RecipeController {
     }
 
     @GetMapping("/recipe")
-    public String showCreateForm(Model model) {
+    public String showCreateForm(Model model,HttpServletRequest request) {
         Recipe recipe = new Recipe();
         User currentUser = this.userService.getCurrentUser();
 
         model.addAttribute("currentUser",currentUser);
         model.addAttribute("recipe", recipe);
+        model.addAttribute("currentUri", request.getRequestURI());
         return "client/Recipe/add";
     }
 
@@ -103,11 +105,85 @@ public class RecipeController {
         try {
             Recipe recipe = this.recipeService.getRecipeById(id);
             model.addAttribute("recipe", recipe);
+
+            this.userActivityService.saveHistoryViewRecipe(recipe);
             return "client/Recipe/recipe-detail";
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", "Không tìm thấy món ăn với ID: " + id);
             return "error"; // Giả định bạn có template error.html
         }
     }
+
+
+
+
+
+
+    @PostMapping("/recipe/{id}/toggle-like")
+    public ResponseEntity<?> toggleLikeRecipe(@PathVariable Long id) {
+        User currentUser = userService.getCurrentUser();
+        Recipe recipe = recipeService.getRecipeById(id);
+
+        // Kiểm tra xem user đã like chưa
+        boolean alreadyLiked = this.userRecipeLikeService.existsByUserAndRecipe(recipe, currentUser);
+
+        if (alreadyLiked) {
+            // Unlike: Xóa bản ghi UserRecipeLike
+            UserRecipeLike userRecipeLike = this.userRecipeLikeService.findByUserAndRecipe(recipe, currentUser);
+            this.userRecipeLikeService.deleteUserRecipeLike(userRecipeLike);
+            recipe.setLikeCount(recipe.getLikeCount() != null && recipe.getLikeCount() > 0 ? recipe.getLikeCount() - 1 : 0);
+        } else {
+            // Like: Tạo bản ghi UserRecipeLike
+            UserRecipeLike userRecipeLike = UserRecipeLike.builder()
+                    .user(currentUser)
+                    .recipe(recipe)
+                    .build();
+            this.userRecipeLikeService.saveUserRecipeLike(userRecipeLike);
+            recipe.setLikeCount(recipe.getLikeCount() != null ? recipe.getLikeCount() + 1 : 1);
+        }
+
+        // Lưu recipe với likeCount mới
+        this.recipeService.saveRecipe(recipe);
+
+        // Trả về response với likeCount và trạng thái likedByCurrentUser
+        return ResponseEntity.ok(new LikeResponse(recipe.getLikeCount(), !alreadyLiked));
+    }
+
+    @GetMapping("/recipe/{id}/comments")
+    public ResponseEntity<List<CommentResponse>> getCommentsByRecipe(@PathVariable Long id) {
+        List<Comment> comments = this.commentService.getCommentsByRecipeId(id);
+        List<CommentResponse> responses = comments.stream()
+                .map(comment -> new CommentResponse(
+                        comment.getContent(),
+                        comment.getUser().getUserName(),
+                        comment.getUser().getUserSetting().getUrlImage(),
+                        comment.getCreatedDate().toString()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(responses);
+    }
+    @PostMapping("/recipe/{id}/comments")
+    public ResponseEntity<?> addComment(@PathVariable Long id, @RequestBody CommentRequest request) {
+        User currentUser = userService.getCurrentUser();
+        Recipe recipe = recipeService.getRecipeById(id);
+
+        Comment comment = Comment.builder()
+                .content(request.getContent())
+                .user(currentUser)
+                .recipe(recipe)
+                .createdDate(LocalDate.now())
+                .build();
+
+        this.commentService.saveComment(comment);
+
+        return ResponseEntity.ok(new CommentResponse(
+                comment.getContent(),
+                currentUser.getUserName(),
+                currentUser.getUserSetting().getUrlImage(),
+                comment.getCreatedDate().toString()
+        ));
+    }
+
 }
 

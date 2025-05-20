@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -13,19 +14,15 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Comment {
+public class UserActivity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    String content;
-    LocalDate createdDate = LocalDate.now();
+    @ElementCollection(fetch = FetchType.EAGER)
+    List<Long> recipeIds = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "recipe_id")
-    private Recipe recipe;
 }

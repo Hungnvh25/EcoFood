@@ -14,10 +14,24 @@
         <th:block th:replace="~{client/layout/sidebar-left :: sidebarLeft}"></th:block>
         <!-- Nội dung chính -->
         <div class="col-md-7 offset-md-2 bg-white p-4">
+
             <!-- Tiêu đề và nút quay lại -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>Kết Quả Tìm Kiếm</h2>
                 <a th:href="@{/}" class="btn btn-outline-primary">Quay Lại Trang Chủ</a>
+            </div>
+            <!-- Thanh tìm kiếm ngắn, căn giữa -->
+
+            <div class="d-flex  mb-4">
+                <form th:action="@{/search}" method="get" class="w-100" style="max-width: 350px;">
+                    <div class="input-group">
+                        <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm món ăn..."
+                               th:value="${keyword}" aria-label="Từ khóa tìm kiếm" required>
+                        <button class="btn btn-success" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
             </div>
             <p class="text-muted">Kết quả cho từ khóa: <strong th:text="${keyword}"></strong></p>
 
@@ -45,7 +59,9 @@
                                     <span th:text="${recipe.cookingTime != null ? recipe.cookingTime + ' phút' : 'N/A'}">Thời gian nấu</span>
                                 </div>
                             </div>
-                            <p class="text-dark small mb-2" th:text="${recipe.description != null ? recipe.description : 'Không có mô tả'}">Mô tả món ăn</p>
+                            <p class="text-dark small mb-2"
+                               th:text="${recipe.description != null ? recipe.description : 'Không có mô tả'}">Mô tả món
+                                ăn</p>
                             <div class="d-flex gap-3">
                                 <div class="d-flex align-items-center">
                                     <i class="fas fa-fire me-1 text-muted"></i>

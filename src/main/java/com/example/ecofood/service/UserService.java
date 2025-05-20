@@ -2,6 +2,8 @@ package com.example.ecofood.service;
 
 import com.example.ecofood.DTO.UserDTO;
 import com.example.ecofood.domain.User;
+import com.example.ecofood.domain.UserActivity;
+import com.example.ecofood.repository.UserActivityRepository;
 import com.example.ecofood.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
@@ -20,6 +22,7 @@ public class UserService {
     UserSettingService userSettingService;
     PasswordEncoder passwordEncoder;
     HttpServletRequest request;
+    UserActivityRepository userActivityRepository;
 
     public User findUserByUserName(String userName) {
         return this.userRepository.findUserByUserName(userName);
@@ -38,6 +41,12 @@ public class UserService {
 
         this.userRepository.save(user);
         this.userSettingService.createUserSetting(user);
+
+        UserActivity userActivity = UserActivity.builder()
+                .user(user)
+                .build();
+
+        this.userActivityRepository.save(userActivity);
     }
 
     public void saveUser(User user){
