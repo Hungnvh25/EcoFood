@@ -22,7 +22,6 @@ public class UserActivity {
     @ElementCollection(fetch = FetchType.EAGER)
     List<Long> recipeIds = new ArrayList<>();
 
-
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;

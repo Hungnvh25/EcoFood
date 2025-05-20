@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -27,12 +28,19 @@ public class RecipeService {
     IngredientRepository ingredientRepository;
     ImageService imageService;
     UserService userService;
+    UserRecipeLikeService userRecipeLikeService;
+
 
 
 
     public List<Recipe> getAllRecipes() {
-        return recipeRepository.findAll();
+        List<Recipe> recipeList = recipeRepository.findAll();
+        for (Recipe recipe : recipeList) {
+            userRecipeLikeService.getUserLikeRecipe(recipe);
+        }
+        return recipeList;
     }
+
 
     public RecipeDTO convertToDTO(Recipe recipe) {
         return RecipeDTO.builder()
@@ -177,6 +185,10 @@ public class RecipeService {
 
     public Recipe getRecipeById(Long id){
         return this.recipeRepository.findById(id).orElseThrow(null);
+    }
+
+    public void saveRecipe(Recipe recipe){
+        this.recipeRepository.save(recipe);
     }
 
 }

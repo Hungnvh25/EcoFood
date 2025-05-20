@@ -33,6 +33,7 @@ public class Recipe {
 
     String imageUrl;
 
+    Integer likeCount;
 
     LocalDate createdDate = LocalDate.now();
 
@@ -40,11 +41,11 @@ public class Recipe {
 
     boolean related;
 
-    Long parent_id;
+    Long parent_id; // id recipe cha
 
-    String tileName;
+    String tileName; // để check tên gần giống
 
-    Boolean isPendingRecipe = true;
+    Boolean isPendingRecipe = true;  // chờ admin duyệt
 
     Float totalCalories = 0.0f;
 
@@ -53,6 +54,9 @@ public class Recipe {
     Float totalFat = 0.0f;
 
     Float totalCarbohydrates = 0.0f;
+
+    @Transient
+    private boolean likedByCurrentUser;
 
     @ElementCollection
     Set<Instruction> instructions = new HashSet<>(); // Initialized
@@ -83,6 +87,10 @@ public class Recipe {
     @ManyToOne
     @JoinColumn(name = "collection_id")
     Collection collection;
+
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<UserRecipeLike> userLikes = new HashSet<>();
+
 
     @PrePersist
     protected void onCreate() {

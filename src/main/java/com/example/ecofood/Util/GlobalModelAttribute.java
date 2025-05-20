@@ -48,7 +48,6 @@ public class GlobalModelAttribute {
                 recipeList.add(recipe);
             }
         }
-        System.out.println(recipeList.size());
         model.addAttribute("currentUser", user);
         model.addAttribute("RecipeHistory", recipeList);
 

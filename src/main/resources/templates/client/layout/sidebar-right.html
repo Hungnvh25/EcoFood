@@ -28,9 +28,11 @@
 
 
 
-        <a href="/recipe" class="btn btn-success btn-sm rounded-pill">
+        <a href="/recipe" class="btn btn-success btn-sm rounded-pill"
+           th:if="${currentUri != '/recipe'}">
             <i class="fas fa-plus"></i> Thêm món
         </a>
+
     </div>
 
     <div class="mb-4">
