@@ -191,4 +191,8 @@ public class RecipeService {
         this.recipeRepository.save(recipe);
     }
 
+    public List<Recipe> findTop3ByOrderByLikeCountDesc(){
+        return this.recipeRepository.findTop3ByOrderByLikeCountDesc();
+    }
+
 }

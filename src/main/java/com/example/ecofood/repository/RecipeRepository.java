@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     List<Recipe> findByTitleContainingIgnoreCase(String keyword);
     Optional<Recipe> findById(Long id);
+
+    List<Recipe> findTop3ByOrderByLikeCountDesc();
 }
