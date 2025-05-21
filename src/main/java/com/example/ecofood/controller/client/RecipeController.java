@@ -95,9 +95,13 @@ public class RecipeController {
             return "client/Recipe/add";
         }
 
+        if(ingredientIds == null || instructionDescriptions == null){
+
+        }
+
         this.recipeService.createRecipe(recipe,imageFile,ingredientIds,ingredientQuantities,ingredientUnits,instructionDescriptions,instructionImages,difficulty,mealType);
 
-        return "redirect:/recipe";
+        return "redirect:/";
     }
 
     @GetMapping("/recipe/{id}")
@@ -184,6 +188,54 @@ public class RecipeController {
                 comment.getCreatedDate().toString()
         ));
     }
+
+    @GetMapping("/searchTitleName")
+    public ResponseEntity<List<RecipeDetailDto>> searchRecipesByTitle(@RequestParam("keyword") String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+        List<Recipe> recipes = this.recipeService.findTop4ByTileNameLike(keyword);
+        List<RecipeDetailDto> dtos = recipes.stream().map(recipe -> {
+            List<RecipeIngredientDTO> ingredientDtos = recipe.getRecipeIngredients() != null
+                    ? recipe.getRecipeIngredients().stream().map(ri -> RecipeIngredientDTO.builder()
+                    .id(ri.getId())
+                    .ingredient(ri.getIngredient() != null
+                            ? new IngredientDTO(ri.getIngredient().getId(), ri.getIngredient().getName())
+                            : null)
+                    .quantity(ri.getQuantity() != null ? ri.getQuantity().doubleValue() : 0.0)
+                    .unit(ri.getUnit() != null ? ri.getUnit().toString() : "")
+                    .build()).toList()
+                    : Collections.emptyList();
+
+            List<InstructionDTO> instructionDtos = recipe.getInstructions() != null
+                    ? recipe.getInstructions().stream().map(i -> InstructionDTO.builder()
+                    .id(null) // Instruction không có id trong định nghĩa hiện tại
+                    .description(i.getDescription() != null ? i.getDescription() : "")
+                    .step(i.getStep() != null ? i.getStep().intValue() : 0)
+                    .imageUrl(i.getImageUrl() != null ? i.getImageUrl() : "")
+                    .build()).toList()
+                    : Collections.emptyList();
+
+            return RecipeDetailDto.builder()
+                    .id(recipe.getId())
+                    .title(recipe.getTitle())
+                    .tileName(recipe.getTileName())
+                    .imageUrl(recipe.getImageUrl())
+                    .preparationTime(recipe.getPreparationTime() != null ? recipe.getPreparationTime() : 0)
+                    .cookingTime(recipe.getCookingTime() != null ? recipe.getCookingTime() : 0)
+                    .servingSize(recipe.getServingSize() != null ? recipe.getServingSize() : 1)
+                    .recipeIngredients(ingredientDtos)
+                    .instructions(instructionDtos)
+                    .likeCount(recipe.getLikeCount() != null ? recipe.getLikeCount() : 0)
+                    .totalCalories(recipe.getTotalCalories() != null ? recipe.getTotalCalories() : 0.0f)
+                    .totalProtein(recipe.getTotalProtein() != null ? recipe.getTotalProtein() : 0.0f)
+                    .totalFat(recipe.getTotalFat() != null ? recipe.getTotalFat() : 0.0f)
+                    .totalCarbohydrates(recipe.getTotalCarbohydrates() != null ? recipe.getTotalCarbohydrates() : 0.0f)
+                    .build();
+        }).toList();
+        return ResponseEntity.ok(dtos);
+    }
+
 
 }
 

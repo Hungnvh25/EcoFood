@@ -1,9 +1,7 @@
 package com.example.ecofood.service;
 
+import com.example.ecofood.Util.RecipeUtils;
 import com.example.ecofood.domain.*;
-import com.example.ecofood.DTO.InstructionDTO;
-import com.example.ecofood.DTO.RecipeDTO;
-import com.example.ecofood.DTO.RecipeIngredientDTO;
 import com.example.ecofood.repository.IngredientRepository;
 import com.example.ecofood.repository.RecipeRepository;
 import lombok.AccessLevel;
@@ -13,11 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,8 +25,7 @@ public class RecipeService {
     ImageService imageService;
     UserService userService;
     UserRecipeLikeService userRecipeLikeService;
-
-
+    RecipeUtils recipeUtils = new RecipeUtils();
 
 
     public List<Recipe> getAllRecipes() {
@@ -42,35 +37,6 @@ public class RecipeService {
     }
 
 
-    public RecipeDTO convertToDTO(Recipe recipe) {
-        return RecipeDTO.builder()
-                .id(recipe.getId())
-                .title(recipe.getTitle())
-                .description(recipe.getDescription())
-                .preparationTime(recipe.getPreparationTime())
-                .cookingTime(recipe.getCookingTime())
-                .servingSize(recipe.getServingSize())
-                .imageUrl(recipe.getImageUrl())
-                .user(recipe.getUser())
-                .createdDate(recipe.getCreatedDate())
-                .updatedDate(recipe.getUpdatedDate())
-                .totalCalories(recipe.getTotalCalories())
-                .totalProtein(recipe.getTotalProtein())
-                .totalFat(recipe.getTotalFat())
-                .totalCarbohydrates(recipe.getTotalCarbohydrates())
-                .userId(recipe.getUser() != null ? recipe.getUser().getId() : null)
-                .instructions(recipe.getInstructions().stream()
-                        .map(instruction -> new InstructionDTO(/* map fields */))
-                        .collect(Collectors.toSet()))
-                .recipeIngredients(recipe.getRecipeIngredients().stream()
-                        .map(ingredient -> new RecipeIngredientDTO(/* map fields */))
-                        .collect(Collectors.toSet()))
-                .commentIds(recipe.getComments().stream().map(Comment::getId).collect(Collectors.toSet()))
-                .cookSnapCount(recipe.getCookSnap() != null ? 1 : 0) // Giả định, bạn cần tính thực tế
-                .cookSnaps(Collections.emptySet()) // Giả định, bạn cần ánh xạ từ CookSnap
-                .build();
-    }
-
     public void createRecipe(Recipe recipe, MultipartFile imageFile,
                              List<Long> ingredientIds,
                              List<Float> ingredientQuantities,
@@ -81,48 +47,57 @@ public class RecipeService {
                              String mealType) {
 
 
-
         try {
-            String imageUrlRecipe = this.imageService.saveImage(imageFile, "Recipe");
-            recipe.setImageUrl(imageUrlRecipe);
-            User user = this.userService.getCurrentUser();
 
+            if (!imageFile.isEmpty()) {
+                String imageUrlRecipe = this.imageService.saveImage(imageFile, "Recipe");
+                recipe.setImageUrl(imageUrlRecipe);
+            }
+
+            User user = this.userService.getCurrentUser();
             recipe.setUser(user);
 
             HashSet<RecipeIngredient> recipeIngredientHashSet = new HashSet<>();
+
             // lưu nguyên liệu
-            for (int i = 0; i < ingredientIds.size(); i++) {
+            if (ingredientIds != null && !ingredientIds.isEmpty()) {
+                for (int i = 0; i < ingredientIds.size(); i++) {
 
-                Ingredient ingredient = this.ingredientRepository.findAllById(ingredientIds.get(i));
+                    Ingredient ingredient = this.ingredientRepository.findAllById(ingredientIds.get(i));
 
-                RecipeIngredient recipeIngredient = RecipeIngredient.builder()
-                        .ingredient(ingredient)
-                        .recipe(recipe)
-                        .quantity(ingredientQuantities.get(i))
-                        .unit(RecipeIngredient.Unit.valueOf(ingredientUnits.get(i)))
-                        .build();
-                recipeIngredientHashSet.add(recipeIngredient);
+                    RecipeIngredient recipeIngredient = RecipeIngredient.builder()
+                            .ingredient(ingredient)
+                            .recipe(recipe)
+                            .quantity(ingredientQuantities.get(i))
+                            .unit(RecipeIngredient.Unit.valueOf(ingredientUnits.get(i)))
+                            .build();
+                    recipeIngredientHashSet.add(recipeIngredient);
 
-                saveNutrition(recipe, ingredient, recipeIngredient);
+                    saveNutrition(recipe, ingredient, recipeIngredient);
 
 
+                }
             }
+
             recipe.setRecipeIngredients(recipeIngredientHashSet);
 
             // Lưu bước làm
 
             HashSet<Instruction> instructionHashSet = new HashSet<>();
-            for (int i = 0; i < instructionDescriptions.size(); i++) {
 
-                String imageUrl = this.imageService.saveImage(instructionImages.get(i), "instruction");
-                Instruction instruction = Instruction.builder()
-                        .imageUrl(imageUrl)
-                        .description(instructionDescriptions.get(i))
-                        .build();
-                instructionHashSet.add(instruction);
+            if (instructionDescriptions != null && !instructionDescriptions.isEmpty()) {
+                for (int i = 0; i < instructionDescriptions.size(); i++) {
+
+                    String imageUrl = this.imageService.saveImage(instructionImages.get(i), "instruction");
+                    Instruction instruction = Instruction.builder()
+                            .imageUrl(imageUrl)
+                            .description(instructionDescriptions.get(i))
+                            .build();
+                    instructionHashSet.add(instruction);
+                }
             }
+
             recipe.setInstructions(instructionHashSet);
-            HashSet<Category> categoryHashSet = new HashSet<>();
 
             // Lưu độ khó, ...
             Category category = Category.builder()
@@ -133,7 +108,9 @@ public class RecipeService {
 
             recipe.setCategory(category);
 
-
+            // chuẩn hóa tên món
+            String tileName = recipeUtils.normalizeRecipeName(recipe.getTitle());
+            recipe.setTileName(tileName);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -183,16 +160,25 @@ public class RecipeService {
         return recipeRepository.findByTitleContainingIgnoreCase(keyword);
     }
 
-    public Recipe getRecipeById(Long id){
+    public Recipe getRecipeById(Long id) {
         return this.recipeRepository.findById(id).orElseThrow(null);
     }
 
-    public void saveRecipe(Recipe recipe){
+    public void saveRecipe(Recipe recipe) {
         this.recipeRepository.save(recipe);
     }
 
-    public List<Recipe> findTop3ByOrderByLikeCountDesc(){
+    public List<Recipe> findTop3ByOrderByLikeCountDesc() {
         return this.recipeRepository.findTop3ByOrderByLikeCountDesc();
     }
+
+    public List<Recipe> findTop4ByTileNameLike(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return this.recipeRepository.findTop4ByTileNameContainingIgnoreCase(recipeUtils.normalizeRecipeName(keyword));
+    }
+
 
 }

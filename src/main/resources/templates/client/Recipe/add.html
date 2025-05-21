@@ -7,11 +7,25 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <style>
-        .is-invalid { border-color: #dc3545 !important; }
-        .invalid-feedback { display: none; }
-        .is-invalid ~ .invalid-feedback { display: block; }
-        .image-select-box:hover { background-color: #fff3cd !important; }
-        .btn-light:hover { background-color: #e9ecef; }
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+
+        .invalid-feedback {
+            display: none;
+        }
+
+        .is-invalid ~ .invalid-feedback {
+            display: block;
+        }
+
+        .image-select-box:hover {
+            background-color: #fff3cd !important;
+        }
+
+        .btn-light:hover {
+            background-color: #e9ecef;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -27,20 +41,33 @@
                     <h2 class="fw-bold">Tạo món ăn của bạn</h2>
                 </div>
                 <div class="col-md-6 text-end">
-                    <a href="javascript:history.back()" class="btn rounded-pill px-4 me-2" style="background-color: #D9F99D;">Trở lại</a>
-                    <button type="submit" form="recipeForm" class="btn rounded-pill px-4 me-2" style="background-color: #D9F99D;">Lưu và đóng</button>
-                    <button type="submit" form="recipeForm" name="publish" value="true" class="btn rounded-pill px-4" style="background-color: #D9F99D;">Đăng lên</button>
+                    <a href="javascript:history.back()" class="btn rounded-pill px-4 me-2"
+                       style="background-color: #D9F99D;">Trở lại</a>
+                    <button id="saveAndClose" type="submit" form="recipeForm" class="btn rounded-pill px-4 me-2"
+                            style="background-color: #D9F99D;">Lưu và đóng
+                    </button>
+                    <button id="publishBtn" type="submit" form="recipeForm" name="publish" value="true"
+                            class="btn rounded-pill px-4" style="background-color: #D9F99D;">Đăng lên
+                    </button>
                 </div>
             </div>
 
             <!-- Main Content -->
-            <form id="recipeForm" th:action="@{/recipes}" method="post" enctype="multipart/form-data" th:object="${recipe}">
+            <form id="recipeForm" th:action="@{/recipes}" method="post" enctype="multipart/form-data"
+                  th:object="${recipe}">
                 <div class="row">
                     <!-- Left Column - Food Image -->
                     <div class="col-md-5 mb-4">
-                        <div id="imageSelector" class="bg-warning bg-opacity-25 rounded p-2 text-center position-relative" style="height: 280px; cursor: pointer;">
-                            <img id="previewImage" th:src="${recipe.imageUrl != null ? recipe.imageUrl : '/images/placeholder.png'}" alt="Food Image" class="img-fluid h-100 w-100 object-fit-cover rounded" th:classappend="${recipe.imageUrl == null} ? 'd-none' : ''" style="object-fit: cover;">
-                            <div id="placeholderText" class="position-absolute top-50 start-50 translate-middle text-muted" th:classappend="${recipe.imageUrl != null} ? 'd-none' : ''">
+                        <div id="imageSelector"
+                             class="bg-warning bg-opacity-25 rounded p-2 text-center position-relative"
+                             style="height: 280px; cursor: pointer;">
+                            <img id="previewImage"
+                                 th:src="${recipe.imageUrl != null ? recipe.imageUrl : '/images/placeholder.png'}"
+                                 alt="Food Image" class="img-fluid h-100 w-100 object-fit-cover rounded"
+                                 th:classappend="${recipe.imageUrl == null} ? 'd-none' : ''" style="object-fit: cover;">
+                            <div id="placeholderText"
+                                 class="position-absolute top-50 start-50 translate-middle text-muted"
+                                 th:classappend="${recipe.imageUrl != null} ? 'd-none' : ''">
                                 <p class="mb-0">Chọn ảnh<br>món ăn</p>
                             </div>
                         </div>
@@ -51,31 +78,61 @@
                     <!-- Right Column - Form Fields -->
                     <div class="col-md-7 mb-4">
                         <div class="mb-3">
-                            <input type="text" class="form-control bg-warning bg-opacity-25 border-0 py-3" placeholder="Nhập tên món ăn" name="title" th:field="*{title}" required>
+                            <input type="text" class="form-control bg-warning bg-opacity-25 border-0 py-3"
+                                   placeholder="Nhập tên món ăn" name="title" id="recipeTitle" th:field="*{title}"
+                                   required>
                             <div class="invalid-feedback" th:errors="*{title}">Vui lòng nhập tên món ăn</div>
                         </div>
                         <div class="mb-3">
-                            <textarea class="form-control bg-warning bg-opacity-25 border-0 py-3" rows="4" placeholder="Hãy chia sẻ ý tưởng tạo ra món ăn này" name="description" th:field="*{description}"></textarea>
+                            <textarea class="form-control bg-warning bg-opacity-25 border-0 py-3" rows="4"
+                                      placeholder="Hãy chia sẻ ý tưởng tạo ra món ăn này" name="description"
+                                      th:field="*{description}"></textarea>
                         </div>
                         <div class="row">
                             <div class="col-6 mb-3 position-relative">
-                                <select class="form-control bg-warning bg-opacity-25 border-0 py-2 pe-4" name="difficulty" required>
+                                <select class="form-control bg-warning bg-opacity-25 border-0 py-2 pe-4"
+                                        name="difficulty" required>
                                     <option value="" th:text="'Độ khó'"></option>
-                                    <option value="EASY" th:selected="${recipe.category != null and recipe.category.difficulty == T(com.example.ecofood.domain.Category$Difficulty).EASY}">Dễ</option>
-                                    <option value="MEDIUM" th:selected="${recipe.category != null and recipe.category.difficulty == T(com.example.ecofood.domain.Category$Difficulty).MEDIUM}">Trung bình</option>
-                                    <option value="HARD" th:selected="${recipe.category != null and recipe.category.difficulty == T(com.example.ecofood.domain.Category$Difficulty).HARD}">Khó</option>
+                                    <option value="EASY"
+                                            th:selected="${recipe.category != null and recipe.category.difficulty == T(com.example.ecofood.domain.Category$Difficulty).EASY}">
+                                        Dễ
+                                    </option>
+                                    <option value="MEDIUM"
+                                            th:selected="${recipe.category != null and recipe.category.difficulty == T(com.example.ecofood.domain.Category$Difficulty).MEDIUM}">
+                                        Trung bình
+                                    </option>
+                                    <option value="HARD"
+                                            th:selected="${recipe.category != null and recipe.category.difficulty == T(com.example.ecofood.domain.Category$Difficulty).HARD}">
+                                        Khó
+                                    </option>
                                 </select>
                                 <i class="fas fa-angle-down position-absolute end-0 top-50 translate-middle-y me-4 text-muted pointer-events-none"></i>
                                 <div class="invalid-feedback">Vui lòng chọn độ khó</div>
                             </div>
                             <div class="col-6 mb-3 position-relative">
-                                <select class="form-control bg-warning bg-opacity-25 border-0 py-2 pe-4" name="mealType" required>
+                                <select class="form-control bg-warning bg-opacity-25 border-0 py-2 pe-4" name="mealType"
+                                        required>
                                     <option value="" th:text="'Bữa ăn'"></option>
-                                    <option value="BREAKFAST" th:selected="${recipe.category != null and recipe.category.mealType == T(com.example.ecofood.domain.Category$MealType).BREAKFAST}">Bữa sáng</option>
-                                    <option value="LUNCH" th:selected="${recipe.category != null and recipe.category.mealType == T(com.example.ecofood.domain.Category$MealType).LUNCH}">Bữa trưa</option>
-                                    <option value="DINNER" th:selected="${recipe.category != null and recipe.category.mealType == T(com.example.ecofood.domain.Category$MealType).DINNER}">Bữa tối</option>
-                                    <option value="SNACK" th:selected="${recipe.category != null and recipe.category.mealType == T(com.example.ecofood.domain.Category$MealType).SNACK}">Bữa phụ</option>
-                                    <option value="MAIN_COURSE" th:selected="${recipe.category != null and recipe.category.mealType == T(com.example.ecofood.domain.Category$MealType).MAIN_COURSE}">Bữa chính</option>
+                                    <option value="BREAKFAST"
+                                            th:selected="${recipe.category != null and recipe.category.mealType == T(com.example.ecofood.domain.Category$MealType).BREAKFAST}">
+                                        Bữa sáng
+                                    </option>
+                                    <option value="LUNCH"
+                                            th:selected="${recipe.category != null and recipe.category.mealType == T(com.example.ecofood.domain.Category$MealType).LUNCH}">
+                                        Bữa trưa
+                                    </option>
+                                    <option value="DINNER"
+                                            th:selected="${recipe.category != null and recipe.category.mealType == T(com.example.ecofood.domain.Category$MealType).DINNER}">
+                                        Bữa tối
+                                    </option>
+                                    <option value="SNACK"
+                                            th:selected="${recipe.category != null and recipe.category.mealType == T(com.example.ecofood.domain.Category$MealType).SNACK}">
+                                        Bữa phụ
+                                    </option>
+                                    <option value="MAIN_COURSE"
+                                            th:selected="${recipe.category != null and recipe.category.mealType == T(com.example.ecofood.domain.Category$MealType).MAIN_COURSE}">
+                                        Bữa chính
+                                    </option>
                                 </select>
                                 <i class="fas fa-angle-down position-absolute end-0 top-50 translate-middle-y me-4 text-muted pointer-events-none"></i>
                                 <div class="invalid-feedback">Vui lòng chọn loại bữa ăn</div>
@@ -83,12 +140,20 @@
                         </div>
                         <div class="row">
                             <div class="col-6 mb-3">
-                                <input type="number" class="form-control bg-warning bg-opacity-25 border-0 py-2" placeholder="Thời gian chuẩn bị (phút)" name="preparationTime" th:field="*{preparationTime}" min="0" required>
-                                <div class="invalid-feedback" th:errors="*{preparationTime}">Vui lòng nhập thời gian chuẩn bị hợp lệ</div>
+                                <input type="number" class="form-control bg-warning bg-opacity-25 border-0 py-2"
+                                       placeholder="Thời gian chuẩn bị (phút)" name="preparationTime"
+                                       th:field="*{preparationTime}" min="0" required>
+                                <div class="invalid-feedback" th:errors="*{preparationTime}">Vui lòng nhập thời gian
+                                    chuẩn bị hợp lệ
+                                </div>
                             </div>
                             <div class="col-6 mb-3">
-                                <input type="number" class="form-control bg-warning bg-opacity-25 border-0 py-2" placeholder="Thời gian nấu (phút)" name="cookingTime" th:field="*{cookingTime}" min="0" required>
-                                <div class="invalid-feedback" th:errors="*{cookingTime}">Vui lòng nhập thời gian nấu hợp lệ</div>
+                                <input type="number" class="form-control bg-warning bg-opacity-25 border-0 py-2"
+                                       placeholder="Thời gian nấu (phút)" name="cookingTime" th:field="*{cookingTime}"
+                                       min="0" required>
+                                <div class="invalid-feedback" th:errors="*{cookingTime}">Vui lòng nhập thời gian nấu hợp
+                                    lệ
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -101,8 +166,12 @@
                         <div class="d-flex align-items-center mb-3">
                             <div class="me-2">Khẩu phần</div>
                             <div class="flex-grow-1">
-                                <input type="number" class="form-control bg-warning bg-opacity-25 border-0 w-100" placeholder="Nhập số người" name="servingSize" th:field="*{servingSize}" min="1" required>
-                                <div class="invalid-feedback" th:errors="*{servingSize}">Vui lòng nhập số khẩu phần hợp lệ</div>
+                                <input type="number" class="form-control bg-warning bg-opacity-25 border-0 w-100"
+                                       placeholder="Nhập số người" name="servingSize" th:field="*{servingSize}" min="1"
+                                       required>
+                                <div class="invalid-feedback" th:errors="*{servingSize}">Vui lòng nhập số khẩu phần hợp
+                                    lệ
+                                </div>
                             </div>
                         </div>
                         <div id="selectedIngredients" class="mt-4">
@@ -110,21 +179,42 @@
                                 <div class="d-flex align-items-center mb-3 ingredient-item">
                                     <div class="me-3"><i class="fas fa-bars"></i></div>
                                     <div class="flex-grow-1">
-                                        <input type="text" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="ingredientNames" th:value="${recipeIngredient.ingredient.name}" placeholder="Tên nguyên liệu" readonly>
-                                        <input type="hidden" name="ingredientId" th:value="${recipeIngredient.ingredient.id}">
+                                        <input type="text" class="form-control bg-warning bg-opacity-25 border-0 mb-2"
+                                               name="ingredientNames" th:value="${recipeIngredient.ingredient.name}"
+                                               placeholder="Tên nguyên liệu" readonly>
+                                        <input type="hidden" name="ingredientId"
+                                               th:value="${recipeIngredient.ingredient.id}">
                                         <div class="row">
                                             <div class="col-6">
-                                                <input type="number" step="0.01" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="ingredientQuantities" th:value="${recipeIngredient.quantity}" placeholder="Số lượng" min="0.01" required>
+                                                <input type="number" step="0.01"
+                                                       class="form-control bg-warning bg-opacity-25 border-0 mb-2"
+                                                       name="ingredientQuantities"
+                                                       th:value="${recipeIngredient.quantity}" placeholder="Số lượng"
+                                                       min="0.01" required>
                                                 <div class="invalid-feedback">Vui lòng nhập số lượng hợp lệ</div>
                                             </div>
                                             <div class="col-6 position-relative">
-                                                <select class="form-control bg-warning bg-opacity-25 border-0 mb-2 pe-4" name="ingredientUnits" required>
-                                                    <option value="" th:text="'Đơn vị'" th:selected="${recipeIngredient.unit == null}"></option>
-                                                    <option value="GRAM" th:selected="${recipeIngredient.unit == 'GRAM'}">Gram</option>
-                                                    <option value="ML" th:selected="${recipeIngredient.unit == 'ML'}">ml</option>
-                                                    <option value="PIECE" th:selected="${recipeIngredient.unit == 'PIECE'}">Cái</option>
-                                                    <option value="TABLESPOON" th:selected="${recipeIngredient.unit == 'TABLESPOON'}">Thìa canh</option>
-                                                    <option value="TEASPOON" th:selected="${recipeIngredient.unit == 'TEASPOON'}">Thìa cà phê</option>
+                                                <select class="form-control bg-warning bg-opacity-25 border-0 mb-2 pe-4"
+                                                        name="ingredientUnits" required>
+                                                    <option value="" th:text="'Đơn vị'"
+                                                            th:selected="${recipeIngredient.unit == null}"></option>
+                                                    <option value="GRAM"
+                                                            th:selected="${recipeIngredient.unit == 'GRAM'}">Gram
+                                                    </option>
+                                                    <option value="ML" th:selected="${recipeIngredient.unit == 'ML'}">
+                                                        ml
+                                                    </option>
+                                                    <option value="PIECE"
+                                                            th:selected="${recipeIngredient.unit == 'PIECE'}">Cái
+                                                    </option>
+                                                    <option value="TABLESPOON"
+                                                            th:selected="${recipeIngredient.unit == 'TABLESPOON'}">Thìa
+                                                        canh
+                                                    </option>
+                                                    <option value="TEASPOON"
+                                                            th:selected="${recipeIngredient.unit == 'TEASPOON'}">Thìa cà
+                                                        phê
+                                                    </option>
                                                 </select>
                                                 <i class="fas fa-angle-down position-absolute end-0 top-50 translate-middle-y me-4 text-muted pointer-events-none"></i>
                                                 <div class="invalid-feedback">Vui lòng chọn đơn vị</div>
@@ -132,7 +222,8 @@
                                         </div>
                                     </div>
                                     <div class="ms-2">
-                                        <button type="button" class="btn btn-link text-danger remove-ingredient" tabindex="-1">
+                                        <button type="button" class="btn btn-link text-danger remove-ingredient"
+                                                tabindex="-1">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </div>
@@ -141,14 +232,19 @@
                         </div>
                         <div class="d-flex align-items-center position-relative">
                             <div class="me-3">
-                                <button type="button" class="btn btn-light rounded-circle border" id="toggleIngredientSearch">
+                                <button type="button" class="btn btn-light rounded-circle border"
+                                        id="toggleIngredientSearch">
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
                             <div>Thêm nguyên liệu</div>
-                            <div id="ingredientSearchContainer" class="d-none position-absolute bg-white border rounded shadow-sm mt-2" style="width: 200px; z-index: 1000; top: 100%;">
-                                <input type="text" id="ingredientSearch" class="form-control border-0 p-2" placeholder="Tìm nguyên liệu...">
-                                <div id="ingredientList" class="list-group" style="max-height: 150px; overflow-y: auto;"></div>
+                            <div id="ingredientSearchContainer"
+                                 class="d-none position-absolute bg-white border rounded shadow-sm mt-2"
+                                 style="width: 200px; z-index: 1000; top: 100%;">
+                                <input type="text" id="ingredientSearch" class="form-control border-0 p-2"
+                                       placeholder="Tìm nguyên liệu...">
+                                <div id="ingredientList" class="list-group"
+                                     style="max-height: 150px; overflow-y: auto;"></div>
                             </div>
                         </div>
                     </div>
@@ -160,25 +256,39 @@
                             <th:block th:each="instruction, iterStat : ${recipe.instructions}">
                                 <div class="mb-4 step-item">
                                     <div class="d-flex align-items-center mb-2">
-                                        <div class="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center me-2 step-number" style="width: 30px; height: 30px;" th:text="${iterStat.count}"></div>
+                                        <div class="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center me-2 step-number"
+                                             style="width: 30px; height: 30px;" th:text="${iterStat.count}"></div>
                                         <div class="flex-grow-1">
-                                            <textarea class="form-control bg-warning bg-opacity-25 border-0 rounded p-2" rows="3" placeholder="Nhập mô tả bước làm..." name="instructionDescriptions" th:text="${instruction.description}" required></textarea>
+                                            <textarea class="form-control bg-warning bg-opacity-25 border-0 rounded p-2"
+                                                      rows="3" placeholder="Nhập mô tả bước làm..."
+                                                      name="instructionDescriptions"
+                                                      th:text="${instruction.description}" required></textarea>
                                             <div class="invalid-feedback">Vui lòng nhập mô tả bước</div>
                                             <input type="hidden" name="instructionSteps" th:value="${iterStat.count}">
                                         </div>
                                         <div class="ms-2">
-                                            <button type="button" class="btn btn-link text-danger remove-step" tabindex="-1">
+                                            <button type="button" class="btn btn-link text-danger remove-step"
+                                                    tabindex="-1">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                         </div>
                                     </div>
                                     <div class="ms-5 mb-3 position-relative">
-                                        <div class="image-select-box bg-warning bg-opacity-25 border-0 rounded text-center" style="height: 200px; cursor: pointer; width: 510px;">
-                                            <img th:src="${instruction.imageUrl != null ? instruction.imageUrl : '/images/placeholder.png'}" alt="Ảnh bước làm" class="img-fluid h-100 w-100 object-fit-cover rounded border border-gray" th:classappend="${instruction.imageUrl == null} ? 'd-none' : ''" style="object-fit: cover;">
-                                            <div class="position-absolute top-50 start-50 translate-middle text-muted" th:classappend="${instruction.imageUrl != null} ? 'd-none' : ''">Thêm ảnh</div>
+                                        <div class="image-select-box bg-warning bg-opacity-25 border-0 rounded text-center"
+                                             style="height: 200px; cursor: pointer; width: 510px;">
+                                            <img th:src="${instruction.imageUrl != null ? instruction.imageUrl : '/images/placeholder.png'}"
+                                                 alt="Ảnh bước làm"
+                                                 class="img-fluid h-100 w-100 object-fit-cover rounded border border-gray"
+                                                 th:classappend="${instruction.imageUrl == null} ? 'd-none' : ''"
+                                                 style="object-fit: cover;">
+                                            <div class="position-absolute top-50 start-50 translate-middle text-muted"
+                                                 th:classappend="${instruction.imageUrl != null} ? 'd-none' : ''">Thêm
+                                                ảnh
+                                            </div>
                                         </div>
                                         <input type="file" accept="image/*" class="d-none" name="image">
-                                        <input type="hidden" name="instructionImageUrls" th:value="${instruction.imageUrl}">
+                                        <input type="hidden" name="instructionImageUrls"
+                                               th:value="${instruction.imageUrl}">
                                     </div>
                                 </div>
                             </th:block>
@@ -204,7 +314,70 @@
             </form>
         </div>
         <!-- Sidebar phải -->
-        <th:block th:replace="~{client/layout/sidebar-right :: sidebarRight}"></th:block>
+        <div class="col-md-3 sidebar-right-container">
+            <div id="sidebarRight">
+                <th:block th:replace="~{client/layout/sidebar-right :: sidebarRight}"></th:block>
+            </div>
+            <div id="relatedRecipesContainer" class="bg-light p-3 d-none">
+                <h5 class="mb-3">Món ăn liên quan</h5>
+                <div id="relatedRecipes"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal hiển thị thông tin món ăn -->
+<div class="modal fade" id="recipeModal" tabindex="-1" aria-labelledby="recipeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h5 class="modal-title" id="recipeModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-3">
+                <!-- Thông tin trên: Ảnh + 3 thông số -->
+                <div class="row align-items-center mb-2">
+                    <div class="col-md-3 col-4 text-center">
+                        <img id="modalImage" src="" alt="Ảnh món ăn" class="img-fluid rounded shadow-sm"
+                             style="object-fit: cover; height: 110px; width: 110px;">
+                    </div>
+                    <div class="col-md-9 col-8">
+                        <div class="d-flex flex-row flex-wrap justify-content-start gap-2" style="font-size: 0.93rem;">
+                            <span class="badge rounded-pill bg-light border shadow-sm px-3 py-2">
+                                <i class="fas fa-clock me-1"></i>
+                                Chuẩn bị: <span id="modalPrepTime"></span> phút
+                            </span>
+                            <span class="badge rounded-pill bg-light border shadow-sm px-3 py-2">
+                                <i class="fas fa-fire me-1"></i>
+                                Nấu: <span id="modalCookTime"></span> phút
+                            </span>
+                            <span class="badge rounded-pill bg-light border shadow-sm px-3 py-2">
+                                <i class="fas fa-users me-1"></i>
+                                Khẩu phần: <span id="modalServingSize"></span> người
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <hr class="mt-2 mb-3">
+
+                <!-- Dưới chia 2 cột, mỗi cột có thể cuộn nếu dài -->
+                <div class="row" style="height: 310px;">
+                    <div class="col-md-6 border-end" style="height:100%; overflow-y:auto;">
+                        <h6 class="fw-bold mb-2">Nguyên liệu</h6>
+                        <ul id="modalIngredients" class="list-group mb-0" style="font-size: 0.98rem;"></ul>
+                    </div>
+                    <div class="col-md-6" style="height:100%; overflow-y:auto;">
+                        <h6 class="fw-bold mb-2">Các bước thực hiện</h6>
+                        <ol id="modalSteps" class="list-group list-group-numbered mb-0"
+                            style="font-size: 0.98rem;"></ol>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <a id="modalDetailLink" class="btn" style="background-color: #D9F99D; color: #26272c;">Xem chi tiết</a>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -222,7 +395,7 @@
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 previewImage.src = e.target.result;
                 previewImage.classList.remove("d-none");
                 placeholderText.classList.add("d-none");
@@ -235,6 +408,121 @@
         previewImage.classList.remove("d-none");
         placeholderText.classList.add("d-none");
     }
+</script>
+
+<!-- Tìm kiếm món ăn liên quan -->
+<script>
+    const recipeTitleInput = document.getElementById('recipeTitle');
+    const sidebarRight = document.getElementById('sidebarRight');
+    const relatedRecipesContainer = document.getElementById('relatedRecipesContainer');
+    const relatedRecipesDiv = document.getElementById('relatedRecipes');
+    const recipeModal = new bootstrap.Modal(document.getElementById('recipeModal'));
+    const modalTitle = document.getElementById('recipeModalLabel');
+    const modalImage = document.getElementById('modalImage');
+    const modalPrepTime = document.getElementById('modalPrepTime');
+    const modalCookTime = document.getElementById('modalCookTime');
+    const modalServingSize = document.getElementById('modalServingSize');
+    const modalIngredients = document.getElementById('modalIngredients');
+    const modalSteps = document.getElementById('modalSteps');
+    const modalDetailLink = document.getElementById('modalDetailLink');
+
+    function searchRecipes(keyword) {
+        if (keyword.length > 0) {
+            fetch(`/searchTitleName?keyword=${encodeURIComponent(keyword)}`)
+                .then(response => response.json())
+                .then(recipes => {
+                    if (!Array.isArray(recipes)) {
+                        console.error('Data is not an array:', recipes);
+                        recipes = [];
+                    }
+                    if (recipes.length > 0) {
+                        sidebarRight.classList.add('d-none');
+                        relatedRecipesContainer.classList.remove('d-none');
+                        relatedRecipesDiv.innerHTML = '';
+                        recipes.forEach((recipe) => {
+                            const recipeCard = document.createElement('div');
+                            recipeCard.className = 'card mb-3 border-0 shadow-sm';
+                            recipeCard.innerHTML = `
+                                <div class="row g-0" style="cursor: pointer;">
+                                    <div class="col-4">
+                                        <img src="${recipe.imageUrl || '/Recipe/default.jpg'}" class="img-fluid rounded" alt="${recipe.tileName}">
+                                    </div>
+                                    <div class="col-8">
+                                        <div class="card-body p-2">
+                                            <h6 class="card-title">${recipe.tileName}</h6>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-heart text-warning me-1"></i>
+                                                <small>${recipe.likeCount || 0} lượt thích</small>
+                                            </div>
+                                            <div class="d-flex mt-2">
+                                                <span class="badge me-1" style="background-color: #d9f99d; color: #26272c; font-size: 0.8rem;">${(recipe.totalCalories || 0).toFixed(1)}</span>
+                                                <span class="badge me-1" style="background-color: #fde68a; color: #26272c; font-size: 0.8rem;">${(recipe.totalCarbohydrates || 0).toFixed(1)}</span>
+                                                <span class="badge me-1" style="background-color: #ffe8d4; color: #26272c; font-size: 0.8rem;">${(recipe.totalProtein || 0).toFixed(1)}</span>
+                                                <span class="badge" style="background-color: #f1f1f1; color: #26272c; font-size: 0.8rem;">${(recipe.totalFat || 0).toFixed(1)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            recipeCard.addEventListener('click', function () {
+                                showRecipeModal(recipe);
+                            });
+                            relatedRecipesDiv.appendChild(recipeCard);
+                        });
+                    } else {
+                        sidebarRight.classList.remove('d-none');
+                        relatedRecipesContainer.classList.add('d-none');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching recipes:', error);
+                    sidebarRight.classList.remove('d-none');
+                    relatedRecipesContainer.classList.add('d-none');
+                });
+        } else {
+            sidebarRight.classList.remove('d-none');
+            relatedRecipesContainer.classList.add('d-none');
+        }
+    }
+
+    function showRecipeModal(recipe) {
+        modalTitle.textContent = recipe.tileName;
+        modalImage.src = recipe.imageUrl || '/Recipe/default.jpg';
+        modalPrepTime.textContent = recipe.preparationTime || 0;
+        modalCookTime.textContent = recipe.cookingTime || 0;
+        modalServingSize.textContent = recipe.servingSize || 1;
+
+        modalIngredients.innerHTML = '';
+        recipe.recipeIngredients.forEach(ingredient => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item';
+            li.textContent = `${ingredient.quantity} ${ingredient.unit} ${ingredient.ingredient.name}`;
+            modalIngredients.appendChild(li);
+        });
+
+        modalSteps.innerHTML = '';
+        recipe.instructions.forEach(instruction => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item';
+            li.textContent = instruction.description;
+            modalSteps.appendChild(li);
+        });
+
+        modalDetailLink.href = `/recipe/${recipe.id}`;
+        recipeModal.show();
+    }
+
+    // Tự động tìm kiếm mỗi 5 giây
+    setInterval(() => {
+        const keyword = recipeTitleInput.value.trim();
+        searchRecipes(keyword);
+    }, 5000);
+
+    // Vẫn giữ tìm kiếm khi nhập để cập nhật tức thì
+    recipeTitleInput.addEventListener('input', function () {
+        const keyword = this.value.trim();
+        searchRecipes(keyword); // Gọi tìm kiếm ngay khi nhập
+    });
 </script>
 
 <!-- Quản lý bước làm -->
@@ -250,7 +538,7 @@
         });
     }
 
-    document.getElementById("addStepBtn").addEventListener("click", function() {
+    document.getElementById("addStepBtn").addEventListener("click", function () {
         stepCount++;
         const stepElement = document.createElement("div");
         stepElement.classList.add("mb-4", "step-item");
@@ -304,7 +592,7 @@
         updateStepNumbers();
     });
 
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (e.target.closest('.remove-step')) {
             if (confirm('Bạn có chắc muốn xóa bước này?')) {
                 const stepItem = e.target.closest('.step-item');
@@ -387,7 +675,8 @@
             <div class="flex-grow-1">
                 <input type="text" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="ingredientNames" value="${ingredient.name}" placeholder="Tên nguyên liệu" readonly>
                 <input type="hidden" name="ingredientId" value="${ingredient.id}">
-                <div class="row">
+                <div class="rowlettere
+                    row">
                     <div class="col-6">
                         <input type="number" step="0.01" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="ingredientQuantities" placeholder="Số lượng" min="0.01" required>
                         <div class="invalid-feedback">Vui lòng nhập số lượng hợp lệ</div>
@@ -405,11 +694,11 @@
                         <div class="invalid-feedback">Vui lòng chọn đơn vị</div>
                     </div>
                 </div>
-            </div>
-            <div class="ms-2">
-                <button type="button" class="btn btn-link text-danger remove-ingredient" tabindex="-1">
-                    <i class="fas fa-times"></i>
-                </button>
+                <div class="ms-2">
+                    <button type="button" class="btn btn-link text-danger remove-ingredient" tabindex="-1">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             </div>
         `;
         selectedIngredients.appendChild(div);
@@ -419,7 +708,7 @@
         ingredientSearchContainer.classList.add('d-none');
     }
 
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (e.target.closest('.remove-ingredient')) {
             if (confirm('Bạn có chắc muốn xóa nguyên liệu này?')) {
                 const ingredientItem = e.target.closest('.ingredient-item');
@@ -435,107 +724,102 @@
         }
     });
 
-    document.getElementById('recipeForm').addEventListener('submit', function(e) {
+    document.getElementById('recipeForm').addEventListener('submit', function (e) {
         let valid = true;
+        const isPublish = document.activeElement.id === 'publishBtn';
 
-        // Validate title
-        const titleInput = document.querySelector("input[name='title']");
-        if (!titleInput.value.trim()) {
-            titleInput.classList.add('is-invalid');
-            valid = false;
-        } else {
-            titleInput.classList.remove('is-invalid');
-        }
-
-        // Validate preparationTime
-        const prepTimeInput = document.querySelector("input[name='preparationTime']");
-        if (!prepTimeInput.value || prepTimeInput.value < 0) {
-            prepTimeInput.classList.add('is-invalid');
-            valid = false;
-        } else {
-            prepTimeInput.classList.remove('is-invalid');
-        }
-
-        // Validate cookingTime
-        const cookTimeInput = document.querySelector("input[name='cookingTime']");
-        if (!cookTimeInput.value || cookTimeInput.value < 0) {
-            cookTimeInput.classList.add('is-invalid');
-            valid = false;
-        } else {
-            cookTimeInput.classList.remove('is-invalid');
-        }
-
-        // Validate servingSize
-        const servingSizeInput = document.querySelector("input[name='servingSize']");
-        if (!servingSizeInput.value || servingSizeInput.value < 1) {
-            servingSizeInput.classList.add('is-invalid');
-            valid = false;
-        } else {
-            servingSizeInput.classList.remove('is-invalid');
-        }
-
-        // Validate difficulty
-        const difficultySelect = document.querySelector("select[name='difficulty']");
-        if (!difficultySelect.value) {
-            difficultySelect.classList.add('is-invalid');
-            valid = false;
-        } else {
-            difficultySelect.classList.remove('is-invalid');
-        }
-
-        // Validate mealType
-        const mealTypeSelect = document.querySelector("select[name='mealType']");
-        if (!mealTypeSelect.value) {
-            mealTypeSelect.classList.add('is-invalid');
-            valid = false;
-        } else {
-            mealTypeSelect.classList.remove('is-invalid');
-        }
-
-        // Validate ingredients
-        const ingredientItems = document.querySelectorAll("#selectedIngredients .ingredient-item");
-        if (ingredientItems.length === 0) {
-            alert('Vui lòng thêm ít nhất một nguyên liệu');
-            e.preventDefault();
-            return;
-        }
-        ingredientItems.forEach(item => {
-            const quantityInput = item.querySelector("input[name='ingredientQuantities']");
-            const unitSelect = item.querySelector("select[name='ingredientUnits']");
-            if (!quantityInput.value || quantityInput.value <= 0) {
-                quantityInput.classList.add('is-invalid');
+        if (isPublish) {
+            const titleInput = document.querySelector("input[name='title']");
+            if (!titleInput.value.trim()) {
+                titleInput.classList.add('is-invalid');
                 valid = false;
             } else {
-                quantityInput.classList.remove('is-invalid');
+                titleInput.classList.remove('is-invalid');
             }
-            if (!unitSelect.value) {
-                unitSelect.classList.add('is-invalid');
+
+            const prepTimeInput = document.querySelector("input[name='preparationTime']");
+            if (!prepTimeInput.value || prepTimeInput.value < 0) {
+                prepTimeInput.classList.add('is-invalid');
                 valid = false;
             } else {
-                unitSelect.classList.remove('is-invalid');
+                prepTimeInput.classList.remove('is-invalid');
             }
-        });
 
-        // Validate steps
-        const stepItems = document.querySelectorAll("#stepsContainer .step-item");
-        if (stepItems.length === 0) {
-            alert('Vui lòng thêm ít nhất một bước làm');
-            e.preventDefault();
-            return;
-        }
-        stepItems.forEach(item => {
-            const descInput = item.querySelector("textarea[name='instructionDescriptions']");
-            if (!descInput.value.trim()) {
-                descInput.classList.add('is-invalid');
+            const cookTimeInput = document.querySelector("input[name='cookingTime']");
+            if (!cookTimeInput.value || cookTimeInput.value < 0) {
+                cookTimeInput.classList.add('is-invalid');
                 valid = false;
             } else {
-                descInput.classList.remove('is-invalid');
+                cookTimeInput.classList.remove('is-invalid');
             }
-        });
 
-        if (!valid) {
-            alert('Vui lòng điền đầy đủ các trường bắt buộc');
-            e.preventDefault();
+            const servingSizeInput = document.querySelector("input[name='servingSize']");
+            if (!servingSizeInput.value || servingSizeInput.value < 1) {
+                servingSizeInput.classList.add('is-invalid');
+                valid = false;
+            } else {
+                servingSizeInput.classList.remove('is-invalid');
+            }
+
+            const difficultySelect = document.querySelector("select[name='difficulty']");
+            if (!difficultySelect.value) {
+                difficultySelect.classList.add('is-invalid');
+                valid = false;
+            } else {
+                difficultySelect.classList.remove('is-invalid');
+            }
+
+            const mealTypeSelect = document.querySelector("select[name='mealType']");
+            if (!mealTypeSelect.value) {
+                mealTypeSelect.classList.add('is-invalid');
+                valid = false;
+            } else {
+                mealTypeSelect.classList.remove('is-invalid');
+            }
+
+            const ingredientItems = document.querySelectorAll("#selectedIngredients .ingredient-item");
+            if (ingredientItems.length === 0) {
+                alert('Vui lòng thêm ít nhất một nguyên liệu');
+                e.preventDefault();
+                return;
+            }
+            ingredientItems.forEach(item => {
+                const quantityInput = item.querySelector("input[name='ingredientQuantities']");
+                const unitSelect = item.querySelector("select[name='ingredientUnits']");
+                if (!quantityInput.value || quantityInput.value <= 0) {
+                    quantityInput.classList.add('is-invalid');
+                    valid = false;
+                } else {
+                    quantityInput.classList.remove('is-invalid');
+                }
+                if (!unitSelect.value) {
+                    unitSelect.classList.add('is-invalid');
+                    valid = false;
+                } else {
+                    unitSelect.classList.remove('is-invalid');
+                }
+            });
+
+            const stepItems = document.querySelectorAll("#stepsContainer .step-item");
+            if (stepItems.length === 0) {
+                alert('Vui lòng thêm ít nhất một bước làm');
+                e.preventDefault();
+                return;
+            }
+            stepItems.forEach(item => {
+                const descInput = item.querySelector("textarea[name='instructionDescriptions']");
+                if (!descInput.value.trim()) {
+                    descInput.classList.add('is-invalid');
+                    valid = false;
+                } else {
+                    descInput.classList.remove('is-invalid');
+                }
+            });
+
+            if (!valid) {
+                alert('Vui lòng điền đầy đủ các trường bắt buộc');
+                e.preventDefault();
+            }
         }
     });
 </script>
