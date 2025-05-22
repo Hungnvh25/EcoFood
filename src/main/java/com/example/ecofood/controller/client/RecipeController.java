@@ -224,6 +224,8 @@ public class RecipeController {
                     .preparationTime(recipe.getPreparationTime() != null ? recipe.getPreparationTime() : 0)
                     .cookingTime(recipe.getCookingTime() != null ? recipe.getCookingTime() : 0)
                     .servingSize(recipe.getServingSize() != null ? recipe.getServingSize() : 1)
+                    .difficulty(recipe.getCategory() != null ? recipe.getCategory().getDifficulty() != null ? recipe.getCategory().getDifficulty().toString() : "Chưa xác định" : "Chưa xác định") // Thêm độ khó
+                    .mealType(recipe.getCategory() != null ? recipe.getCategory().getMealType() != null ? recipe.getCategory().getMealType().toString() : "Chưa xác định" : "Chưa xác định") // Thêm bữa ăn
                     .recipeIngredients(ingredientDtos)
                     .instructions(instructionDtos)
                     .likeCount(recipe.getLikeCount() != null ? recipe.getLikeCount() : 0)

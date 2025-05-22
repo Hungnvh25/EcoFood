@@ -16,6 +16,8 @@ public class RecipeDetailDto {
     private Long id;
     private String title;
     private String tileName;
+    private String difficulty;
+    private String mealType;
     private String imageUrl;
     private Integer preparationTime;
     private Integer cookingTime;

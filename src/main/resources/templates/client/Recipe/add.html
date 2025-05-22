@@ -327,6 +327,7 @@
 </div>
 
 <!-- Modal hiển thị thông tin món ăn -->
+<!-- Modal hiển thị thông tin món ăn -->
 <div class="modal fade" id="recipeModal" tabindex="-1" aria-labelledby="recipeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -335,7 +336,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-3">
-                <!-- Thông tin trên: Ảnh + 3 thông số -->
+                <!-- Thông tin trên: Ảnh + 5 thông số -->
                 <div class="row align-items-center mb-2">
                     <div class="col-md-3 col-4 text-center">
                         <img id="modalImage" src="" alt="Ảnh món ăn" class="img-fluid rounded shadow-sm"
@@ -343,17 +344,25 @@
                     </div>
                     <div class="col-md-9 col-8">
                         <div class="d-flex flex-row flex-wrap justify-content-start gap-2" style="font-size: 0.93rem;">
-                            <span class="badge rounded-pill bg-light border shadow-sm px-3 py-2">
+                            <span class="badge rounded-pill bg-light border shadow-sm px-3 py-2" style="color: #26272c">
                                 <i class="fas fa-clock me-1"></i>
                                 Chuẩn bị: <span id="modalPrepTime"></span> phút
                             </span>
-                            <span class="badge rounded-pill bg-light border shadow-sm px-3 py-2">
+                            <span class="badge rounded-pill bg-light border shadow-sm px-3 py-2" style="color: #26272c">
                                 <i class="fas fa-fire me-1"></i>
                                 Nấu: <span id="modalCookTime"></span> phút
                             </span>
-                            <span class="badge rounded-pill bg-light border shadow-sm px-3 py-2">
+                            <span class="badge rounded-pill bg-light border shadow-sm px-3 py-2" style="color: #26272c">
                                 <i class="fas fa-users me-1"></i>
                                 Khẩu phần: <span id="modalServingSize"></span> người
+                            </span>
+                            <span class="badge rounded-pill bg-light border shadow-sm px-3 py-2" style="color: #26272c">
+                                <i class="fas fa-star me-1"></i>
+                                Độ khó: <span id="modalDifficulty"></span>
+                            </span>
+                            <span class="badge rounded-pill bg-light border shadow-sm px-3 py-2" style="color: #26272c">
+                                <i class="fas fa-utensils me-1"></i>
+                                Bữa ăn: <span id="modalMealType"></span>
                             </span>
                         </div>
                     </div>
@@ -374,13 +383,13 @@
                 </div>
             </div>
             <div class="modal-footer py-2">
+                <a id="modalDetailLink" class="btn" style="background-color: #D9F99D; color: #26272c; display: none">Xem chi tiết</a>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                <a id="modalDetailLink" class="btn" style="background-color: #D9F99D; color: #26272c;">Xem chi tiết</a>
+
             </div>
         </div>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Chọn ảnh món ăn -->
@@ -422,6 +431,8 @@
     const modalPrepTime = document.getElementById('modalPrepTime');
     const modalCookTime = document.getElementById('modalCookTime');
     const modalServingSize = document.getElementById('modalServingSize');
+    const modalDifficulty = document.getElementById('modalDifficulty'); // Thêm biến mới
+    const modalMealType = document.getElementById('modalMealType');     // Thêm biến mới
     const modalIngredients = document.getElementById('modalIngredients');
     const modalSteps = document.getElementById('modalSteps');
     const modalDetailLink = document.getElementById('modalDetailLink');
@@ -485,12 +496,31 @@
         }
     }
 
+
     function showRecipeModal(recipe) {
         modalTitle.textContent = recipe.tileName;
         modalImage.src = recipe.imageUrl || '/Recipe/default.jpg';
         modalPrepTime.textContent = recipe.preparationTime || 0;
         modalCookTime.textContent = recipe.cookingTime || 0;
         modalServingSize.textContent = recipe.servingSize || 1;
+
+        // Ánh xạ độ khó
+        const difficultyMap = {
+            "EASY": "Dễ",
+            "MEDIUM": "Trung bình",
+            "HARD": "Khó"
+        };
+        modalDifficulty.textContent = difficultyMap[recipe.difficulty] || 'Chưa xác định';
+
+        // Ánh xạ bữa ăn
+        const mealTypeMap = {
+            "BREAKFAST": "Bữa sáng",
+            "LUNCH": "Bữa trưa",
+            "DINNER": "Bữa tối",
+            "SNACK": "Bữa phụ",
+            "MAIN_COURSE": "Bữa chính"
+        };
+        modalMealType.textContent = mealTypeMap[recipe.mealType] || 'Chưa xác định';
 
         modalIngredients.innerHTML = '';
         recipe.recipeIngredients.forEach(ingredient => {
@@ -512,17 +542,19 @@
         recipeModal.show();
     }
 
+
+
     // Tự động tìm kiếm mỗi 5 giây
     setInterval(() => {
         const keyword = recipeTitleInput.value.trim();
         searchRecipes(keyword);
-    }, 5000);
+    }, 6000);
 
-    // Vẫn giữ tìm kiếm khi nhập để cập nhật tức thì
-    recipeTitleInput.addEventListener('input', function () {
-        const keyword = this.value.trim();
-        searchRecipes(keyword); // Gọi tìm kiếm ngay khi nhập
-    });
+    // // Vẫn giữ tìm kiếm khi nhập để cập nhật tức thì
+    // recipeTitleInput.addEventListener('input', function () {
+    //     const keyword = this.value.trim();
+    //     searchRecipes(keyword); // Gọi tìm kiếm ngay khi nhập
+    // });
 </script>
 
 <!-- Quản lý bước làm -->
