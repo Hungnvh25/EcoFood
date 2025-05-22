@@ -14,6 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -93,5 +96,33 @@ public class UserService {
         }
          return null;
     }
+
+    public User findByEmail(String email){
+        return this.userRepository.findUsersByEmail(email);
+    }
+    public User createOAuth2User(String email, String name) {
+        User user = new User();
+        user.setEmail(email);
+        user.setUserName(generateUserNameFromEmail(email));
+        user.setPasswordHash(passwordEncoder.encode(UUID.randomUUID().toString())); // random pass
+        user.setJoinDate(LocalDate.now());
+        user.setRole(User.Role.CUSTOMER);
+        userRepository.save(user);
+
+        this.userSettingService.createUserSetting(user);
+
+        UserActivity userActivity = UserActivity.builder()
+                .user(user)
+                .build();
+
+        this.userActivityRepository.save(userActivity);
+        return user;
+    }
+
+    public String generateUserNameFromEmail(String email) {
+        return email.split("@")[0] + "_" + UUID.randomUUID().toString().substring(0, 5);
+    }
+
+
 
 }

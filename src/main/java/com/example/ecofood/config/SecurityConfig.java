@@ -55,17 +55,22 @@ public class SecurityConfig {
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler()))
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // DÙNG session cho OAuth2
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login","/register","/image/**","/uploads/**").permitAll()
-                        .requestMatchers("/admin/**" ,"/admin").hasRole("ADMIN")
-                        .requestMatchers("/**").hasAnyRole("ADMIN","CUSTOMER")
+                        .requestMatchers("/login", "/register", "/image/**", "/uploads/**", "/oauth2/**").permitAll()
+                        .requestMatchers("/admin/**", "/admin").hasRole("ADMIN")
+                        .requestMatchers("/**").hasAnyRole("ADMIN", "CUSTOMER")
                         .anyRequest().authenticated())
+                .oauth2Login(oauth -> oauth
+                        .loginPage("/login") // Trang login mặc định
+                        .defaultSuccessUrl("/oauth2/success", true)
+                )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .deleteCookies("jwtToken")
                         .logoutSuccessUrl("/login")
                         .permitAll());
+
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
