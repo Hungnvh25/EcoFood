@@ -48,8 +48,13 @@ public class GlobalModelAttribute {
                 recipeList.add(recipe);
             }
         }
+        // lấy top 3 recipe
+        List<Recipe> recipeListTop3Like = this.recipeService.findTop3ByOrderByLikeCountDesc();
+
         model.addAttribute("currentUser", user);
         model.addAttribute("RecipeHistory", recipeList);
+        model.addAttribute("recipeListTop", recipeListTop3Like);
+
 
     }
 

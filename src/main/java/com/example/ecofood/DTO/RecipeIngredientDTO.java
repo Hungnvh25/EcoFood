@@ -11,9 +11,8 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RecipeIngredientDTO {
-    Long id;
-    Long ingredientId;
-    String ingredientName;
-    Float quantity;
-    String unit;
+    private Long id;
+    private IngredientDTO ingredient;
+    private Double quantity;
+    private String unit;
 }

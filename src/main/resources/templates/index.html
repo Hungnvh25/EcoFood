@@ -40,10 +40,10 @@
                     <a th:href="@{'/recipe/' + ${recipe.id}}" class="text-decoration-none text-dark">
                         <div class="row clickable-recipe">
                             <!-- Ảnh -->
-                            <div class="col-md-4 border border-2">
+                            <div class="col-md-4 border border-2 p-0" style="height: 250px; text-align: center;">
                                 <img th:src="${recipe.imageUrl != null ? recipe.imageUrl : '/Recipe/default.jpg'}"
-                                     class="img-fluid w-100 rounded"
-                                     style="width: 200px; height: 200px; object-fit: cover;">
+                                     class="rounded mt-3"
+                                     style="width: 300px; height: 200px; object-fit: cover; display: inline-block;">
                             </div>
 
                             <!-- Thành phần -->
@@ -241,8 +241,11 @@
 
 <!--comment-->
 <script>
+    let currentRecipeId = null;
+    let currentCommentCount = 0;
+
     function openRecipeModal(recipeId, title, imageUrl, cookingTime, description, userName) {
-        const modalContent = document.getElementById('recipeModalContent');
+        currentRecipeId = recipeId;
 
         function truncateText(text, maxLength) {
             if (!text) return '';
@@ -252,10 +255,12 @@
 
         const shortDescription = truncateText(description, 24);
 
+        const modalContent = document.getElementById('recipeModalContent');
+
         modalContent.innerHTML = `
         <div class="row">
             <div class="col-md-4">
-                <img src="${imageUrl || '/Recipe/default.jpg'}" class="img-fluid rounded mb-3">
+                <img src="${imageUrl || '/Recipe/default.jpg'}" class="img-fluid rounded mb-3" alt="Ảnh món ăn">
             </div>
             <div class="col-md-8">
                 <h5>${title || 'Không có tiêu đề'}</h5>
@@ -267,11 +272,11 @@
         <hr>
         <h6>Bình luận</h6>
         <ul class="list-group mb-3" id="commentList" style="max-height: 300px; overflow-y: auto;">
-            <!-- Bình luận sẽ tải ở đây -->
+            <li class="list-group-item">Đang tải bình luận...</li>
         </ul>
         <form onsubmit="return submitComment(event, ${recipeId})">
             <div class="mb-3">
-                <textarea class="form-control" id="newComment" rows="2" placeholder="Nhập bình luận..."></textarea>
+                <textarea class="form-control" id="newComment" rows="2" placeholder="Nhập bình luận..." required></textarea>
             </div>
             <button type="submit" class="btn btn-primary btn-sm">Gửi bình luận</button>
         </form>
@@ -284,26 +289,25 @@
                 return response.json();
             })
             .then(comments => {
+                currentCommentCount = comments.length;  // Cập nhật số lượng comment hiện tại
                 const commentList = document.getElementById('commentList');
-                commentList.style.maxHeight = "300px";
-                commentList.style.overflowY = "auto";
-                if (comments && comments.length > 0) {
+                if (comments.length > 0) {
                     commentList.innerHTML = comments.map(c => `
-            <li class="list-group-item">
-                <strong>${c.userName || 'Ẩn danh'}:</strong> ${c.content}
-            </li>
-        `).join('');
+                    <li class="list-group-item">
+                        <strong>${c.userName || 'Ẩn danh'}:</strong> ${c.content}
+                    </li>
+                `).join('');
                 } else {
                     commentList.innerHTML = '<li class="list-group-item">Chưa có bình luận nào.</li>';
                 }
             })
-
             .catch(err => {
                 console.error(err);
                 const commentList = document.getElementById('commentList');
                 commentList.innerHTML = '<li class="list-group-item text-danger">Lỗi khi tải bình luận!</li>';
             });
 
+        // Hiển thị modal
         new bootstrap.Modal(document.getElementById('recipeModal')).show();
     }
 
@@ -316,7 +320,9 @@
             return false;
         }
 
+        // Nếu có đăng nhập, thay GuestUser bằng tên user thực tế
         const userName = "GuestUser";
+
         fetch(`/recipe/${recipeId}/comments`, {
             method: 'POST',
             headers: {
@@ -329,20 +335,24 @@
                 return res.json();
             })
             .then(comment => {
-                const list = document.getElementById('commentList');
+                currentCommentCount++; // Tăng số comment sau khi gửi thành công
 
-                // Nếu đang hiển thị "Chưa có bình luận nào", thì xóa nó đi
-                if (list.children.length === 1 && list.children[0].innerText === 'Chưa có bình luận nào.') {
-                    list.innerHTML = ''; // Xóa nội dung cũ
+                const commentList = document.getElementById('commentList');
+
+                // Nếu đang hiển thị "Chưa có bình luận nào" thì xóa đi
+                if (commentList.children.length === 1 && commentList.children[0].innerText === 'Chưa có bình luận nào.') {
+                    commentList.innerHTML = '';
                 }
 
+                // Thêm comment mới vào danh sách
                 const li = document.createElement('li');
                 li.className = 'list-group-item';
                 li.innerHTML = `<strong>${comment.userName || 'Ẩn danh'}:</strong> ${comment.content}`;
-                list.appendChild(li);
+                commentList.appendChild(li);
+
+                // Xóa nội dung textarea
                 textarea.value = '';
             })
-
             .catch(err => {
                 console.error(err);
                 alert('Lỗi khi gửi bình luận.');
@@ -350,6 +360,25 @@
 
         return false; // Ngăn form submit mặc định
     }
+
+    // Sự kiện khi modal đóng sẽ cập nhật số comment hiển thị trên giao diện chính
+    const recipeModal = document.getElementById('recipeModal');
+
+    recipeModal.addEventListener('hidden.bs.modal', () => {
+        if (currentRecipeId !== null) {
+            // Tìm button comment của recipe hiện tại dựa vào onclick attribute
+            const commentButton = document.querySelector(`button[onclick*="openRecipeModal(${currentRecipeId}"]`);
+            if (commentButton) {
+                const span = commentButton.querySelector('span');
+                if (span) {
+                    span.textContent = currentCommentCount;
+                }
+            }
+            // Reset currentRecipeId nếu muốn
+            // currentRecipeId = null;
+        }
+    });
+
 </script>
 </body>
 </html>
