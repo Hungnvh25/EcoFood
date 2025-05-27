@@ -14,6 +14,7 @@ public class Instruction {
 
     Long step;
 
+    @Lob
     String description;
 
     String imageUrl;

@@ -70,5 +70,16 @@ public class UserSetting {
         public String toString() {
             return value;
         }
+
+        public static Accent fromValue(String value) {
+            for (Accent accent : values()) {
+                if (accent.value.equalsIgnoreCase(value)) {
+                    return accent;
+                }
+            }
+            throw new IllegalArgumentException("Unknown accent code: " + value);
+        }
     }
+
+
 }
