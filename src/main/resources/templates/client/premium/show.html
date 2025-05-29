@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết Quả Tìm Kiếm - Eco Food</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body class="bg-light">
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <!-- Sidebar trái -->
+        <th:block th:replace="~{client/layout/sidebar-left :: sidebarLeft}"></th:block>
+        <!-- Nội dung chính -->
+        <div class="col-md-7 offset-md-2 bg-white p-4">
+
+            <div class="bg-white p-4">
+                <!-- Header -->
+                <div class="text-center mb-4">
+                    <h1 class="fw-bold mb-3">Gói Premium của bạn</h1>
+                    <h2 class="fs-5 text-muted mb-3">
+                        Premium giúp lên thực đơn<br>
+                        hàng ngày dễ dàng hơn
+                    </h2>
+                    <div class="d-flex justify-content-center mb-3">
+                        <span class="fs-2">🏅</span>
+                    </div>
+                </div>
+
+                <!-- Comparison Table -->
+                <div class="mb-5">
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="bg-light"></th>
+                            <th scope="col" class="text-center bg-light">Miễn Phí</th>
+                            <th scope="col" class="text-center bg-light">Premium</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>Không quảng cáo</td>
+                            <td class="text-center text-success"><i class="bi bi-check-lg"></i></td>
+                            <td class="text-center text-success"><i class="bi bi-check-lg"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Top món phổ biến hiện đầu tiên</td>
+                            <td class="text-center"></td>
+                            <td class="text-center text-success"><i class="bi bi-check-lg"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Top món ngon được yêu thích nhất</td>
+                            <td class="text-center"></td>
+                            <td class="text-center text-success"><i class="bi bi-check-lg"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Bộ lọc tìm kiếm nâng cao</td>
+                            <td class="text-center"></td>
+                            <td class="text-center text-success"><i class="bi bi-check-lg"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Bộ sưu tập Món-Tủ của bạn</td>
+                            <td class="text-center"></td>
+                            <td class="text-center text-success"><i class="bi bi-check-lg"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Bộ sưu tập món ngon tùy chỉnh</td>
+                            <td class="text-center"></td>
+                            <td class="text-center text-success"><i class="bi bi-check-lg"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Gợi ý thực đơn hàng ngày</td>
+                            <td class="text-center"></td>
+                            <td class="text-center text-success"><i class="bi bi-check-lg"></i></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Premium Package -->
+                <div class="mb-5">
+                    <div class="border rounded p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="fs-2 me-3">🏅</span>
+                            <h3 class="mb-0">Gói Premium của bạn</h3>
+                        </div>
+
+                        <table class="table mb-4">
+                            <tr>
+                                <td class="border-0">Giá phí</td>
+                                <td class="text-end border-0 fw-bold">25.000 đ/Tháng</td>
+                            </tr>
+                        </table>
+
+                        <hr>
+
+                        <h4 class="text-center mb-4">Phương thức thanh toán</h4>
+
+                        <div class="text-center">
+                            <div class="mb-3">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Vietcombank_logo.svg" alt="Vietcombank" height="30" class="mb-2">
+                            </div>
+
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-NlXgEPiyhrVyiVRzeSqZk6FizWBcrT.png" alt="QR Code" class="img-fluid mb-3" style="max-width: 200px;">
+
+                            <div class="fw-bold">NGUYEN VAN HUNG</div>
+                            <div>0901000141000</div>
+                            <div class="text-muted small">HÀ NAM - TRỤ SỞ CHÍNH</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar phải -->
+        <th:block th:replace="~{client/layout/sidebar-right :: sidebarRight}"></th:block>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
