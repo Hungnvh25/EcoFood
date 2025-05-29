@@ -88,7 +88,7 @@ public class HomePage {
             // lưu token
             String token = JwtUtil.generateToken(loginDTO.getUsername());
             Cookie cookie = new Cookie("jwtToken", token);
-            cookie.setMaxAge(10800); // 3h
+            cookie.setMaxAge(21600); // 6h
             cookie.setPath("/");
             response.addCookie(cookie);
 

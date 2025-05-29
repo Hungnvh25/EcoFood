@@ -207,9 +207,9 @@
                                     <source th:src="${audio.urlAudio}" type="audio/mpeg">
                                     Your browser does not support the audio element.
                                 </audio>
-                                <span class="ms-2 text-muted small">
-                                    Nghe hướng dẫn nấu ăn (Giọng: ${audio.voiceGender}, Giọng điệu: ${audio.accent})<br>
-                                    URL: <span th:text="${audio.urlAudio}"></span>
+                                <span style="visibility: hidden" class="ms-2 text-muted small">
+                                    Giọng: [[${audio.voiceGender.name()}]], Giọng điệu: [[${audio.accent.name()}]]
+
                                 </span>
                             </div>
                         </div>
