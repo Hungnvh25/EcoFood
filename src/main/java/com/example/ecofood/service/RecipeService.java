@@ -4,16 +4,18 @@ import com.example.ecofood.Util.RecipeUtils;
 import com.example.ecofood.domain.*;
 import com.example.ecofood.repository.IngredientRepository;
 import com.example.ecofood.repository.RecipeRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +28,9 @@ public class RecipeService {
     UserService userService;
     UserRecipeLikeService userRecipeLikeService;
     RecipeUtils recipeUtils = new RecipeUtils();
+
+    GeminiService geminiService;
+    TextToSpeechService textToSpeechService;
 
 
     public List<Recipe> getAllRecipes() {
@@ -48,6 +53,7 @@ public class RecipeService {
 
 
         try {
+
 
             if (!imageFile.isEmpty()) {
                 String imageUrlRecipe = this.imageService.saveImage(imageFile, "Recipe");
@@ -91,6 +97,7 @@ public class RecipeService {
                     String imageUrl = this.imageService.saveImage(instructionImages.get(i), "instruction");
                     Instruction instruction = Instruction.builder()
                             .imageUrl(imageUrl)
+                            .step((long) (i+1))
                             .description(instructionDescriptions.get(i))
                             .build();
                     instructionHashSet.add(instruction);
@@ -111,6 +118,50 @@ public class RecipeService {
             // chuẩn hóa tên món
             String tileName = recipeUtils.normalizeRecipeName(recipe.getTitle());
             recipe.setTileName(tileName);
+
+
+            // tạo textAudio
+            StringBuilder textBuilder = new StringBuilder();
+
+            textBuilder.append("Tên món ăn: ").append(recipe.getTitle()).append(". ");
+
+            if (recipe.getDescription() != null && !recipe.getDescription().isBlank()) {
+                textBuilder.append("Thông tin món ăn: ").append(recipe.getDescription()).append(". ");
+            }
+
+            if (instructionDescriptions != null && !instructionDescriptions.isEmpty()) {
+                for (int i = 0; i < instructionDescriptions.size(); i++) {
+                    textBuilder.append("Bước ").append(i + 1).append(": ")
+                            .append(instructionDescriptions.get(i)).append(". ");
+                }
+            }
+
+
+            String textAudio = textBuilder.toString();
+            System.out.println("📢 AudioText = " + textAudio);
+            String geminiTextAudio = this.geminiService.generateText(textAudio);
+            System.out.println("📢 GeminiTextAudio = " + geminiTextAudio);
+
+            recipe.setTextAudio(geminiTextAudio);
+
+
+            // tạo audio
+
+            HashSet<Audio> audioHashSet = new HashSet<>();
+
+            String voidCode = String.valueOf(user.getUserSetting().getAccent());
+
+            String urlAudio = this.textToSpeechService.convertTextToSpeech(geminiTextAudio,voidCode ,1.0F);
+
+            Audio audio = Audio.builder()
+                    .accent(UserSetting.Accent.fromValue(voidCode))
+                    .urlAudio(urlAudio)
+                    .voiceGender(user.getUserSetting().getVoiceGender())
+                    .recipe(recipe)
+                    .build();
+            audioHashSet.add(audio);
+
+            recipe.setAudios(audioHashSet);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -161,8 +212,20 @@ public class RecipeService {
     }
 
     public Recipe getRecipeById(Long id) {
-        return this.recipeRepository.findById(id).orElseThrow(null);
+        Recipe recipe = this.recipeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Recipe not found with ID: " + id));
+
+        // Sắp xếp theo bước
+        Set<Instruction> sortedInstructionsAsSet = recipe.getInstructions()
+                .stream()
+                .sorted(Comparator.comparing(Instruction::getStep))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        recipe.setInstructions(sortedInstructionsAsSet);
+
+        return recipe;
     }
+
+
 
     public void saveRecipe(Recipe recipe) {
         this.recipeRepository.save(recipe);
@@ -181,4 +244,67 @@ public class RecipeService {
     }
 
 
+
+
+    public Page<Recipe> getAllRecipes(Pageable pageable) {
+        return recipeRepository.findAll(pageable);
+    }
+
+    public Page<Recipe> getAllApprovedRecipes(Pageable pageable) {
+        return recipeRepository.findByIsPendingRecipeFalse(pageable); // Lấy công thức đã duyệt
+    }
+
+    public Page<Recipe> searchRecipes(String title, String userName, Pageable pageable) {
+        if (title != null && !title.isEmpty() && userName != null && !userName.isEmpty()) {
+            return recipeRepository.findByTitleContainingIgnoreCaseAndUserUserNameContainingIgnoreCase(title, userName, pageable);
+        } else if (title != null && !title.isEmpty()) {
+            return recipeRepository.findByTitleContainingIgnoreCase(title, pageable);
+        } else if (userName != null && !userName.isEmpty()) {
+            return recipeRepository.findByUserUserNameContainingIgnoreCase(userName, pageable);
+        } else {
+            return recipeRepository.findAll(pageable);
+        }
+    }
+
+    public Page<Recipe> searchApprovedRecipes(String title, String userName, Pageable pageable) {
+        if (title != null && !title.isEmpty() && userName != null && !userName.isEmpty()) {
+            return recipeRepository.findByTitleContainingIgnoreCaseAndUserUserNameContainingIgnoreCaseAndIsPendingRecipeFalse(title, userName, pageable);
+        } else if (title != null && !title.isEmpty()) {
+            return recipeRepository.findByTitleContainingIgnoreCaseAndIsPendingRecipeFalse(title, pageable);
+        } else if (userName != null && !userName.isEmpty()) {
+            return recipeRepository.findByUserUserNameContainingIgnoreCaseAndIsPendingRecipeFalse(userName, pageable);
+        } else {
+            return recipeRepository.findByIsPendingRecipeFalse(pageable);
+        }
+    }
+
+
+    public void deleteRecipe(Long id) {
+        if (!recipeRepository.existsById(id)) {
+            throw new IllegalArgumentException("Recipe with ID " + id + " does not exist.");
+        }
+        recipeRepository.deleteById(id);
+    }
+
+    public void createRecipe(Recipe recipe) {
+        recipe.setCreatedDate(java.time.LocalDate.now());
+        recipe.setIsPendingRecipe(true); // Mặc định công thức mới là pending
+        recipeRepository.save(recipe);
+    }
+
+    public long getTotalRecipes() {
+        return recipeRepository.count();
+    }
+
+    public long getTotalApprovedRecipes() {
+        return recipeRepository.countByIsPendingRecipeFalse(); // Đếm công thức đã duyệt
+    }
+
+    public long getPendingRecipesCount() {
+        return recipeRepository.countByIsPendingRecipeTrue();
+    }
+
+    public long getTotalLikes() {
+        return recipeRepository.sumLikeCount();
+    }
 }

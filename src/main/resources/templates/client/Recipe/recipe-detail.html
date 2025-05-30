@@ -199,17 +199,21 @@
                             </div>
                         </div>
 
-                        <!-- Video Section -->
-                        <div th:if="${recipe.audios != null and !recipe.audios.isEmpty()}"
-                             class="d-flex align-items-center bg-light p-2 rounded mb-4">
-                            <i class="fas fa-play-circle fs-5 me-2"></i>
-                            <div class="progress flex-grow-1" style="height: 4px;">
-                                <div class="progress-bar" style="width: 30%;" role="progressbar"></div>
+                        <!-- Audio Section -->
+                        <div th:if="${recipe.audios != null and !recipe.audios.isEmpty()}" class="bg-light p-2 rounded mb-4">
+                            <div th:each="audio, iterStat : ${recipe.audios}" class="d-flex align-items-center mb-2">
+                                <i class="fas fa-play-circle fs-5 me-2"></i>
+                                <audio controls class="flex-grow-1" style="height: 40px;">
+                                    <source th:src="${audio.urlAudio}" type="audio/mpeg">
+                                    Your browser does not support the audio element.
+                                </audio>
+                                <span style="visibility: hidden" class="ms-2 text-muted small">
+                                    Giọng: [[${audio.voiceGender.name()}]], Giọng điệu: [[${audio.accent.name()}]]
+
+                                </span>
                             </div>
-                            <span class="ms-2 text-muted small">Nghe hướng dẫn nấu ăn</span>
                         </div>
-                        <div th:unless="${recipe.audios != null and !recipe.audios.isEmpty()}"
-                             class="alert alert-info small py-2 mb-4">
+                        <div th:unless="${recipe.audios != null and !recipe.audios.isEmpty()}" class="alert alert-info small py-2 mb-4">
                             <i class="fas fa-info-circle"></i> Không có file audio hướng dẫn nấu ăn
                         </div>
 

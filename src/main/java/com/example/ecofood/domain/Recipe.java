@@ -22,7 +22,7 @@ public class Recipe {
     Long id;
 
     String title;
-
+    @Lob
     String description;
 
     Integer preparationTime;
@@ -46,6 +46,8 @@ public class Recipe {
     String tileName; // để check tên gần giống
 
     Boolean isPendingRecipe = true;  // chờ admin duyệt
+    @Lob
+    String textAudio ;
 
     Float totalCalories = 0.0f;
 
@@ -69,13 +71,11 @@ public class Recipe {
     @JoinColumn(name = "cookSnap_id")
     CookSnap cookSnap;
 
-    @ManyToMany(mappedBy = "recipes")
-    Set<CookUtensil> cookUtensils = new HashSet<>();
 
     @OneToMany(mappedBy = "recipe")
     Set<Comment> comments = new HashSet<>();
 
-    @OneToMany(mappedBy = "recipe")
+    @OneToMany(mappedBy = "recipe",cascade = CascadeType.ALL, orphanRemoval = true)
     Set<Audio> audios = new HashSet<>();
 
     @OneToOne(mappedBy = "recipe", cascade = CascadeType.ALL)

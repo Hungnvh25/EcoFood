@@ -36,7 +36,7 @@ public class OAuth2Controller {
         // Sinh token JWT
         String token = JwtUtil.generateToken(user.getUserName());
         Cookie cookie = new Cookie("jwtToken", token);
-        cookie.setMaxAge(10800);
+        cookie.setMaxAge(21600);
         cookie.setPath("/");
         response.addCookie(cookie);
 
