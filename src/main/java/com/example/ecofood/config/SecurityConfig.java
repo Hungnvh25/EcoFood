@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import vn.payos.PayOS;
 
 import java.io.IOException;
 
@@ -28,6 +30,20 @@ import java.io.IOException;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+
+     @Value("${PAYOS_CLIENT_ID}")
+     private String clientId;
+
+    @Value("${PAYOS_API_KEY}")
+    private  String apiKey;
+
+    @Value("${PAYOS_CHECKSUM_KEY}")
+    private  String checksumKey;
+
+    @Bean
+    public PayOS payOS() {
+        return new PayOS(clientId,apiKey,checksumKey);
+    }
 
     @Autowired
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;

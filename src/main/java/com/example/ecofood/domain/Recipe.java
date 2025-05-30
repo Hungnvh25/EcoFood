@@ -71,8 +71,6 @@ public class Recipe {
     @JoinColumn(name = "cookSnap_id")
     CookSnap cookSnap;
 
-    @ManyToMany(mappedBy = "recipes")
-    Set<CookUtensil> cookUtensils = new HashSet<>();
 
     @OneToMany(mappedBy = "recipe")
     Set<Comment> comments = new HashSet<>();
