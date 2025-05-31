@@ -1,12 +1,19 @@
 package com.example.ecofood.controller.premium;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Map;
 
 import com.example.ecofood.DTO.CreatePaymentLinkRequestBody;
 import com.example.ecofood.Util.RandomStringGenerator;
+import com.example.ecofood.domain.User;
+import com.example.ecofood.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -23,24 +30,40 @@ import vn.payos.type.PaymentData;
 import vn.payos.type.PaymentLinkData;
 
 @Controller
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PremiumController {
 
-    private final PayOS payOS;
+    final PayOS payOS;
+    UserService userService;
+    RandomStringGenerator randomStringGenerator;
 
-    private RandomStringGenerator randomStringGenerator = new RandomStringGenerator();
 
-    @Autowired
-    public PremiumController(PayOS payOS) {
-        this.payOS = payOS;
-    }
 
     @RequestMapping(value = "/premium")
-    public String Index() {
+    public String index(Model model) {
+        int daysLeft = 0;
+        User user = this.userService.getCurrentUser();
+        if (user.getPremium() != null && user.getPremium() && user.getPremiumStartDate() != null) {
+            LocalDateTime expiryDate = user.getPremiumStartDate().plusDays(30);
+            LocalDateTime now = LocalDateTime.now();
+            if (expiryDate.isAfter(now)) {
+                daysLeft = (int) ChronoUnit.DAYS.between(now, expiryDate);
+            }
+        }
+        model.addAttribute("daysLeft", daysLeft);
+        model.addAttribute("user", user);
         return "client/premium/show";
     }
 
+
     @RequestMapping(value = "/premium/success")
     public String Success() {
+        User user = this.userService.getCurrentUser();
+        user.setPremium(true);
+        user.setPremiumStartDate(LocalDateTime.now());
+
+        userService.saveUser(user);
         return "client/premium/success";
     }
 
@@ -54,7 +77,7 @@ public class PremiumController {
         try {
             final String baseUrl = getBaseUrl(request);
             final String productName = "Gói Premium của bạn";
-            final String description = randomStringGenerator.generateRandomString(6);
+            final String description = this.randomStringGenerator.generateRandomString(6);
             final String returnUrl = baseUrl + "/premium/success";
             final String cancelUrl = baseUrl + "/premium/cancel";
             final int price = 2000;
@@ -64,7 +87,7 @@ public class PremiumController {
             ItemData item = ItemData.builder().name(productName).quantity(1).price(price).build();
             PaymentData paymentData = PaymentData.builder().orderCode(orderCode).amount(price).description(description)
                     .returnUrl(returnUrl).cancelUrl(cancelUrl).item(item).build();
-            CheckoutResponseData data = payOS.createPaymentLink(paymentData);
+            CheckoutResponseData data = this.payOS.createPaymentLink(paymentData);
 
             String checkoutUrl = data.getCheckoutUrl();
 

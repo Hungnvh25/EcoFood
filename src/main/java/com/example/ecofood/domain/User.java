@@ -6,6 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,6 +41,7 @@ public class User {
 
     LocalDate joinDate = LocalDate.now();
     Boolean premium = false;
+    LocalDateTime premiumStartDate;
 
     @Enumerated(EnumType.STRING)
     Role role;

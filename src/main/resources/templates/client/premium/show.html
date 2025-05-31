@@ -81,8 +81,27 @@
                 </div>
 
                 <!-- Premium Package -->
-                <div class="mb-4">
-                    <div class="w-75 mx-auto">
+                <div class="mb-4" th:switch="${user.premium}">
+                    <!-- Trường hợp user.premium == true -->
+                    <div th:case="true" class="w-75 mx-auto">
+                        <div class="border rounded p-3 text-center">
+                            <div class="border rounded p-3 text-center">
+                                <div class="d-flex justify-content-center mb-2">
+                                    <span class="fs-4 me-2">🏅</span>
+                                    <h3 class="mb-0 fs-5">Gói Premium của bạn</h3>
+                                </div>
+                                <p class="text-success mb-3">Bạn đã kích hoạt thành công gói Premium!</p>
+                                <p class="text-muted mb-3" th:if="${daysLeft > 0}">
+                                    Còn lại <span th:text="${daysLeft}"></span> ngày.
+                                </p>
+                                <p class="text-muted mb-3" th:if="${daysLeft == 0}">
+                                    Gói Premium đã hết hạn hoặc chưa kích hoạt.
+                                </p>
+                            </div>
+                    </div>
+
+                    <!-- Trường hợp user.premium == false -->
+                    <div th:case="false" class="w-75 mx-auto">
                         <div class="border rounded p-3">
                             <div class="d-flex align-items-center mb-2">
                                 <span class="fs-4 me-2">🏅</span>
@@ -102,8 +121,6 @@
                                 <form action="/create-payment-link" method="post">
                                     <button type="submit" class="btn btn-primary">Thanh toán ngay</button>
                                 </form>
-
-
                             </div>
                         </div>
                     </div>
@@ -117,6 +134,5 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>
