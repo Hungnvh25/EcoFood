@@ -5,7 +5,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -14,17 +13,18 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Notification {
+public class SaveRecipe
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    String title;
-    String content;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    User user;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    LocalDate createdDate = LocalDate.now();
+    @ManyToOne
+    @JoinColumn(name = "recipe_id")
+    private Recipe recipe;
 }

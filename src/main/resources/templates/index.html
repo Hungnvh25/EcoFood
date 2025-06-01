@@ -100,6 +100,11 @@
                                         <i class="fas fa-comment"></i>
                                         <span th:text="${recipe.comments != null ? recipe.comments.size() : '0'}">0</span>
                                     </button>
+                                    <button class="btn btn-light btn-sm"
+                                            type="button"
+                                            th:attr="onclick=|saveRecipe(event, ${recipe.id})|">
+                                        <i class="fas fa-bookmark"></i>
+                                    </button>
                                 </div>
                             </div>
 
@@ -206,10 +211,9 @@
     </div>
 </div>
 
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!--Tim -->
+<!-- Tim -->
 <script>
     function toggleLike(event, recipeId) {
         event.preventDefault();
@@ -379,6 +383,29 @@
         }
     });
 
+    // Hàm lưu recipe
+    function saveRecipe(event, recipeId) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        fetch(`/recipe/${recipeId}/save`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) throw new Error('Lỗi khi lưu recipe');
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message || 'Recipe đã được lưu thành công!');
+            })
+            .catch(error => {
+                console.error('Lỗi:', error);
+                alert('Đã có lỗi xảy ra, vui lòng thử lại!');
+            });
+    }
 </script>
 </body>
 </html>

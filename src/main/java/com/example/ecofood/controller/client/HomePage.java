@@ -5,6 +5,7 @@ import com.example.ecofood.auth.JwtUtil;
 import com.example.ecofood.DTO.LoginDTO;
 import com.example.ecofood.DTO.UserDTO;
 import com.example.ecofood.domain.User;
+import com.example.ecofood.service.EmailService;
 import com.example.ecofood.service.RecipeService;
 import com.example.ecofood.service.UserService;
 import jakarta.servlet.http.Cookie;
@@ -29,6 +30,7 @@ public class HomePage {
 
     UserService userService;
     RecipeService recipeService;
+    EmailService emailService;
 
 
 
@@ -68,7 +70,9 @@ public class HomePage {
             return "client/register";
         }
 
+
         this.userService.createUser(userDTO);
+        this.emailService.sendRegistrationSuccessNotification(userDTO,confirmPassword);
         return "redirect:/login?success";
     }
 

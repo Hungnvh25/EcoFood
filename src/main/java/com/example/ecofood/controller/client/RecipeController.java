@@ -1,25 +1,25 @@
 package com.example.ecofood.controller.client;
 
 import com.example.ecofood.DTO.*;
-import com.example.ecofood.domain.*;
+import com.example.ecofood.domain.Ingredient;
+import com.example.ecofood.domain.Recipe;
+import com.example.ecofood.domain.User;
+import com.example.ecofood.domain.UserRecipeLike;
 import com.example.ecofood.service.*;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.security.Principal;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
@@ -32,19 +32,18 @@ public class RecipeController {
     UserService userService;
     UserActivityService userActivityService;
     UserRecipeLikeService userRecipeLikeService;
-    CommentService commentService;
 
 
-    @GetMapping ("/")
-    public String getEcoFood(Model model, HttpServletRequest request){
 
-
+    @GetMapping("/")
+    public String getEcoFood(Model model, HttpServletRequest request) {
         // Lấy danh sách recipes từ service
         List<Recipe> recipes = this.recipeService.getAllRecipes();
         model.addAttribute("recipes", recipes);
 
         return "index";
     }
+
     @GetMapping("/search")
     public String searchRecipes(@RequestParam("keyword") String keyword, Model model) {
         List<Recipe> searchResults = this.recipeService.searchRecipesByTitle(keyword);
@@ -54,11 +53,11 @@ public class RecipeController {
     }
 
     @GetMapping("/recipe")
-    public String showCreateForm(Model model,HttpServletRequest request) {
+    public String showCreateForm(Model model, HttpServletRequest request) {
         Recipe recipe = new Recipe();
         User currentUser = this.userService.getCurrentUser();
 
-        model.addAttribute("currentUser",currentUser);
+        model.addAttribute("currentUser", currentUser);
         model.addAttribute("recipe", recipe);
         model.addAttribute("currentUri", request.getRequestURI());
         return "client/Recipe/add";
@@ -95,11 +94,11 @@ public class RecipeController {
             return "client/Recipe/add";
         }
 
-        if(ingredientIds == null || instructionDescriptions == null){
+        if (ingredientIds == null || instructionDescriptions == null) {
 
         }
 
-        this.recipeService.createRecipe(recipe,imageFile,ingredientIds,ingredientQuantities,ingredientUnits,instructionDescriptions,instructionImages,difficulty,mealType);
+        this.recipeService.createRecipe(recipe, imageFile, ingredientIds, ingredientQuantities, ingredientUnits, instructionDescriptions, instructionImages, difficulty, mealType);
 
         return "redirect:/";
     }
@@ -117,10 +116,6 @@ public class RecipeController {
             return "error"; // Giả định bạn có template error.html
         }
     }
-
-
-
-
 
 
     @PostMapping("/recipe/{id}/toggle-like")
@@ -153,41 +148,6 @@ public class RecipeController {
         return ResponseEntity.ok(new LikeResponse(recipe.getLikeCount(), !alreadyLiked));
     }
 
-    @GetMapping("/recipe/{id}/comments")
-    public ResponseEntity<List<CommentResponse>> getCommentsByRecipe(@PathVariable Long id) {
-        List<Comment> comments = this.commentService.getCommentsByRecipeId(id);
-        List<CommentResponse> responses = comments.stream()
-                .map(comment -> new CommentResponse(
-                        comment.getContent(),
-                        comment.getUser().getUserName(),
-                        comment.getUser().getUserSetting().getUrlImage(),
-                        comment.getCreatedDate().toString()
-                ))
-                .toList();
-
-        return ResponseEntity.ok(responses);
-    }
-    @PostMapping("/recipe/{id}/comments")
-    public ResponseEntity<?> addComment(@PathVariable Long id, @RequestBody CommentRequest request) {
-        User currentUser = userService.getCurrentUser();
-        Recipe recipe = recipeService.getRecipeById(id);
-
-        Comment comment = Comment.builder()
-                .content(request.getContent())
-                .user(currentUser)
-                .recipe(recipe)
-                .createdDate(LocalDate.now())
-                .build();
-
-        this.commentService.saveComment(comment);
-
-        return ResponseEntity.ok(new CommentResponse(
-                comment.getContent(),
-                currentUser.getUserName(),
-                currentUser.getUserSetting().getUrlImage(),
-                comment.getCreatedDate().toString()
-        ));
-    }
 
     @GetMapping("/searchTitleName")
     public ResponseEntity<List<RecipeDetailDto>> searchRecipesByTitle(@RequestParam("keyword") String keyword) {
@@ -237,6 +197,22 @@ public class RecipeController {
         }).toList();
         return ResponseEntity.ok(dtos);
     }
+
+    @GetMapping("/myRecipe")
+    public String getRecipeUser(Model model) {
+        User user = this.userService.getCurrentUser();
+        List<Recipe> recipes = this.recipeService.findByUserId(user.getId());
+        model.addAttribute("recipes",recipes);
+        return "client/Recipe/myRecipe";
+    }
+
+
+//    @PostMapping("/recipe/${recipeId}/save`")
+//    public ResponseEntity<?> UserSaveRecipe((@PathVariable Long  recipeId){
+//
+//
+//        return ResponseEntity.ok();
+//    }
 
 
 }

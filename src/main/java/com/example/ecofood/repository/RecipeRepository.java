@@ -43,4 +43,6 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     @Query("SELECT SUM(r.likeCount) FROM Recipe r")
     long sumLikeCount();
 
+    List<Recipe> findByUserId(Long id);
+
 }

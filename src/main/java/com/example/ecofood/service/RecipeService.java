@@ -307,4 +307,8 @@ public class RecipeService {
     public long getTotalLikes() {
         return recipeRepository.sumLikeCount();
     }
+
+    public List<Recipe> findByUserId(Long id){
+        return this.recipeRepository.findByUserId(id);
+    }
 }
