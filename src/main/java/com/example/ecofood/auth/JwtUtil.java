@@ -16,11 +16,11 @@ import java.util.Date;
 public class JwtUtil {
     private static final String SECRET_KEY = "v6Ui0LNGKzSZ8q+XMDLPI/oywvfdE2KOsn5GQFPMKjt9lCM7evCoRkCb0TB2OMg+";
 
-    public static String generateToken(String username) throws JOSEException {
+    public static String generateToken(String email) throws JOSEException {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
 
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject(username)
+                .subject(email)
                 .issuer("Akina")
                 .issueTime(new Date())
                 .expirationTime(Date.from(Instant.now().plusSeconds(3600)))

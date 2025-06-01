@@ -53,6 +53,7 @@ public class PremiumController {
         }
         model.addAttribute("daysLeft", daysLeft);
         model.addAttribute("user", user);
+
         return "client/premium/show";
     }
 

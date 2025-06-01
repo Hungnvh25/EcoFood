@@ -79,14 +79,14 @@ public class HomePage {
             return "client/login";
         }
 
-        boolean isValid = userService.authenticate(loginDTO.getUsername(), loginDTO.getPassword());
+        boolean isValid = userService.authenticate(loginDTO.getEmail(), loginDTO.getPassword());
         if (!isValid) {
             result.reject("login.failed", "Tên đăng nhập hoặc mật khẩu không đúng");
             return "client/login";
         }
         try {
             // lưu token
-            String token = JwtUtil.generateToken(loginDTO.getUsername());
+            String token = JwtUtil.generateToken(loginDTO.getEmail());
             Cookie cookie = new Cookie("jwtToken", token);
             cookie.setMaxAge(21600); // 6h
             cookie.setPath("/");

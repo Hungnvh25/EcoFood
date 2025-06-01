@@ -27,20 +27,23 @@ public class OAuth2Controller {
         OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
         String email = oauthUser.getAttribute("email");
         String name = oauthUser.getAttribute("name");
+        String picture = oauthUser.getAttribute("picture");
 
         User user = this.userService.findByEmail(email);
         if (user == null) {
-            user = this.userService.createOAuth2User(email, name);
+           user =  this.userService.createOAuth2User(email, name, picture);
         }
 
         // Sinh token JWT
-        String token = JwtUtil.generateToken(user.getUserName());
+        String token = JwtUtil.generateToken(user.getEmail());
         Cookie cookie = new Cookie("jwtToken", token);
         cookie.setMaxAge(21600);
         cookie.setPath("/");
         response.addCookie(cookie);
 
-        session.setAttribute("currentUser", user);
+        // lưu currentUser
+        User currentUser = this.userService.getCurrentUser();
+        session.setAttribute("currentUser", currentUser);
 
         return "redirect:/";
     }

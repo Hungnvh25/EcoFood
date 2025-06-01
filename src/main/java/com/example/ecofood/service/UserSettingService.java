@@ -25,4 +25,11 @@ public class UserSettingService {
         this.userSettingRepository.save(userSetting);
     }
 
+    public void CreateSetting(UserSetting userSetting) {
+        userSetting.setAccent(UserSetting.Accent.HN_PHUONGTRANG);
+        userSetting.setVoiceGender(UserSetting.Gender.MALE);
+        this.userSettingRepository.save(userSetting);
+    }
+
+
 }

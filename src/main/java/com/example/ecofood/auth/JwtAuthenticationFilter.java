@@ -33,8 +33,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = extractTokenFromCookies(request);
 
             if (token != null && JwtUtil.isTokenValid(token)) {
-                String username = JwtUtil.getUsernameFromToken(token);
-                User user = this.userService.findUserByUserName(username);
+                String email = JwtUtil.getUsernameFromToken(token);
+                User user = this.userService.findByEmail(email);
 
                 if (user != null) {
                     request.setAttribute("user", user);

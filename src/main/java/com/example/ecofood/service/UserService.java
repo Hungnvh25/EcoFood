@@ -3,6 +3,7 @@ package com.example.ecofood.service;
 import com.example.ecofood.DTO.UserDTO;
 import com.example.ecofood.domain.User;
 import com.example.ecofood.domain.UserActivity;
+import com.example.ecofood.domain.UserSetting;
 import com.example.ecofood.repository.UserActivityRepository;
 import com.example.ecofood.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,8 +28,8 @@ public class UserService {
     HttpServletRequest request;
     UserActivityRepository userActivityRepository;
 
-    public User findUserByUserName(String userName) {
-        return this.userRepository.findUserByUserName(userName);
+    public User findUserByUserName(String email) {
+        return this.userRepository.findUsersByEmail(email);
     }
 
     public void createUser(UserDTO userDTO) {
@@ -56,8 +57,8 @@ public class UserService {
         this.userRepository.save(user);
     }
 
-    public boolean authenticate(String userName, String passWord) {
-        User user = this.userRepository.findUserByUserName(userName);
+    public boolean authenticate(String email, String passWord) {
+        User user = this.userRepository.findUsersByEmail(email);
 
         if (user == null) {
             return false;
@@ -100,22 +101,29 @@ public class UserService {
     public User findByEmail(String email){
         return this.userRepository.findUsersByEmail(email);
     }
-    public User createOAuth2User(String email, String name) {
+    public User createOAuth2User(String email, String name,String picture) {
         User user = new User();
         user.setEmail(email);
-        user.setUserName(generateUserNameFromEmail(email));
+        user.setUserName(name);
         user.setPasswordHash(passwordEncoder.encode(UUID.randomUUID().toString())); // random pass
         user.setJoinDate(LocalDate.now());
         user.setRole(User.Role.CUSTOMER);
-        userRepository.save(user);
+        this.userRepository.save(user);
 
-        this.userSettingService.createUserSetting(user);
+
+        UserSetting userSetting = UserSetting.builder()
+                .user(user)
+                .urlImage(picture)
+                .build();
+
+        this.userSettingService.CreateSetting(userSetting);
 
         UserActivity userActivity = UserActivity.builder()
                 .user(user)
                 .build();
 
         this.userActivityRepository.save(userActivity);
+        this.saveUser(user);
         return user;
     }
 
