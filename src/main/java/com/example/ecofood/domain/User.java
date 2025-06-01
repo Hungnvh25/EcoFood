@@ -25,8 +25,8 @@ public class User {
     Long id;
 
     @NotNull(message = "UserName not null")
-    @Size(min = 3, max = 50, message = "Username phải từ 3 đến 50 ký tự")
-    @Pattern(regexp = "[A-Za-z0-9_]+", message = "Username chỉ được chứa chữ cái, số và dấu gạch dưới")
+//    @Size(min = 3, max = 50, message = "Username phải từ 3 đến 50 ký tự")
+//    @Pattern(regexp = "[A-Za-z0-9_]+", message = "Username chỉ được chứa chữ cái, số và dấu gạch dưới")
     String userName;
 
 

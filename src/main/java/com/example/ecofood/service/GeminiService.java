@@ -26,7 +26,7 @@ public class GeminiService {
             "Các bước làm món ăn:  \n" +
             "Bước 1: [Nội dung bước 1, viết hoa đầu câu, sử dụng dấu câu hợp lý.]  \n" +
             "Bước 2: [Nội dung bước 2, viết hoa đầu câu, sử dụng dấu câu hợp lý.]  \n" +
-            "... (Tiếp tục cho các bước tiếp theo)\n" +
+            "(Chỉ liệt kê đúng số bước có trong đoạn văn bản gốc, không thêm bước mới nào khác.)\n" +
             "\n" +
             "Quy tắc định dạng chi tiết:\n" +
             "\n" +
@@ -45,7 +45,8 @@ public class GeminiService {
             "  + Nếu văn bản gốc không có phần nào, bỏ qua phần đó trong kết quả đầu ra.  \n" +
             "- Định dạng các bước làm:  \n" +
             "  + Mỗi bước nằm trên một dòng riêng.  \n" +
-            "  + Bắt đầu mỗi bước bằng \"Bước X: \" (ví dụ: \"Bước 1: \", \"Bước 2: \"). Tự động đánh số nếu văn bản gốc không có hoặc không theo chuẩn.\n" +
+            "  + Bắt đầu mỗi bước bằng \"Bước X: \" (ví dụ: \"Bước 1: \", \"Bước 2: \"). Nếu văn bản gốc không có đánh số, tự động đánh số tương ứng theo thứ tự bước.  \n" +
+            "  + **Không thêm bất kỳ bước nào ngoài số bước có trong văn bản gốc.**\n" +
             "\n" +
             "Ví dụ:  \n" +
             "\n" +
@@ -61,14 +62,36 @@ public class GeminiService {
             "Bước 2: Pha nước chấm theo tỉ lệ chua, cay, mặn, ngọt.  \n" +
             "Bước 3: Ăn kèm rau sống.  \n" +
             "\n" +
-            "Bây giờ, hãy định dạng đoạn văn bản sau đây. Chỉ trả về nội dung đã được định dạng theo đúng cấu trúc và quy tắc trên, không thêm bất kỳ lời giải thích nào khác: \n";
-
+            "Bây giờ, hãy định dạng đoạn văn bản sau đây. Chỉ trả về nội dung đã được định dạng theo đúng cấu trúc và quy tắc trên, không thêm bất kỳ lời giải thích nào khác:\n";
 
     public GeminiService(@Value("${gemini.api.key}") String apiKey) {
         this.client = Client.builder().apiKey(apiKey).build();
     }
 
     public String generateText(String input) {
+        int maxRetries = 3;
+        int attempt = 0;
+        String resultString;
+
+        int inputStepCount = countStepsInText(input);
+
+        do {
+            System.out.println("Gọi Gemini lần " + (attempt+1));
+            resultString = callGeminiAPI(input);
+            int outputStepCount = countStepsInText(resultString);
+
+            if (outputStepCount == inputStepCount) {
+                break;
+            }
+
+            attempt++;
+        } while (attempt < maxRetries);
+
+        return resultString;
+    }
+
+
+    public String callGeminiAPI(String input) {
         String model = "gemini-2.0-flash";
         String resultString;
         // Tạo content từ input
@@ -114,5 +137,22 @@ public class GeminiService {
         }
 
         return resultString;
+    }
+
+
+
+
+    private int countStepsInText(String text) {
+        if (text == null || text.isEmpty()) return 0;
+
+        // Regex tìm "Bước" hoặc "bước"
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("(?i)bước\\s*\\d+");
+        java.util.regex.Matcher matcher = pattern.matcher(text);
+
+        int count = 0;
+        while (matcher.find()) {
+            count++;
+        }
+        return count;
     }
 }

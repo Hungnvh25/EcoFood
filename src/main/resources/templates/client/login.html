@@ -32,9 +32,9 @@
 
                     <!-- Trường Tên đăng nhập -->
                     <div class="mb-3">
-                        <label for="username" class="form-label">Tên đăng nhập</label>
-                        <input type="text" class="form-control" id="username" th:field="*{username}" placeholder="Tên đăng nhập" required>
-                        <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-danger"></span>
+                        <label for="email" class="form-label">Nhập email</label>
+                        <input type="text" class="form-control" id="email" th:field="*{email}" placeholder="Nhập email" required>
+                        <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></span>
                     </div>
 
                     <!-- Trường Mật khẩu -->
