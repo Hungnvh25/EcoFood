@@ -23,3 +23,4 @@ public class TestGeminiController {
         return ResponseEntity.ok(response);
     }
 }
+

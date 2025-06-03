@@ -41,7 +41,7 @@ public class Recipe {
 
     boolean related;
 
-    Long parent_id; // id recipe cha
+    Long parentId; // id recipe cha
 
     String tileName; // để check tên gần giống
 
@@ -74,6 +74,9 @@ public class Recipe {
 
     @OneToMany(mappedBy = "recipe")
     Set<Comment> comments = new HashSet<>();
+
+    @OneToMany(mappedBy = "recipe")
+    Set<SaveRecipe> saveRecipes = new HashSet<>();
 
     @OneToMany(mappedBy = "recipe",cascade = CascadeType.ALL, orphanRemoval = true)
     Set<Audio> audios = new HashSet<>();

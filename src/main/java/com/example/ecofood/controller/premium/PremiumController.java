@@ -79,7 +79,8 @@ public class PremiumController {
             final String baseUrl = getBaseUrl(request);
             final String productName = "Gói Premium của bạn";
             final String description = this.randomStringGenerator.generateRandomString(6);
-            final String returnUrl = baseUrl + "/premium/success";
+//            final String returnUrl = baseUrl + "/premium/success";
+            final String returnUrl = baseUrl + "/premium";
             final String cancelUrl = baseUrl + "/premium/cancel";
             final int price = 2000;
             // Gen order code

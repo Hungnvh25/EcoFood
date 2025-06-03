@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -24,9 +26,14 @@ public class DashboardController {
     ImageService imageService;
 
     @GetMapping("")
-    public String getDashBoard(Model model, HttpServletRequest request) {
-        User user = (User) request.getAttribute("user");
-        model.addAttribute("user", user);
+    public String getDashBoard(Model model) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof User) {
+            User user = (User) auth.getPrincipal();
+            model.addAttribute("user", user);
+        }
+
         return "admin/dashboard";
     }
 

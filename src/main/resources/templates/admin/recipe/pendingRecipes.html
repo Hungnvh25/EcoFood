@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Công thức đang chờ duyệt - Bảng quản trị</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        .dropdown-menu {
+            z-index: 1050;
+            min-width: 150px;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <!-- Header -->
+            <th:block th:replace="~{admin/layout/header :: header-content}"></th:block>
+
+            <!-- Thẻ thống kê -->
+            <div class="row mt-3">
+                <div class="col-md-4 mb-4">
+                    <div class="card border-primary">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title">Tổng số công thức</h5>
+                                <h3 th:text="${totalRecipes}">0</h3>
+                            </div>
+                            <i class="fas fa-utensils fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card border-success">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title">Công thức đang chờ</h5>
+                                <h3 th:text="${pendingRecipes}">0</h3>
+                            </div>
+                            <i class="fas fa-clock fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card border-warning">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title">Tổng số lượt thích</h5>
+                                <h3 th:text="${totalLikes}">0</h3>
+                            </div>
+                            <i class="fas fa-heart fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bảng công thức đang chờ -->
+            <div class="mt-4">
+                <h2>Công thức đang chờ duyệt</h2>
+
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <!-- Form tìm kiếm -->
+                <form th:action="@{/admin/recipe/pending-recipes}" method="get" class="mb-3">
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <input type="text" name="title" class="form-control" placeholder="Tìm kiếm theo tiêu đề" th:value="${param.title}" />
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" name="userName" class="form-control" placeholder="Tìm kiếm theo người tạo" th:value="${param.userName}" />
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
+                        </div>
+                        <div class="col-md-2">
+                            <a th:href="@{/admin/recipe/pending-recipes}" class="btn btn-secondary w-100">Xem tất cả công thức</a>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Bảng công thức -->
+                <div th:if="${recipes.content.isEmpty()}" class="alert alert-info">
+                    Không có công thức nào đang chờ duyệt.
+                </div>
+                <table class="table table-striped align-middle" th:unless="${recipes.content.isEmpty()}">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tiêu đề</th>
+                        <th>Người tạo</th>
+                        <th>Ngày tạo</th>
+                        <th>Đang chờ</th>
+                        <th>ID công thức cha</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="recipe : ${recipes.content}"
+                        th:data-id="${recipe.id}"
+                        th:data-title="${recipe.title}"
+                        th:data-parentid="${recipe.parentId}">
+                        <td th:text="${recipe.id}"></td>
+                        <td th:text="${recipe.title}"></td>
+                        <td th:text="${recipe.user != null ? recipe.user.userName : 'N/A'}"></td>
+                        <td th:text="${#temporals.format(recipe.createdDate, 'dd/MM/yyyy')}"></td>
+                        <td th:text="${recipe.isPendingRecipe}"></td>
+                        <td th:text="${recipe.parentId != null ? recipe.parentId : 'Không có'}"></td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton_${recipe.id}" data-bs-toggle="dropdown" style="background-color: #FFCB65;" aria-expanded="false">
+                                    Tùy chọn
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton_${recipe.id}">
+                                    <li><a class="dropdown-item approve-btn" href="#" data-bs-toggle="modal" data-bs-target="#approveModal">Phê duyệt</a></li>
+                                    <li><a class="dropdown-item select-parent-btn" href="#" data-bs-toggle="modal" data-bs-target="#parentSelectModal">Chọn công thức cha</a></li>
+                                    <li><a class="dropdown-item view-details-btn" href="#" data-bs-toggle="modal" data-bs-target="#recipeModal">Xem chi tiết</a></li>
+                                    <li><a class="dropdown-item delete-recipe-btn" href="#" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">Xóa</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <!-- Phân trang -->
+                <nav aria-label="Phân trang" th:unless="${recipes.content.isEmpty()}">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${recipes.first} ? 'disabled' : ''">
+                            <a class="page-link" th:href="@{/admin/recipe/pending-recipes(page=${recipes.number - 1}, title=${param.title}, userName=${param.userName})}">Trước</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, recipes.totalPages - 1)}" th:classappend="${i == recipes.number} ? 'active' : ''">
+                            <a class="page-link" th:href="@{/admin/recipe/pending-recipes(page=${i}, title=${param.title}, userName=${param.userName})}" th:text="${i + 1}"></a>
+                        </li>
+                        <li class="page-item" th:classappend="${recipes.last} ? 'disabled' : ''">
+                            <a class="page-link" th:href="@{/admin/recipe/pending-recipes(page=${recipes.number + 1}, title=${param.title}, userName=${param.userName})}">Tiếp</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Modal Phê duyệt -->
+<div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="approveModalLabel">Phê duyệt công thức</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn phê duyệt công thức này? Trạng thái sẽ được đặt thành đã phê duyệt.
+            </div>
+            <div class="modal-footer">
+                <form id="approveRecipeForm" method="post" th:action="@{/admin/recipe/approve}">
+                    <input type="hidden" name="id" id="approve-recipe-id" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success">Có, Phê duyệt</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Chọn công thức cha -->
+<div class="modal fade" id="parentSelectModal" tabindex="-1" aria-labelledby="parentSelectModalLabel" aria-hidden="true" data-bs-focus="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="parentSelectModalLabel">
+                    <i class="fas fa-utensils me-2"></i>Chọn công thức cha
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="parentRecipeForm" th:action="@{/admin/recipe/setParent}" method="post">
+                    <input type="hidden" name="recipeId" id="parent-recipe-id" />
+                    <div class="mb-3">
+                        <label class="form-label">Tiêu đề công thức</label>
+                        <input type="text" class="form-control" id="parent-recipe-title" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Chọn công thức cha</label>
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tiêu đề</th>
+                                <th>Thời gian chuẩn bị</th>
+                                <th>Thời gian nấu</th>
+                                <th>Hành động</th>
+                            </tr>
+                            </thead>
+                            <tbody id="similar-recipes-table"></tbody>
+                        </table>
+                        <div id="no-similar-recipes" class="alert alert-info d-none">
+                            Không tìm thấy công thức tương tự.
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="submit" form="parentRecipeForm" class="btn btn-primary">Lưu công thức cha</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Chi tiết công thức -->
+<div class="modal fade" id="recipeModal" tabindex="-1" aria-labelledby="recipeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h5 class="modal-title" id="recipeModalLabel">Chi tiết công thức</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-3">
+                <div class="row align-items-center mb-2">
+                    <div class="col-md-3 col-4 text-center">
+                        <img id="modalImage" src="https://via.placeholder.com/110x110" alt="Ảnh món ăn" class="img-fluid rounded shadow-sm" style="object-fit: cover; height: 110px; width: 110px;" />
+                    </div>
+                    <div class="col-md-9 col-8">
+                        <div class="d-flex flex-row flex-wrap justify-content-start gap-2" style="font-size: 0.93rem;">
+                                <span class="badge rounded-pill bg-light border shadow-sm px-3 py-2" style="color: #26272c;">
+                                    <i class="fas fa-clock me-1"></i>
+                                    Chuẩn bị: <span id="modalPrepTime">30</span> phút
+                                </span>
+                            <span class="badge rounded-pill bg-light border shadow-sm px-3 py-2" style="color: #26272c;">
+                                    <i class="fas fa-fire me-1"></i>
+                                    Nấu: <span id="modalCookTime">60</span> phút
+                                </span>
+                            <span class="badge rounded-pill bg-light border shadow-sm px-3 py-2" style="color: #26272c;">
+                                    <i class="fas fa-users me-1"></i>
+                                    Khẩu phần: <span id="modalServingSize">4</span> người
+                                </span>
+                        </div>
+                    </div>
+                </div>
+                <hr class="mt-2 mb-3" />
+                <div class="mb-3">
+                    <h6 class="fw-bold mb-2">Mô tả</h6>
+                    <p id="modalDescription" style="font-size: 0.98rem;">Đây là mô tả mẫu cho công thức nấu ăn.</p>
+                </div>
+                <div class="row" style="height: 310px;">
+                    <div class="col-md-6 border-end" style="height: 100%; overflow-y: auto;">
+                        <h6 class="fw-bold mb-2">Nguyên liệu</h6>
+                        <ul id="modalIngredients" class="list-group mb-0" style="font-size: 0.98rem;">
+                            <li class="list-group-item">Thịt bò - 500g</li>
+                            <li class="list-group-item">Bánh phở - 200g</li>
+                            <li class="list-group-item">Hành tây - 1 củ</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6" style="height: 100%; overflow-y: auto;">
+                        <h6 class="fw-bold mb-2">Các bước thực hiện</h6>
+                        <ol id="modalSteps" class="list-group list-group-numbered mb-0" style="font-size: 0.98rem;">
+                            <li class="list-group-item">Chuẩn bị nguyên liệu</li>
+                            <li class="list-group-item">Nấu nước dùng</li>
+                            <li class="list-group-item">Trần bánh phở</li>
+                            <li class="list-group-item">Bày món và thưởng thức</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Xác nhận xóa -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Xác nhận xóa</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa công thức này?
+            </div>
+            <div class="modal-footer">
+                <form id="deleteRecipeForm" method="post" th:action="@{/admin/recipe/pending/delete}">
+                    <input type="hidden" name="id" id="delete-recipe-id" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-danger">Có, Xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:replace="~{admin/layout/footer :: footer-modal}"></th:block>
+
+<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        try {
+            // Khởi tạo dropdown của Bootstrap
+            const dropdowns = document.querySelectorAll('.dropdown-toggle');
+            if (dropdowns.length === 0) {
+                console.warn('Không tìm thấy nút dropdown-toggle. Kiểm tra bảng công thức có hiển thị không.');
+            } else {
+                console.log(`Tìm thấy ${dropdowns.length} nút dropdown-toggle.`);
+            }
+            dropdowns.forEach(dropdown => {
+                try {
+                    new bootstrap.Dropdown(dropdown);
+                } catch (e) {
+                    console.error('Lỗi khi khởi tạo dropdown:', e);
+                }
+            });
+
+            // Phê duyệt
+            const approveButtons = document.querySelectorAll('.approve-btn');
+            if (approveButtons.length === 0) console.warn('Không tìm thấy nút approve-btn');
+            approveButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const row = this.closest('tr');
+                    if (row) {
+                        document.getElementById('approve-recipe-id').value = row.dataset.id;
+                    } else {
+                        console.error('Không tìm thấy hàng chứa nút phê duyệt');
+                    }
+                });
+            });
+
+            // Chọn công thức cha
+            const selectParentButtons = document.querySelectorAll('.select-parent-btn');
+            if (selectParentButtons.length === 0) console.warn('Không tìm thấy nút select-parent-btn');
+            selectParentButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const row = this.closest('tr');
+                    if (!row) {
+                        console.error('Không tìm thấy hàng chứa nút chọn công thức cha');
+                        return;
+                    }
+                    document.getElementById('parent-recipe-id').value = row.dataset.id;
+                    document.getElementById('parent-recipe-title').value = row.dataset.title;
+
+                    fetch(`/admin/recipe/similar?title=${encodeURIComponent(row.dataset.title)}`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                        .then(response => {
+                            console.log('Response status:', response.status);
+                            console.log('Response text:', response.statusText);
+                            if (!response.ok) {
+                                throw new Error(`Lỗi HTTP: ${response.status} - ${response.statusText}`);
+                            }
+                            return response.text();
+                        })
+                        .then(text => {
+                            console.log('Raw response text:', text);
+                            try {
+                                const data = JSON.parse(text);
+                                console.log('Parsed JSON data:', data);
+                                const tableBody = document.getElementById('similar-recipes-table');
+                                const noRecipesAlert = document.getElementById('no-similar-recipes');
+                                tableBody.innerHTML = '';
+                                if (!Array.isArray(data) || data.length === 0) {
+                                    console.warn('Dữ liệu rỗng hoặc không phải mảng:', data);
+                                    noRecipesAlert.classList.remove('d-none');
+                                } else {
+                                    noRecipesAlert.classList.add('d-none');
+                                    data.forEach(recipe => {
+                                        console.log('Recipe:', recipe);
+                                        const tr = document.createElement('tr');
+                                        tr.innerHTML = `
+                                        <td>${recipe.id || 'N/A'}</td>
+                                        <td>${recipe.title || 'Không có tiêu đề'}</td>
+                                        <td>${recipe.preparationTime || 'N/A'} phút</td>
+                                        <td>${recipe.cookingTime || 'N/A'} phút</td>
+                                        <td>
+                                            <input type="radio" name="parentId" value="${recipe.id || ''}" class="parent-radio" />
+                                            <button type="button" class="btn btn-sm btn-info view-parent-details" data-id="${recipe.id || ''}">Xem chi tiết</button>
+                                        </td>
+                                    `;
+                                        tableBody.appendChild(tr);
+                                    });
+                                    if (row.dataset.parentid) {
+                                        const radio = tableBody.querySelector(`input[value="${row.dataset.parentid}"]`);
+                                        if (radio) radio.checked = true;
+                                    }
+                                    attachViewDetailsEvents();
+                                }
+                                const parentModal = new bootstrap.Modal(document.getElementById('parentSelectModal'), { focus: false });
+                                parentModal.show();
+                            } catch (e) {
+                                console.error('Lỗi khi parse JSON:', e, 'Raw text:', text);
+                                document.getElementById('similar-recipes-table').innerHTML = '';
+                                document.getElementById('no-similar-recipes').classList.remove('d-none');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Lỗi khi lấy công thức tương tự:', error);
+                            document.getElementById('similar-recipes-table').innerHTML = '';
+                            document.getElementById('no-similar-recipes').classList.remove('d-none');
+                        });
+                });
+            });
+
+            // Cập nhật sự kiện "Xem chi tiết"
+            const viewDetailsButtons = document.querySelectorAll('.view-details-btn');
+            if (viewDetailsButtons.length === 0) console.warn('Không tìm thấy nút view-details-btn');
+            viewDetailsButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const row = this.closest('tr');
+                    if (row) {
+                        fetchRecipeDetails(row.dataset.id, this);
+                    } else {
+                        console.error('Không tìm thấy hàng chứa nút xem chi tiết');
+                    }
+                });
+            });
+
+            // Xóa công thức
+            const deleteButtons = document.querySelectorAll('.delete-recipe-btn');
+            if (deleteButtons.length === 0) console.warn('Không tìm thấy nút delete-recipe-btn');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const row = this.closest('tr');
+                    if (row) {
+                        document.getElementById('delete-recipe-id').value = row.dataset.id;
+                    } else {
+                        console.error('Không tìm thấy hàng chứa nút xóa');
+                    }
+                });
+            });
+
+            // Gắn sự kiện cho các nút "Xem chi tiết" trong modal chọn công thức cha
+            function attachViewDetailsEvents() {
+                const viewParentButtons = document.querySelectorAll('.view-parent-details');
+                if (viewParentButtons.length === 0) console.warn('Không tìm thấy nút view-parent-details');
+                viewParentButtons.forEach(button => {
+                    button.addEventListener('click', function (event) {
+                        event.preventDefault(); // Ngăn chặn submit form
+                        const parentModal = bootstrap.Modal.getInstance(document.getElementById('parentSelectModal'));
+                        // Lưu trạng thái modal cha
+                        sessionStorage.setItem('parentModalOpen', parentModal && parentModal._isShown ? 'true' : 'false');
+                        fetchRecipeDetails(this.dataset.id, this);
+                    });
+                });
+            }
+
+            let currentModal = null;
+
+            // Hàm sửa backdrop
+            function fixModalBackdrop() {
+                // Xóa tất cả backdrop
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(backdrop => backdrop.remove());
+
+                // Reset các class và style của body
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+
+                // Đảm bảo không còn backdrop sót lại
+                if (document.querySelectorAll('.modal.show').length === 0) {
+                    const newBackdrop = document.createElement('div');
+                    newBackdrop.className = 'modal-backdrop fade show';
+                    document.body.appendChild(newBackdrop);
+                    newBackdrop.remove();
+                }
+            }
+
+            // Hàm fetch chi tiết công thức
+            function fetchRecipeDetails(recipeId, triggerElement) {
+                console.log('Fetching recipe details for ID:', recipeId);
+
+                if (!recipeId) {
+                    console.error('ID công thức không hợp lệ');
+                    alert('Không thể tải chi tiết công thức. Vui lòng thử lại sau.');
+                    return;
+                }
+
+                fetch(`/admin/recipe/details/${recipeId}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Không thể lấy chi tiết công thức: ' + response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Đóng modal hiện tại nếu có
+                        if (currentModal) {
+                            currentModal.hide();
+                            currentModal = null;
+                        }
+
+                        // Làm sạch backdrop
+                        fixModalBackdrop();
+
+                        // Cập nhật nội dung modal
+                        document.getElementById('recipeModalLabel').textContent = data.title || 'Không có tiêu đề';
+                        document.getElementById('modalImage').src = data.imageUrl || 'https://via.placeholder.com/110x110';
+                        document.getElementById('modalPrepTime').textContent = data.preparationTime || 'N/A';
+                        document.getElementById('modalCookTime').textContent = data.cookingTime || 'N/A';
+                        document.getElementById('modalServingSize').textContent = data.servingSize || 'N/A';
+                        document.getElementById('modalDescription').textContent = data.description || 'Không có mô tả';
+
+                        // Cập nhật nguyên liệu
+                        const ingredientsList = document.getElementById('modalIngredients');
+                        ingredientsList.innerHTML = '';
+                        if (data.recipeIngredients && data.recipeIngredients.length > 0) {
+                            data.recipeIngredients.forEach(item => {
+                                const li = document.createElement('li');
+                                li.className = 'list-group-item';
+                                li.textContent = `${item.ingredient?.name || 'N/A'} - ${item.quantity || 'N/A'} ${item.unit || ''}`;
+                                ingredientsList.appendChild(li);
+                            });
+                        } else {
+                            ingredientsList.innerHTML = '<li class="list-group-item">Không có nguyên liệu</li>';
+                        }
+
+                        // Cập nhật các bước
+                        const stepsList = document.getElementById('modalSteps');
+                        stepsList.innerHTML = '';
+                        if (data.instructions && data.instructions.length > 0) {
+                            data.instructions.forEach(step => {
+                                const li = document.createElement('li');
+                                li.className = 'list-group-item';
+                                li.textContent = step.description || 'N/A';
+                                stepsList.appendChild(li);
+                            });
+                        } else {
+                            stepsList.innerHTML = '<li class="list-group-item">Không có bước thực hiện</li>';
+                        }
+
+                        const recipeModalElement = document.getElementById('recipeModal');
+                        currentModal = new bootstrap.Modal(recipeModalElement, {
+                            keyboard: true,
+                            focus: true
+                        });
+
+                        recipeModalElement.addEventListener('shown.bs.modal', function () {
+                            console.log('Modal chi tiết đã hiển thị');
+                        });
+
+                        recipeModalElement.addEventListener('hidden.bs.modal', function () {
+                            console.log('Modal chi tiết đã ẩn');
+                            fixModalBackdrop();
+                            if (sessionStorage.getItem('parentModalOpen') === 'true') {
+                                const parentModalElement = document.getElementById('parentSelectModal');
+                                const parentModal = new bootstrap.Modal(parentModalElement, { focus: false });
+                                parentModal.show();
+                            }
+                            sessionStorage.removeItem('parentModalOpen');
+                            if (triggerElement && triggerElement.focus) {
+                                setTimeout(() => {
+                                    triggerElement.focus();
+                                }, 100);
+                            }
+                            currentModal = null;
+                        });
+
+                        recipeModalElement.addEventListener('hide.bs.modal', function (e) {
+                            console.log('Modal chi tiết đang bị đóng bởi:', e);
+                        });
+
+                        currentModal.show();
+                    })
+                    .catch(error => {
+                        console.error('Lỗi khi lấy chi tiết công thức:', error);
+                        fixModalBackdrop();
+                        alert('Không thể tải chi tiết công thức. Vui lòng thử lại sau.');
+                    });
+            }
+
+            // Gắn sự kiện đóng cho modal chọn công thức cha
+            document.getElementById('parentSelectModal').addEventListener('hidden.bs.modal', function () {
+                console.log('ParentSelectModal đã ẩn');
+                fixModalBackdrop();
+            });
+
+            // Ngăn submit form khi nhấn nút "Lưu công thức cha" nếu không có parentId
+            const parentRecipeForm = document.getElementById('parentRecipeForm');
+            parentRecipeForm.addEventListener('submit', function (event) {
+                const selectedParent = document.querySelector('input[name="parentId"]:checked');
+                if (!selectedParent) {
+                    event.preventDefault();
+                    alert('Vui lòng chọn một công thức cha trước khi lưu.');
+                }
+            });
+
+        } catch (error) {
+            console.error('Lỗi trong sự kiện DOMContentLoaded:', error);
+        }
+    });
+
+</script>
+</body>
+</html>

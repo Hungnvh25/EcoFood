@@ -23,7 +23,7 @@
                     <div class="mb-3">
                         <label for="profileImage" class="form-label">Profile Image</label>
                         <input type="file" class="form-control" id="profileImage" name="profileImage" accept="image/*" onchange="previewImage(event)">
-                        <img id="imagePreview" th:src="${user.userSetting.urlImage != null ? user.userSetting.urlImage : ''}" alt="Image Preview">
+                        <img id="imagePreview" th:src="${user.userSetting.urlImage != null ? user.userSetting.urlImage : ''}" alt="Image Preview" style="max-width: 100%; height: auto; display: none; margin-top: 10px;">
                     </div>
                     <button type="submit" class="btn btn-primary">Save Changes</button>
                 </form>

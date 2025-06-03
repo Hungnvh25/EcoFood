@@ -269,25 +269,110 @@
 </body>
 
 <script>
-    document.querySelectorAll('.detail-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            const row = this.closest('tr');
-            document.getElementById('detail-id-input').value = row.dataset.id;
-            document.getElementById('detail-userName-input').value = row.dataset.username;
-            document.getElementById('detail-email-input').value = row.dataset.email;
-            document.getElementById('detail-joinDate-input').value = row.dataset.joindate;
-            document.getElementById('detail-role-input').value = row.dataset.role;
-            document.getElementById('detail-premium-input').value = row.dataset.premium;
-            document.getElementById('detail-passwordHash-input').value = row.dataset.passwordhash;
-            document.getElementById('detail-image').src = row.dataset.imageurl || '/uploads/default.jpg';
-        });
-    });
+    document.addEventListener('DOMContentLoaded', function () {
+        try {
+            // Khởi tạo dropdown của Bootstrap
+            const dropdowns = document.querySelectorAll('.dropdown-toggle');
+            if (dropdowns.length === 0) {
+                console.warn('Không tìm thấy nút dropdown-toggle. Kiểm tra bảng hoặc header.');
+            } else {
+                console.log(`Tìm thấy ${dropdowns.length} nút dropdown-toggle.`);
+                dropdowns.forEach(dropdown => {
+                    try {
+                        new bootstrap.Dropdown(dropdown);
+                    } catch (e) {
+                        console.error('Lỗi khi khởi tạo dropdown:', e);
+                    }
+                });
+            }
 
-    document.querySelectorAll('.delete-user-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const userId = this.closest('tr').dataset.id;
-            document.getElementById('delete-user-id').value = userId;
+            // Xử lý nút Detail
+            const detailButtons = document.querySelectorAll('.detail-btn');
+            if (detailButtons.length === 0) console.warn('Không tìm thấy nút detail-btn');
+            detailButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const row = this.closest('tr');
+                    if (!row) {
+                        console.error('Không tìm thấy hàng chứa nút Detail');
+                        return;
+                    }
+                    // Cập nhật form trong modal
+                    document.getElementById('detail-id-input').value = row.dataset.id || '';
+                    document.getElementById('detail-userName-input').value = row.dataset.username || '';
+                    document.getElementById('detail-email-input').value = row.dataset.email || '';
+                    document.getElementById('detail-joinDate-input').value = row.dataset.joindate || '';
+                    document.getElementById('detail-role-input').value = row.dataset.role || '';
+                    document.getElementById('detail-premium-input').value = row.dataset.premium || '';
+                    document.getElementById('detail-passwordHash-input').value = row.dataset.passwordhash || '';
+                    document.getElementById('detail-image').src = row.dataset.imageurl || '/Uploads/default.jpg';
 
-        });
+                    // Mở modal
+                    const userDetailModal = new bootstrap.Modal(document.getElementById('userDetailModal'), {
+                        keyboard: true,
+                        focus: true
+                    });
+                    userDetailModal.show();
+                });
+            });
+
+            // Xử lý nút Delete
+            const deleteButtons = document.querySelectorAll('.delete-user-btn');
+            if (deleteButtons.length === 0) console.warn('Không tìm thấy nút delete-user-btn');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const row = this.closest('tr');
+                    if (!row) {
+                        console.error('Không tìm thấy hàng chứa nút Delete');
+                        return;
+                    }
+                    document.getElementById('delete-user-id').value = row.dataset.id || '';
+
+                    // Mở modal
+                    const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'), {
+                        keyboard: true,
+                        focus: true
+                    });
+                    deleteConfirmModal.show();
+                });
+            });
+
+            // Xử lý nút User trong header dropdown
+            const userModalButtons = document.querySelectorAll('a[data-bs-target="#userModal"]');
+            if (userModalButtons.length === 0) console.warn('Không tìm thấy nút mở userModal');
+            userModalButtons.forEach(button => {
+                button.addEventListener('click', function (event) {
+                    event.preventDefault(); // Ngăn chặn hành vi mặc định nếu cần
+                    const userModal = new bootstrap.Modal(document.getElementById('userModal'), {
+                        keyboard: true,
+                        focus: true
+                    });
+                    userModal.show();
+                });
+            });
+
+            // Hàm làm sạch backdrop
+            function fixModalBackdrop() {
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(backdrop => backdrop.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+            }
+
+            // Gắn sự kiện ẩn modal để làm sạch backdrop
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                modal.addEventListener('hidden.bs.modal', function () {
+                    console.log(`Modal ${this.id} đã ẩn`);
+                    fixModalBackdrop();
+                });
+            });
+
+        } catch (error) {
+            console.error('Lỗi trong sự kiện DOMContentLoaded:', error);
+        }
     });
-</script></html>
+</script>
+
+
+</html>

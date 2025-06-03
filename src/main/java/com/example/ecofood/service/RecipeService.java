@@ -1,5 +1,9 @@
 package com.example.ecofood.service;
 
+import com.example.ecofood.DTO.IngredientDTO;
+import com.example.ecofood.DTO.InstructionDTO;
+import com.example.ecofood.DTO.RecipeDetailDto;
+import com.example.ecofood.DTO.RecipeIngredientDTO;
 import com.example.ecofood.Util.RecipeUtils;
 import com.example.ecofood.domain.*;
 import com.example.ecofood.repository.IngredientRepository;
@@ -8,7 +12,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,6 +38,7 @@ public class RecipeService {
     GeminiService geminiService;
     TextToSpeechService textToSpeechService;
 
+    LevenshteinDistance levenshteinDistance;
 
     public List<Recipe> getAllRecipes() {
         List<Recipe> recipeList = recipeRepository.findAll();
@@ -240,7 +247,7 @@ public class RecipeService {
             return Collections.emptyList();
         }
 
-        return this.recipeRepository.findTop4ByTileNameContainingIgnoreCase(recipeUtils.normalizeRecipeName(keyword));
+        return this.recipeRepository.findTop5ByTitleContainingIgnoreCase(recipeUtils.normalizeRecipeName(keyword));
     }
 
 
@@ -307,4 +314,102 @@ public class RecipeService {
     public long getTotalLikes() {
         return recipeRepository.sumLikeCount();
     }
+
+    public List<Recipe> findByUserId(Long id){
+        return this.recipeRepository.findByUserId(id);
+    }
+
+    public Page<Recipe> searchPendingRecipes(String title, String userName, Pageable pageable) {
+        if (title != null && !title.isEmpty() && userName != null && !userName.isEmpty()) {
+            return recipeRepository.findByTitleContainingIgnoreCaseAndUserUserNameContainingIgnoreCaseAndIsPendingRecipeTrue(title, userName, pageable);
+        } else if (title != null && !title.isEmpty()) {
+            return recipeRepository.findByTitleContainingIgnoreCaseAndIsPendingRecipeTrue(title, pageable);
+        } else if (userName != null && !userName.isEmpty()) {
+            return recipeRepository.findByUserUserNameContainingIgnoreCaseAndIsPendingRecipeTrue(userName, pageable);
+        } else {
+            return getAllPendingRecipes(pageable);
+        }
+    }
+
+    public Page<Recipe> getAllPendingRecipes(Pageable pageable) {
+        return recipeRepository.findByIsPendingRecipeTrue(pageable);
+    }
+    public void approveRecipe(Long id) {
+        Recipe recipe = recipeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
+        recipe.setIsPendingRecipe(false);
+        recipeRepository.save(recipe);
+    }
+
+    public List<Recipe> findTop5ByTitleContainingIgnoreCase(String title) {
+        return recipeRepository.findTop5ByTitleContainingIgnoreCase(title);
+    }
+
+    public void setParentRecipe(Long recipeId, Long parentId) {
+        Recipe recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
+        recipe.setParentId(parentId);
+        recipeRepository.save(recipe);
+    }
+
+    public List<Recipe> findTopSimilarByTileName(String text, int top) {
+        List<Recipe> allRecipes = recipeRepository.findAll();
+
+        Map<Recipe, Integer> distanceMap = new HashMap<>();
+        for (Recipe recipe : allRecipes) {
+            if (recipe.getTileName() != null) {
+                int distance = levenshteinDistance.apply(text.toLowerCase(), recipe.getTileName().toLowerCase());
+                distanceMap.put(recipe, distance);
+            }
+        }
+
+
+        return distanceMap.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .limit(top)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    }
+
+    public List<RecipeDetailDto> findTopSimilarByTileNameDTO(String text, int top) {
+        List<Recipe> similarRecipes = findTopSimilarByTileName(text, top);
+
+        return similarRecipes.stream()
+                .map(this::mapToRecipeDetailDto)
+                .collect(Collectors.toList());
+    }
+
+    public RecipeDetailDto mapToRecipeDetailDto(Recipe recipe) {
+        return RecipeDetailDto.builder()
+                .id(recipe.getId())
+                .title(recipe.getTitle())
+                .tileName(recipe.getTileName())
+                .imageUrl(recipe.getImageUrl())
+                .preparationTime(recipe.getPreparationTime())
+                .cookingTime(recipe.getCookingTime())
+                .servingSize(recipe.getServingSize())
+                .likeCount(recipe.getLikeCount())
+                .totalCalories(recipe.getTotalCalories())
+                .totalProtein(recipe.getTotalProtein())
+                .totalFat(recipe.getTotalFat())
+                .totalCarbohydrates(recipe.getTotalCarbohydrates())
+                .recipeIngredients(recipe.getRecipeIngredients() != null ? recipe.getRecipeIngredients().stream()
+                        .map(ingredient -> RecipeIngredientDTO.builder()
+                                .id(ingredient.getId())
+                                .ingredient(new IngredientDTO(ingredient.getIngredient().getId(), ingredient.getIngredient().getName()))
+                                .quantity(Double.valueOf(ingredient.getQuantity()))
+                                .unit(String.valueOf(ingredient.getUnit()))
+                                .build())
+                        .collect(Collectors.toList()) : List.of())
+                .instructions(recipe.getInstructions() != null ? recipe.getInstructions().stream()
+                        .map(instruction -> InstructionDTO.builder()
+                                .description(instruction.getDescription())
+                                .step(Math.toIntExact(instruction.getStep()))
+                                .imageUrl(instruction.getImageUrl())
+                                .build())
+                        .collect(Collectors.toList()) : List.of())
+                .build();
+    }
+
 }
