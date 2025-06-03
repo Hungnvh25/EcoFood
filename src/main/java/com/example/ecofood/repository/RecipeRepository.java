@@ -18,9 +18,7 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
     List<Recipe> findTop3ByOrderByLikeCountDesc();
 
-    List<Recipe> findTop4ByTileNameContainingIgnoreCase(String keyword);
-
-
+    List<Recipe> findTop5ByTitleContainingIgnoreCase(String keyword);
 
     Page<Recipe> findByTitleContainingIgnoreCase(String title, Pageable pageable);
 
@@ -28,21 +26,32 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
     Page<Recipe> findByTitleContainingIgnoreCaseAndUserUserNameContainingIgnoreCase(String title, String userName, Pageable pageable);
 
-    Page<Recipe> findByIsPendingRecipeFalse(Pageable pageable); // Thêm: Lấy công thức đã duyệt
+    Page<Recipe> findByIsPendingRecipeFalse(Pageable pageable);
 
-    Page<Recipe> findByTitleContainingIgnoreCaseAndIsPendingRecipeFalse(String title, Pageable pageable); // Thêm: Tìm kiếm theo tiêu đề, đã duyệt
+    Page<Recipe> findByIsPendingRecipeTrue(Pageable pageable);
 
-    Page<Recipe> findByUserUserNameContainingIgnoreCaseAndIsPendingRecipeFalse(String userName, Pageable pageable); // Thêm: Tìm kiếm theo người tạo, đã duyệt
+    Page<Recipe> findByTitleContainingIgnoreCaseAndIsPendingRecipeFalse(String title, Pageable pageable);
 
-    Page<Recipe> findByTitleContainingIgnoreCaseAndUserUserNameContainingIgnoreCaseAndIsPendingRecipeFalse(String title, String userName, Pageable pageable); // Thêm: Tìm kiếm kết hợp, đã duyệt
+    Page<Recipe> findByUserUserNameContainingIgnoreCaseAndIsPendingRecipeFalse(String userName, Pageable pageable);
+
+    Page<Recipe> findByTitleContainingIgnoreCaseAndUserUserNameContainingIgnoreCaseAndIsPendingRecipeFalse(String title, String userName, Pageable pageable);
+
+    Page<Recipe> findByTitleContainingIgnoreCaseAndIsPendingRecipeTrue(String title, Pageable pageable);
+
+    Page<Recipe> findByUserUserNameContainingIgnoreCaseAndIsPendingRecipeTrue(String userName, Pageable pageable);
+
+    Page<Recipe> findByTitleContainingIgnoreCaseAndUserUserNameContainingIgnoreCaseAndIsPendingRecipeTrue(String title, String userName, Pageable pageable);
 
     long countByIsPendingRecipeTrue();
 
-    long countByIsPendingRecipeFalse(); // Thêm: Đếm công thức đã duyệt
+    long countByIsPendingRecipeFalse();
 
     @Query("SELECT SUM(r.likeCount) FROM Recipe r")
     long sumLikeCount();
 
     List<Recipe> findByUserId(Long id);
+
+    @Query("SELECT r FROM Recipe r WHERE LOWER(r.title) LIKE LOWER(CONCAT('%', :title, '%'))")
+    List<Recipe> findTopByTileNameContainingIgnoreCase(String title, Pageable pageable);
 
 }

@@ -28,10 +28,10 @@ public class NotificationController {
 
         User  user = this.userService.getCurrentUser();
         List<Notification> notifications = this.notificationService.findNotificationsByEmail(user.getEmail());
-
-
         model.addAttribute("notifications", notifications);
 
         return "client/Notification/show";
     }
+
+
 }

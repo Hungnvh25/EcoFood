@@ -92,7 +92,7 @@ public class GeminiService {
 
 
     public String callGeminiAPI(String input) {
-        String model = "gemini-2.0-flash";
+        String model = "gemini-2.5-flash-preview-05-20";
         String resultString;
         // Tạo content từ input
         List<Content> contents = List.of(

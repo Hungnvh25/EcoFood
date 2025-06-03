@@ -102,8 +102,8 @@
                                     </button>
                                     <button class="btn btn-light btn-sm"
                                             type="button"
-                                            th:attr="onclick=|saveRecipe(event, ${recipe.id})|">
-                                        <i class="fas fa-bookmark"></i>
+                                            th:attr="onclick=|toggleSave(event, ${recipe.id})|">
+                                        <i class="fas fa-bookmark" th:id="'save-icon-' + ${recipe.id}"></i>
                                     </button>
                                 </div>
                             </div>
@@ -241,9 +241,65 @@
                 alert('Đã có lỗi xảy ra, vui lòng thử lại!');
             });
     }
+
+    // Hàm lưu recipe
+    function toggleSave(event, recipeId) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const saveIcon = document.getElementById(`save-icon-${recipeId}`);
+
+        fetch(`/recipe/${recipeId}/save`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) throw new Error('Lỗi khi lưu recipe');
+                return response.json();
+            })
+            .then(data => {
+                // data.saved: boolean (true nếu đang lưu, false nếu bỏ lưu)
+                if (data.saved) {
+                    saveIcon.classList.add('text-warning');
+                } else {
+                    saveIcon.classList.remove('text-warning');
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi:', error);
+                alert('Đã có lỗi xảy ra, vui lòng thử lại!');
+            });
+    }
+
+    // Lấy trạng thái lưu ban đầu cho tất cả công thức khi trang tải
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.btn.btn-light.btn-sm i.fas.fa-bookmark').forEach(icon => {
+            const recipeId = icon.id.replace('save-icon-', '');
+            fetch(`/recipe/${recipeId}/save`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Lỗi khi lấy trạng thái lưu');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.saved) {
+                        icon.classList.add('text-warning');
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi khi lấy trạng thái lưu:', error);
+                });
+        });
+    });
 </script>
 
-<!--comment-->
+<!-- Comment -->
 <script>
     let currentRecipeId = null;
     let currentCommentCount = 0;
@@ -382,30 +438,6 @@
             // currentRecipeId = null;
         }
     });
-
-    // Hàm lưu recipe
-    function saveRecipe(event, recipeId) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        fetch(`/recipe/${recipeId}/save`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(response => {
-                if (!response.ok) throw new Error('Lỗi khi lưu recipe');
-                return response.json();
-            })
-            .then(data => {
-                alert(data.message || 'Recipe đã được lưu thành công!');
-            })
-            .catch(error => {
-                console.error('Lỗi:', error);
-                alert('Đã có lỗi xảy ra, vui lòng thử lại!');
-            });
-    }
 </script>
 </body>
 </html>

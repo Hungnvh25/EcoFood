@@ -7,6 +7,7 @@ import com.example.ecofood.auth.JwtAuthenticationFilter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -39,6 +40,12 @@ public class SecurityConfig {
 
     @Value("${PAYOS_CHECKSUM_KEY}")
     private  String checksumKey;
+    LevenshteinDistance levenshteinDistance;
+
+    @Bean
+    public LevenshteinDistance levenshteinDistance() {
+        return new LevenshteinDistance();
+    }
 
     @Bean
     public PayOS payOS() {
