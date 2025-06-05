@@ -1,10 +1,7 @@
 package com.example.ecofood.controller.client;
 
 import com.example.ecofood.DTO.*;
-import com.example.ecofood.domain.Ingredient;
-import com.example.ecofood.domain.Recipe;
-import com.example.ecofood.domain.User;
-import com.example.ecofood.domain.UserRecipeLike;
+import com.example.ecofood.domain.*;
 import com.example.ecofood.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -12,6 +9,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -45,10 +44,26 @@ public class RecipeController {
     }
 
     @GetMapping("/search")
-    public String searchRecipes(@RequestParam("keyword") String keyword, Model model) {
-        List<Recipe> searchResults = this.recipeService.searchRecipesByTitle(keyword);
+    public String searchRecipes(
+            @RequestParam("keyword") String keyword,
+            @RequestParam(required = false) Category.Difficulty difficulty,
+            @RequestParam(required = false) Category.MealType mealType,
+            @RequestParam(required = false) Category.Region region,
+            Model model) {
+
+        List<Recipe> searchResults = this.recipeService.searchRecipesByTitleAndFilters(keyword, difficulty, mealType, region);
+
         model.addAttribute("searchResults", searchResults);
         model.addAttribute("keyword", keyword);
+        model.addAttribute("difficulty", difficulty);
+        model.addAttribute("mealType", mealType);
+        model.addAttribute("region", region);
+
+        // Truyền danh sách enum để hiển thị filter
+        model.addAttribute("difficulties", Category.Difficulty.values());
+        model.addAttribute("mealTypes", Category.MealType.values());
+        model.addAttribute("regions", Category.Region.values());
+
         return "client/Search/search";
     }
 
@@ -88,6 +103,7 @@ public class RecipeController {
             @RequestParam(value = "image", required = false) List<MultipartFile> instructionImages,
             @RequestParam(value = "difficulty", required = true) String difficulty,
             @RequestParam(value = "mealType", required = true) String mealType,
+            @RequestParam(value = "region", required = true) String region,
             @RequestParam(value = "publish", defaultValue = "false") boolean publish) {
 
         if (result.hasErrors()) {
@@ -95,10 +111,10 @@ public class RecipeController {
         }
 
         if (ingredientIds == null || instructionDescriptions == null) {
-
+            // Xử lý lỗi nếu cần
         }
 
-        this.recipeService.createRecipe(recipe, imageFile, ingredientIds, ingredientQuantities, ingredientUnits, instructionDescriptions, instructionImages, difficulty, mealType);
+        this.recipeService.createRecipe(recipe, imageFile, ingredientIds, ingredientQuantities, ingredientUnits, instructionDescriptions, instructionImages, difficulty, mealType, region);
 
         return "redirect:/";
     }
@@ -181,11 +197,11 @@ public class RecipeController {
                     .title(recipe.getTitle())
                     .tileName(recipe.getTileName())
                     .imageUrl(recipe.getImageUrl())
-                    .preparationTime(recipe.getPreparationTime() != null ? recipe.getPreparationTime() : 0)
                     .cookingTime(recipe.getCookingTime() != null ? recipe.getCookingTime() : 0)
                     .servingSize(recipe.getServingSize() != null ? recipe.getServingSize() : 1)
                     .difficulty(recipe.getCategory() != null ? recipe.getCategory().getDifficulty() != null ? recipe.getCategory().getDifficulty().toString() : "Chưa xác định" : "Chưa xác định") // Thêm độ khó
                     .mealType(recipe.getCategory() != null ? recipe.getCategory().getMealType() != null ? recipe.getCategory().getMealType().toString() : "Chưa xác định" : "Chưa xác định") // Thêm bữa ăn
+                    .region(recipe.getCategory() != null ? recipe.getCategory().getRecipe() != null ? recipe.getCategory().getRegion().toString() : "Chưa xác định" : "Chưa xác định") // Thêm bữa ăn
                     .recipeIngredients(ingredientDtos)
                     .instructions(instructionDtos)
                     .likeCount(recipe.getLikeCount() != null ? recipe.getLikeCount() : 0)

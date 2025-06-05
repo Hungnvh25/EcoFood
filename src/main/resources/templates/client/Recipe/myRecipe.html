@@ -31,7 +31,7 @@
                                 <h5 class="card-title text-truncate fs-5" th:text="${recipe.title}"></h5>
                                 <p class="card-text" th:text="${#strings.abbreviate(recipe.description, 80)}"></p>
                                 <p class="card-text text-muted small">
-                                    Thời gian chuẩn bị: <span th:text="${recipe.preparationTime} + ' phút'"></span><br />
+                                    Món ăn : <span th:text="${recipe.getCategory().recipe}"></span><br />
                                     Tổng calo: <span th:text="${recipe.totalCalories} + ' kcal'"></span><br />
                                     Được thích: <span th:text="${recipe.likeCount}"></span>
                                 </p>

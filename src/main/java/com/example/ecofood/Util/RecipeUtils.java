@@ -22,4 +22,5 @@ public class RecipeUtils {
         return pattern.matcher(nfdNormalizedString).replaceAll("");
     }
 
+
 }

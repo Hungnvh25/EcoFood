@@ -46,11 +46,6 @@
                   <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="text-danger"></span>
                 </div>
                 <div class="mb-3">
-                  <label for="preparationTime" class="form-label">Preparation Time (minutes)</label>
-                  <input type="number" class="form-control" id="preparationTime" th:field="*{preparationTime}" placeholder="Preparation Time">
-                  <span th:if="${#fields.hasErrors('preparationTime')}" th:errors="*{preparationTime}" class="text-danger"></span>
-                </div>
-                <div class="mb-3">
                   <label for="cookingTime" class="form-label">Cooking Time (minutes)</label>
                   <input type="number" class="form-control" id="cookingTime" th:field="*{cookingTime}" placeholder="Cooking Time">
                   <span th:if="${#fields.hasErrors('cookingTime')}" th:errors="*{cookingTime}" class="text-danger"></span>

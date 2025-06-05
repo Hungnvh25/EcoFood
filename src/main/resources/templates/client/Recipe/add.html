@@ -139,13 +139,15 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-6 mb-3">
-                                <input type="number" class="form-control bg-warning bg-opacity-25 border-0 py-2"
-                                       placeholder="Thời gian chuẩn bị (phút)" name="preparationTime"
-                                       th:field="*{preparationTime}" min="0" required>
-                                <div class="invalid-feedback" th:errors="*{preparationTime}">Vui lòng nhập thời gian
-                                    chuẩn bị hợp lệ
-                                </div>
+                            <div class="col-6 mb-3 position-relative">
+                                <select class="form-control bg-warning bg-opacity-25 border-0 py-2 pe-4" name="region" required>
+                                    <option value="" th:text="'Chọn vùng'"></option>
+                                    <option value="NORTH">Miền Bắc</option>
+                                    <option value="CENTRAL">Miền Trung</option>
+                                    <option value="SOUTH">Miền Nam</option>
+                                </select>
+                                <i class="fas fa-angle-down position-absolute end-0 top-50 translate-middle-y me-4 text-muted pointer-events-none"></i>
+                                <div class="invalid-feedback">Vui lòng chọn vùng</div>
                             </div>
                             <div class="col-6 mb-3">
                                 <input type="number" class="form-control bg-warning bg-opacity-25 border-0 py-2"
@@ -345,10 +347,6 @@
                     <div class="col-md-9 col-8">
                         <div class="d-flex flex-row flex-wrap justify-content-start gap-2" style="font-size: 0.93rem;">
                             <span class="badge rounded-pill bg-light border shadow-sm px-3 py-2" style="color: #26272c">
-                                <i class="fas fa-clock me-1"></i>
-                                Chuẩn bị: <span id="modalPrepTime"></span> phút
-                            </span>
-                            <span class="badge rounded-pill bg-light border shadow-sm px-3 py-2" style="color: #26272c">
                                 <i class="fas fa-fire me-1"></i>
                                 Nấu: <span id="modalCookTime"></span> phút
                             </span>
@@ -363,6 +361,10 @@
                             <span class="badge rounded-pill bg-light border shadow-sm px-3 py-2" style="color: #26272c">
                                 <i class="fas fa-utensils me-1"></i>
                                 Bữa ăn: <span id="modalMealType"></span>
+                            </span>
+                            <span class="badge rounded-pill bg-light border shadow-sm px-3 py-2" style="color: #26272c">
+                                <i class="fas fa-map-marker-alt me-1"></i>
+                                Vùng: <span id="modalRegion"></span>
                             </span>
                         </div>
                     </div>
@@ -428,11 +430,11 @@
     const recipeModal = new bootstrap.Modal(document.getElementById('recipeModal'));
     const modalTitle = document.getElementById('recipeModalLabel');
     const modalImage = document.getElementById('modalImage');
-    const modalPrepTime = document.getElementById('modalPrepTime');
     const modalCookTime = document.getElementById('modalCookTime');
     const modalServingSize = document.getElementById('modalServingSize');
     const modalDifficulty = document.getElementById('modalDifficulty'); // Thêm biến mới
     const modalMealType = document.getElementById('modalMealType');     // Thêm biến mới
+    const modalRegion = document.getElementById('modalRegion');
     const modalIngredients = document.getElementById('modalIngredients');
     const modalSteps = document.getElementById('modalSteps');
     const modalDetailLink = document.getElementById('modalDetailLink');
@@ -500,7 +502,6 @@
     function showRecipeModal(recipe) {
         modalTitle.textContent = recipe.tileName;
         modalImage.src = recipe.imageUrl || '/Recipe/default.jpg';
-        modalPrepTime.textContent = recipe.preparationTime || 0;
         modalCookTime.textContent = recipe.cookingTime || 0;
         modalServingSize.textContent = recipe.servingSize || 1;
 
@@ -521,6 +522,14 @@
             "MAIN_COURSE": "Bữa chính"
         };
         modalMealType.textContent = mealTypeMap[recipe.mealType] || 'Chưa xác định';
+
+        // Ánh xạ vùng
+        const regionMap = {
+            "NORTH": "Miền Bắc",
+            "CENTRAL": "Miền Trung",
+            "SOUTH": "Miền Nam"
+        };
+        modalRegion.textContent = regionMap[recipe.region] || 'Chưa xác định';
 
         modalIngredients.innerHTML = '';
         recipe.recipeIngredients.forEach(ingredient => {

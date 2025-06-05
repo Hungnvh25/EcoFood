@@ -1,8 +1,11 @@
 package com.example.ecofood.repository;
 
+import com.example.ecofood.domain.Category;
 import com.example.ecofood.domain.Recipe;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -51,7 +54,17 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
     List<Recipe> findByUserId(Long id);
 
-    @Query("SELECT r FROM Recipe r WHERE LOWER(r.title) LIKE LOWER(CONCAT('%', :title, '%'))")
-    List<Recipe> findTopByTileNameContainingIgnoreCase(String title, Pageable pageable);
+
+    @Query("SELECT r FROM Recipe r WHERE " +
+            "LOWER(r.title) LIKE LOWER(CONCAT('%', :title, '%')) AND " +
+            "(:difficulty IS NULL OR r.category.difficulty = :difficulty) AND " +
+            "(:mealType IS NULL OR r.category.mealType = :mealType) AND " +
+            "(:region IS NULL OR r.category.region = :region)")
+    List<Recipe> findByTitleContainingIgnoreCaseAndCategoryDifficultyAndCategoryMealTypeAndCategoryRegion(
+            @Param("title") String title,
+            @Param("difficulty") Category.Difficulty difficulty,
+            @Param("mealType") Category.MealType mealType,
+            @Param("region") Category.Region region
+    );
 
 }
