@@ -16,6 +16,8 @@ import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,7 +58,8 @@ public class RecipeService {
                              List<String> instructionDescriptions,
                              List<MultipartFile> instructionImages,
                              String difficulty,
-                             String mealType) {
+                             String mealType,
+                             String region) {
 
 
         try {
@@ -117,6 +120,7 @@ public class RecipeService {
             Category category = Category.builder()
                     .difficulty(Category.Difficulty.valueOf(difficulty))
                     .mealType(Category.MealType.valueOf(mealType))
+                    .region(Category.Region.valueOf(region))
                     .recipe(recipe)
                     .build();
 
@@ -386,7 +390,6 @@ public class RecipeService {
                 .title(recipe.getTitle())
                 .tileName(recipe.getTileName())
                 .imageUrl(recipe.getImageUrl())
-                .preparationTime(recipe.getPreparationTime())
                 .cookingTime(recipe.getCookingTime())
                 .servingSize(recipe.getServingSize())
                 .likeCount(recipe.getLikeCount())
@@ -410,6 +413,13 @@ public class RecipeService {
                                 .build())
                         .collect(Collectors.toList()) : List.of())
                 .build();
+    }
+
+    public List<Recipe> searchRecipesByTitleAndFilters(String keyword, Category.Difficulty difficulty,
+                                                       Category.MealType mealType, Category.Region region) {
+        return recipeRepository.findByTitleContainingIgnoreCaseAndCategoryDifficultyAndCategoryMealTypeAndCategoryRegion(
+                keyword, difficulty, mealType, region
+        );
     }
 
 }

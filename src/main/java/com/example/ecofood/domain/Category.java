@@ -21,15 +21,17 @@ public class Category {
     String name;
 
     @OneToOne
-    @JoinColumn(name = "recipe_id",referencedColumnName = "id")
+    @JoinColumn(name = "recipe_id", referencedColumnName = "id")
     private Recipe recipe;
-
 
     @Enumerated(EnumType.STRING)
     Difficulty difficulty;
 
     @Enumerated(EnumType.STRING)
     MealType mealType;
+
+    @Enumerated(EnumType.STRING)
+    Region region;
 
     public enum Difficulty {
         EASY("Dễ"),
@@ -65,5 +67,19 @@ public class Category {
         }
     }
 
+    public enum Region {
+        NORTH("Miền Bắc"),
+        CENTRAL("Miền Trung"),
+        SOUTH("Miền Nam");
 
+        private String description;
+
+        Region(String description) {
+            this.description = description;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
 }

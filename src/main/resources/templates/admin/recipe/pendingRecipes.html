@@ -238,7 +238,7 @@
                         <div class="d-flex flex-row flex-wrap justify-content-start gap-2" style="font-size: 0.93rem;">
                                 <span class="badge rounded-pill bg-light border shadow-sm px-3 py-2" style="color: #26272c;">
                                     <i class="fas fa-clock me-1"></i>
-                                    Chuẩn bị: <span id="modalPrepTime">30</span> phút
+                                   Món ăn: <span id="modalRegion">30</span>
                                 </span>
                             <span class="badge rounded-pill bg-light border shadow-sm px-3 py-2" style="color: #26272c;">
                                     <i class="fas fa-fire me-1"></i>
@@ -386,7 +386,6 @@
                                         tr.innerHTML = `
                                         <td>${recipe.id || 'N/A'}</td>
                                         <td>${recipe.title || 'Không có tiêu đề'}</td>
-                                        <td>${recipe.preparationTime || 'N/A'} phút</td>
                                         <td>${recipe.cookingTime || 'N/A'} phút</td>
                                         <td>
                                             <input type="radio" name="parentId" value="${recipe.id || ''}" class="parent-radio" />
@@ -510,7 +509,7 @@
                         // Cập nhật nội dung modal
                         document.getElementById('recipeModalLabel').textContent = data.title || 'Không có tiêu đề';
                         document.getElementById('modalImage').src = data.imageUrl || 'https://via.placeholder.com/110x110';
-                        document.getElementById('modalPrepTime').textContent = data.preparationTime || 'N/A';
+                        document.getElementById('modalRegion').textContent = data.region || 'N/A';
                         document.getElementById('modalCookTime').textContent = data.cookingTime || 'N/A';
                         document.getElementById('modalServingSize').textContent = data.servingSize || 'N/A';
                         document.getElementById('modalDescription').textContent = data.description || 'Không có mô tả';

@@ -18,8 +18,8 @@ public class RecipeDetailDto {
     private String tileName;
     private String difficulty;
     private String mealType;
+    private String region;
     private String imageUrl;
-    private Integer preparationTime;
     private Integer cookingTime;
     private Integer servingSize;
     private List<RecipeIngredientDTO> recipeIngredients;
