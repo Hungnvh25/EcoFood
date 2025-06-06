@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -10,7 +9,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-
 </head>
 <body>
 <div class="container-fluid p-0">
@@ -29,7 +27,7 @@
                         <i class="fas fa-arrow-left me-1"></i> Quay lại trang trước
                     </a>
                     <div class="d-flex ms-auto align-items-center me-5">
-                        <div class="dropdown" >
+                        <div class="dropdown">
                             <div class="d-flex align-items-center" style="cursor:pointer;" id="userDropdown" data-bs-toggle="dropdown"
                                  aria-expanded="false">
                                 <div class="me-2">
@@ -62,8 +60,6 @@
                             </ul>
                         </div>
                     </div>
-
-
                 </div>
             </nav>
 
@@ -93,7 +89,7 @@
                             <!-- Ngày tạo -->
                             <div class="col-md-3 small text-muted d-flex align-items-center">
                                 <i class="fas fa-calendar-alt me-1"></i>
-                                <span>Ngày tạo: </span>
+                                <span>Ngày tạo: </span>
                                 <span th:text="${#temporals.format(recipe.createdDate, 'dd/MM/yyyy')}">01/01/2023</span>
                             </div>
 
@@ -219,7 +215,6 @@
                                 </audio>
                                 <span style="visibility: hidden" class="ms-2 text-muted small">
                                     Giọng: [[${audio.voiceGender.name()}]], Giọng điệu: [[${audio.accent.name()}]]
-
                                 </span>
                             </div>
                         </div>
@@ -257,36 +252,65 @@
                     <!-- Right Column - Nutritional Info & Ingredients -->
                     <div class="col-md-4">
                         <div class="position-sticky" style="top: 100px;">
-
-
-
-                            <!-- User Comments -->
-                            <div class="row mb-4">
-                                <div class="col-6">
-                                    <div class="card border-0 bg-light mb-3">
-                                        <div class="card-body">
-                                            <div class="d-flex align-items-center mb-2">
-                                                <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center me-2"
-                                                     style="width: 24px; height: 24px;">
-                                                    <i class="fas fa-user text-white small"></i>
-                                                </div>
-                                                <small>Nguyễn Văn B</small>
+                            <!-- Row for 3 images -->
+                            <div class="col-12 mb-3">
+                                <div class="d-flex justify-content-start align-items-center flex-nowrap">
+                                    <!-- Kiểm tra nếu có cookSnap -->
+                                    <div th:if="${recipe.cookSnaps != null and !recipe.cookSnaps.isEmpty()}" class="d-flex align-items-center">
+                                        <!-- Container cho các ảnh -->
+                                        <div class="d-flex">
+                                            <!-- Lặp qua số lượng cookSnaps -->
+                                            <div th:each="cookSnap, iterStat : ${recipe.cookSnaps}">
+                                                <!-- Kiểm tra số lượng ảnh để chỉ hiển thị tối đa 3 ảnh -->
+                                                <img th:src="@{${cookSnap.urlImage}}" class="img-fluid me-1"
+                                                     style="width: 25px; height: 25px; object-fit: cover; border-radius: 3px;"
+                                                     alt="Image"
+                                                     th:if="${iterStat.index < 3}">
                                             </div>
-                                            <p class="card-text small">Thành quả. Rất cảm ơn bạn</p>
                                         </div>
+                                        <!-- Hiển thị số lượng cookSnaps -->
+                                        <h6 class="mb-0 ms-2" th:text="${#numbers.formatInteger(recipe.cookSnaps.size(), 0)} + ' Đã Nấu'"></h6>
+                                    </div>
+
+                                    <!-- Nếu không có cookSnap -->
+                                    <div th:if="${recipe.cookSnaps == null or recipe.cookSnaps.isEmpty()}" class="d-flex align-items-center">
+                                        <h6 class="mb-0 me-2 w-50">Bạn hãy là người đầu tiên chia sẻ món này</h6>
+                                        <button class="btn p-2" style="background-color: #FFCB65" data-bs-toggle="modal" data-bs-target="#cookSnapModal">Chia sẻ</button>
                                     </div>
                                 </div>
-                                <div class="col-6">
-                                    <div class="card border-0 bg-warning bg-opacity-25 mb-3">
-                                        <div class="card-body">
-                                            <div class="d-flex align-items-center mb-2">
-                                                <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center me-2"
-                                                     style="width: 24px; height: 24px;">
-                                                    <i class="fas fa-user text-white small"></i>
+                            </div>
+
+                            <!-- User Comments -->
+                            <div class="row mb-1" th:if="${recipe.cookSnaps != null and !recipe.cookSnaps.isEmpty()}">
+                                <div class="col-12">
+                                    <!-- Lặp qua cookSnaps và hiển thị chỉ phần tử đầu tiên -->
+                                    <div class="card border-0 bg-light mb-3" th:each="cookSnap, iterStat : ${recipe.cookSnaps}" th:if="${iterStat.index == 0}">
+                                        <div class="d-flex align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <!-- Hiển thị hình ảnh người dùng ngẫu nhiên từ cookSnap -->
+                                                <img th:src="@{${cookSnap.urlImage}}" class="img-fluid" style="width: 55px; height: 55px; object-fit: cover; border-radius: 10px" alt="User Image">
+                                                <div class="ms-3">
+                                                    <!-- Hiển thị tên người dùng từ cookSnap -->
+                                                    <h6 class="mb-1" style="font-size: 15px;" th:text="${cookSnap.user.userName}">Nguyễn Văn B</h6>
+                                                    <!-- Hiển thị nội dung từ cookSnap -->
+                                                    <p class="small text-muted" style="font-size: 13px;" th:text="${cookSnap.content}">Thành quả. Rất cảm ơn bạn</p>
                                                 </div>
-                                                <small>Nguyễn Văn B</small>
                                             </div>
-                                            <p class="card-text small">Thành quả. Rất cảm ơn bạn</p>
+                                            <!-- Dropdown Menu -->
+                                            <div class="dropdown">
+                                                <a class="btn btn-light ms-2 p-1" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="line-height: 1;">
+                                                    <i class="bi bi-three-dots" style="font-size: 16px;"></i>
+                                                </a>
+                                                <ul class="dropdown-menu" style="font-size: 13px;">
+                                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#allCookSnapsModal">Xem chi tiết tất cả</a></li>
+                                                    <li th:unless="${hasUserCookSnap}">
+                                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#cookSnapModal">Chia sẻ</a>
+                                                    </li>
+                                                    <li th:if="${hasUserCookSnap}">
+                                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#userCookSnapModal">Bạn đã nấu món ăn này</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -301,7 +325,7 @@
                                                 <i class="fas fa-chart-bar me-2"></i>
                                                 <div>
                                                     <small class="text-muted d-block">Độ phức tạp</small>
-                                                    <strong style="color: #26272c; "  th:text="${recipe.category != null} ? ${recipe.category.difficulty.description} : 'N/A'">Dễ</strong>
+                                                    <strong style="color: #26272c;" th:text="${recipe.category != null} ? ${recipe.category.difficulty.description} : 'N/A'">Dễ</strong>
                                                 </div>
                                             </div>
                                         </div>
@@ -314,7 +338,7 @@
                                                 <i class="fas fa-utensils me-2"></i>
                                                 <div>
                                                     <small class="text-muted d-block">Loại bữa ăn</small>
-                                                    <strong style="color: #26272c; "  th:text="${recipe.category != null} ? ${recipe.category.mealType.description} : 'N/A'">Bữa trưa</strong>
+                                                    <strong style="color: #26272c;" th:text="${recipe.category != null} ? ${recipe.category.mealType.description} : 'N/A'">Bữa trưa</strong>
                                                 </div>
                                             </div>
                                         </div>
@@ -327,7 +351,7 @@
                                                 <i class="fas fa-clock me-2"></i>
                                                 <div>
                                                     <small class="text-muted d-block">Thời gian nấu</small>
-                                                    <strong style="color: #26272c; "  th:text="${recipe.cookingTime != null} ? ${recipe.cookingTime} + ' phút' : 'N/A'">20 phút</strong>
+                                                    <strong style="color: #26272c;" th:text="${recipe.cookingTime != null} ? ${recipe.cookingTime} + ' phút' : 'N/A'">20 phút</strong>
                                                 </div>
                                             </div>
                                         </div>
@@ -340,7 +364,7 @@
                                                 <i class="fas fa-list-ol me-2"></i>
                                                 <div>
                                                     <small class="text-muted d-block">Các bước</small>
-                                                    <strong style="color: #26272c; "
+                                                    <strong style="color: #26272c;"
                                                             th:text="${recipe.instructions != null} ? ${recipe.instructions.size()} + ' bước' : '0 bước'">2 bước</strong>
                                                 </div>
                                             </div>
@@ -405,7 +429,136 @@
     </div>
 </div>
 
+<!-- CookSnap Modal -->
+<div class="modal fade" id="cookSnapModal" tabindex="-1" aria-labelledby="cookSnapModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cookSnapModalLabel">Chia sẻ món ăn bạn đã nấu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/cook-snap/save/{recipeId}(recipeId=${recipe.id})}" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <!-- Chọn ảnh -->
+                    <div class="mb-3">
+                        <label for="cookSnapImage" class="form-label">Chọn ảnh món ăn</label>
+                        <input type="file" class="form-control" id="cookSnapImage" name="image" accept="image/*" required>
+                    </div>
+
+                    <!-- Hiển thị ảnh đã chọn -->
+                    <div class="mb-3 text-center">
+                        <img id="imagePreview" src="" alt="Ảnh xem trước" class="img-fluid border rounded" style="max-height: 200px; display: none;">
+                    </div>
+
+                    <!-- Mô tả -->
+                    <div class="mb-3">
+                        <label for="cookSnapContent" class="form-label">Mô tả</label>
+                        <textarea class="form-control" id="cookSnapContent" name="content" rows="4" placeholder="Chia sẻ cảm nhận của bạn về món ăn này..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- User CookSnap Modal -->
+<div class="modal fade" id="userCookSnapModal" tabindex="-1" aria-labelledby="userCookSnapModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userCookSnapModalLabel">CookSnap của bạn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div th:if="${userCookSnap != null}">
+                    <img th:src="${userCookSnap.urlImage != null and !#strings.isEmpty(userCookSnap.urlImage)} ? ${userCookSnap.urlImage} : '/images/default-recipe.jpg'"
+                         class="img-fluid rounded mb-3" style="max-height: 150px; object-fit: cover;" alt="User CookSnap Image" />
+                    <p th:text="${userCookSnap.content != null and !#strings.isEmpty(userCookSnap.content)} ? ${userCookSnap.content} : 'Không có mô tả'">Không có mô tả</p>
+                </div>
+                <div th:unless="${userCookSnap != null}" class="alert alert-info py-2">
+                    <i class="fas fa-info-circle"></i> Không tìm thấy CookSnap của bạn.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- All CookSnaps Modal -->
+<div class="modal fade" id="allCookSnapsModal" tabindex="-1" aria-labelledby="allCookSnapsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="allCookSnapsModalLabel">Tất cả CookSnaps</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div th:if="${recipe.cookSnaps != null and !recipe.cookSnaps.isEmpty()}">
+                    <div th:each="cookSnap, iterStat : ${recipe.cookSnaps}" class="card border-0 bg-light mb-3">
+                        <div class="d-flex align-items-center">
+                            <img th:src="@{${cookSnap.urlImage}}" class="img-fluid" style="width: 100px; height: 100px; object-fit: cover; border-radius: 10px" alt="CookSnap Image">
+                            <div class="ms-3">
+                                <h6 class="mb-1" style="font-size: 15px;" th:text="${cookSnap.user.userName}">Nguyễn Văn B</h6>
+                                <p class="small text-muted" style="font-size: 13px;" th:text="${cookSnap.content}">Thành quả. Rất cảm ơn bạn</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:unless="${recipe.cookSnaps != null and !recipe.cookSnaps.isEmpty()}" class="alert alert-info py-2">
+                    <i class="fas fa-info-circle"></i> Chưa có CookSnaps nào cho món ăn này
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Bootstrap JS Bundle with Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const fileInput = document.getElementById('cookSnapImage');
+        const imagePreview = document.getElementById('imagePreview');
+
+        // Hiển thị ảnh khi người dùng chọn
+        fileInput.addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+
+                reader.readAsDataURL(file);
+            } else {
+                alert('Vui lòng chọn một tệp hình ảnh hợp lệ.');
+                fileInput.value = '';
+                imagePreview.style.display = 'none';
+            }
+        });
+
+        // Cho phép chọn lại ảnh khi nhấp vào ảnh preview
+        imagePreview.addEventListener('click', function () {
+            fileInput.click();
+        });
+
+        // Reset toàn bộ khi đóng modal
+        document.getElementById('cookSnapModal').addEventListener('hidden.bs.modal', function () {
+            fileInput.value = '';
+            imagePreview.src = '';
+            imagePreview.style.display = 'none';
+        });
+    });
+</script>
 </body>
 </html>

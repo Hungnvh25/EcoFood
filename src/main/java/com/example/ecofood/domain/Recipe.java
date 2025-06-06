@@ -67,13 +67,12 @@ public class Recipe {
     @JoinColumn(name = "user_id")
     User user;
 
-    @ManyToOne
-    @JoinColumn(name = "cookSnap_id")
-    CookSnap cookSnap;
+    @OneToMany(mappedBy = "recipe")
+    Set<Comment> comments = new HashSet<>();
 
 
     @OneToMany(mappedBy = "recipe")
-    Set<Comment> comments = new HashSet<>();
+    Set<CookSnap> cookSnaps = new HashSet<>();
 
     @OneToMany(mappedBy = "recipe")
     Set<SaveRecipe> saveRecipes = new HashSet<>();
