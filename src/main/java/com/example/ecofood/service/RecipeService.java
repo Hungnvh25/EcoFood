@@ -63,7 +63,9 @@ public class RecipeService {
 
 
         try {
-
+            // Sửa tiêu đề
+            String formatTile = recipeUtils.normalizeRecipeName(recipe.getTitle());
+            recipe.setTitle(formatTile);
 
             if (!imageFile.isEmpty()) {
                 String imageUrlRecipe = this.imageService.saveImage(imageFile, "Recipe");

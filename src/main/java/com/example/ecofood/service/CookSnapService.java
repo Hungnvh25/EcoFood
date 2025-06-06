@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -23,6 +25,11 @@ public class CookSnapService {
 
         this.cookSnapRepository.save(cookSnap);
         return recipe;
+    }
+
+
+    public List<CookSnap> getCookSnapByUser(User user){
+      return this.cookSnapRepository.findCookSnapByUserId(user.getId());
     }
 
 }

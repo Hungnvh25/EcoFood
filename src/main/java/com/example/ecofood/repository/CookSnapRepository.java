@@ -10,4 +10,5 @@ import java.util.List;
 public interface CookSnapRepository extends JpaRepository<CookSnap,Long> {
 
     List<CookSnap> findCookSnapByRecipeId(Long Id);
+    List<CookSnap> findCookSnapByUserId(Long Id);
 }

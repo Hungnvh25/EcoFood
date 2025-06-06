@@ -124,6 +124,18 @@ public class RecipeController {
         try {
             Recipe recipe = this.recipeService.getRecipeById(id);
             model.addAttribute("recipe", recipe);
+            User user = this.userService.getCurrentUser();
+
+            CookSnap userCookSnap = recipe.getCookSnaps().stream()
+                    .filter(cookSnap -> cookSnap.getUser().getId().equals(user.getId()))
+                    .findFirst().orElse(null);
+
+            boolean hasUserCookSnap = recipe.getCookSnaps().stream()
+                    .anyMatch(cookSnap -> cookSnap.getUser().getId().equals(user.getId()));
+            model.addAttribute("hasUserCookSnap", hasUserCookSnap);
+            model.addAttribute("userCookSnap", userCookSnap);
+
+
 
             this.userActivityService.saveHistoryViewRecipe(recipe);
             return "client/Recipe/recipe-detail";

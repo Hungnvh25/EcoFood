@@ -2,9 +2,14 @@ package com.example.ecofood.controller.client;
 
 import com.example.ecofood.domain.CookSnap;
 import com.example.ecofood.domain.Recipe;
+import com.example.ecofood.domain.User;
 import com.example.ecofood.service.CookSnapService;
 import com.example.ecofood.service.ImageService;
 import com.example.ecofood.service.RecipeService;
+import com.example.ecofood.service.UserService;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,19 +20,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 @Controller
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping("/cook-snap")
 public class CookSnapController {
 
-    @Autowired
-    private CookSnapService cookSnapService;
 
-    @Autowired
-    private RecipeService recipeService;
-
-    @Autowired
-    private ImageService imageService;
+     CookSnapService cookSnapService;
+     RecipeService recipeService;
+     ImageService imageService;
+     UserService userService;
 
     @PostMapping("/save/{recipeId}")
     public String saveCookSnap(@PathVariable Long recipeId, @RequestParam("image") MultipartFile image,
@@ -55,5 +60,15 @@ public class CookSnapController {
             model.addAttribute("error", "Lỗi khi upload ảnh!");
             return "redirect:/recipe/" + recipeId;
         }
+    }
+
+    @GetMapping("")
+    public String getCookedRecipes(Model model) {
+
+        User user = this.userService.getCurrentUser();
+
+        List<CookSnap> cookSnaps = cookSnapService.getCookSnapByUser(user);
+        model.addAttribute("cookSnaps", cookSnaps);
+        return "client/CookSnap/show"; // Thymeleaf template name
     }
 }
