@@ -26,8 +26,9 @@ public class CookSnap {
     @JoinColumn(name = "user_id")
     User user;
 
-    @OneToMany(mappedBy = "cookSnap")
-    private List<Recipe> recipes;
+    @ManyToOne
+    @JoinColumn(name = "recipe_id")
+    Recipe recipe;
 
 
 }
