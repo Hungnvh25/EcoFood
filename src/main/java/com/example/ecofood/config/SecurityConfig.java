@@ -80,7 +80,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // DÙNG session cho OAuth2
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/register", "/image/**", "/uploads/**", "/oauth2/**").permitAll()
+                        .requestMatchers("/login/**", "/register", "/image/**", "/uploads/**", "/oauth2/**").permitAll()
                         .requestMatchers("/admin/**", "/admin").hasRole("ADMIN")
                         .requestMatchers("/**").hasAnyRole("ADMIN", "CUSTOMER")
                         .anyRequest().authenticated())
