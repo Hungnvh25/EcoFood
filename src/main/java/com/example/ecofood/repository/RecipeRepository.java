@@ -67,4 +67,7 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
             @Param("region") Category.Region region
     );
 
+    List<Recipe> findByParentId(Long parentId);
+
+
 }

@@ -437,7 +437,7 @@
                 <h5 class="modal-title" id="cookSnapModalLabel">Chia sẻ món ăn bạn đã nấu</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form th:action="@{/cook-snap/save/{recipeId}(recipeId=${recipe.id})}" method="post" enctype="multipart/form-data">
+            <form th:action="@{/cookSnap/save/{recipeId}(recipeId=${recipe.id})}" method="post" enctype="multipart/form-data">
                 <div class="modal-body">
                     <!-- Chọn ảnh -->
                     <div class="mb-3">
