@@ -424,4 +424,13 @@ public class RecipeService {
         );
     }
 
+    public List<RecipeDetailDto> getRelatedRecipeDetails(Long parentId) {
+        List<Recipe> relatedRecipes = recipeRepository.findByParentId(parentId);
+        return relatedRecipes.stream()
+                .map(this::mapToRecipeDetailDto)
+                .collect(Collectors.toList());
+    }
+
+
+
 }

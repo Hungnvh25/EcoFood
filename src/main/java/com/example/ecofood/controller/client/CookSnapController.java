@@ -1,5 +1,6 @@
 package com.example.ecofood.controller.client;
 
+import com.example.ecofood.DTO.RecipeDetailDto;
 import com.example.ecofood.domain.CookSnap;
 import com.example.ecofood.domain.Recipe;
 import com.example.ecofood.domain.User;
@@ -11,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +27,7 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequestMapping("/cook-snap")
+@RequestMapping("/cookSnap")
 public class CookSnapController {
 
 
@@ -71,4 +73,11 @@ public class CookSnapController {
         model.addAttribute("cookSnaps", cookSnaps);
         return "client/CookSnap/show"; // Thymeleaf template name
     }
+
+    @GetMapping("/{parentId}")
+    public ResponseEntity<List<RecipeDetailDto>> getRelatedRecipes(@PathVariable Long parentId) {
+        List<RecipeDetailDto> relatedRecipes = this.recipeService.getRelatedRecipeDetails(parentId);
+        return ResponseEntity.ok(relatedRecipes);
+    }
+
 }
