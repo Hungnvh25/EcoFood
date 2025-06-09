@@ -19,10 +19,13 @@ public class UserSetting {
     Long id;
 
     @Enumerated(EnumType.STRING)
-    Gender voiceGender;
+    Gender voiceGender ;
 
     @Enumerated(EnumType.STRING)
     Accent accent;
+
+    @Enumerated(EnumType.STRING)
+    Category.Region region;
 
     String urlImage;
 
@@ -35,6 +38,21 @@ public class UserSetting {
     public enum Gender {
         MALE,
         FEMALE
+    }
+
+
+    @Getter
+    public enum Region {
+        NORTH("Miền Bắc"),
+        CENTRAL("Miền Trung"),
+        SOUTH("Miền Nam");
+
+        private String description;
+
+        Region(String description) {
+            this.description = description;
+        }
+
     }
 
     public enum Accent {

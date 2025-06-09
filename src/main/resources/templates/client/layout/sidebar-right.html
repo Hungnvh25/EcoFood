@@ -1,3 +1,4 @@
+<!-- Sidebar -->
 <div th:fragment="sidebarRight"
      class="col-md-3 bg-white border-start p-3 position-fixed top-0 end-0 vh-110 overflow-auto">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -13,9 +14,11 @@
             </div>
             <div class="dropdown-menu p-0 shadow rounded-3 border-0" aria-labelledby="userDropdown"
                  style="min-width: 200px;">
-                <a href="/profile" class="dropdown-item d-flex align-items-center py-2" style="font-size: 17px;">
+                <!-- SỬA DÒNG NÀY: Thêm thuộc tính mở modal -->
+                <div class="dropdown-item d-flex align-items-center py-2" style="font-size: 17px;"
+                     data-bs-toggle="modal" data-bs-target="#userModalProfile">
                     <i class="fas fa-user me-2" style="font-size: 15px;"></i> Bếp của bạn
-                </a>
+                </div>
                 <a href="/settings" class="dropdown-item d-flex align-items-center py-2" style="font-size: 17px;">
                     <i class="fas fa-cog me-2" style="font-size: 17px;"></i> Cài đặt
                 </a>
@@ -28,33 +31,28 @@
                 </a>
             </div>
         </div>
-
-
         <a href="/recipe" class="btn btn-success btn-sm rounded-pill"
            th:if="${currentUri != '/recipe'}">
             <i class="fas fa-plus"></i> Thêm món
         </a>
-
     </div>
 
+    <!-- Món ăn được yêu thích -->
     <div class="mb-4">
         <h6 class="mb-3">Món ăn được yêu thích</h6>
-
         <div th:each="recipe : ${recipeListTop}" class="card mb-3 border-0 shadow-sm">
             <a th:href="@{'/recipe/' + ${recipe.id}}" class="text-decoration-none text-dark">
                 <div class="row g-0">
                     <div class="col-4">
                         <img th:src="${recipe.imageUrl != null ? recipe.imageUrl : '/Recipe/default.jpg'}"
-                             class="img-fluid rounded"
-                             th:alt="${recipe.title}">
+                             class="img-fluid rounded" alt="" th:alt="${recipe.title}">
                     </div>
                     <div class="col-8">
                         <div class="card-body p-2">
                             <h6 class="card-title" th:text="${recipe.title}">Tên món ăn</h6>
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-heart text-warning me-1"></i>
-                                <small th:text="${recipe.likeCount != null ? recipe.likeCount : 0} + ' lượt thích'">0
-                                    lượt thích</small>
+                                <small th:text="${recipe.likeCount != null ? recipe.likeCount : 0} + ' lượt thích'">0 lượt thích</small>
                             </div>
                             <div class="d-flex mt-2">
                                 <span class="badge me-1" style="background-color: #d9f99d; color: #26272c; font-size: 0.8rem;"
@@ -65,10 +63,10 @@
                                 <span class="badge me-1"
                                       style="background-color: #ffe8d4; color: #26272c; font-size: 0.8rem;"
                                       th:text="${#numbers.formatDecimal(recipe.totalProtein != null ? recipe.totalProtein : 0, 0, 1)}">35</span>
-                                <span class="badge" style="background-color: #f1f1f1; color: #26272c; font-size: 0.8rem;"
+                                <span class="badge"
+                                      style="background-color: #f1f1f1; color: #26272c; font-size: 0.8rem;"
                                       th:text="${#numbers.formatDecimal(recipe.totalFat != null ? recipe.totalFat : 0, 0, 1)}">12</span>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -76,10 +74,9 @@
         </div>
     </div>
 
-
+    <!-- Các món xem gần đây -->
     <div>
         <h6 class="mb-3">Các món xem gần đây</h6>
-
         <div th:each="recipe : ${RecipeHistory}" class="card mb-3 border-0 shadow-sm">
             <a th:href="@{'/recipe/' + ${recipe.id}}" class="text-decoration-none text-dark">
                 <div class="row g-0">
@@ -92,7 +89,7 @@
                             <h6 class="card-title" th:text="${recipe.title}">Tên món ăn</h6>
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-heart text-warning me-1"></i>
-                                <small th:text="${recipe.likeCount != null ? recipe.likeCount : 0} + ' lượt thích'">0</small>
+                                <small th:text="${recipe.likeCount != null ? recipe.likeCount : 0} + ' lượt thích'">0 lượt thích</small>
                             </div>
                         </div>
                     </div>
@@ -100,52 +97,144 @@
             </a>
         </div>
     </div>
-
-
 </div>
 
-<!-- Modal -->
-<div th:fragment="sidebarRight" class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel"
-     aria-hidden="true">
+
+
+<!-- Modal "Bếp của bạn" -->
+<div th:fragment="userProfileModal" class="modal fade" id="userModalProfile" tabindex="-1"
+     aria-labelledby="userModalProfileLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="userModalLabel">Thông tin</h5>
+                <h5 class="modal-title" id="userModalProfileLabel">Thông tin người dùng</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="me-2">
-                        <img th:src="${currentUser.userSetting.urlImage != null ? currentUser.userSetting.urlImage : '/Avatars/default.jpg'}"
-                             class="rounded-circle" width="40" height="40">
-                    </div>
-                    <div>
-                        <h6 class="mb-0" th:text="${currentUser.userName}">Tên người dùng</h6>
-                        <small th:text="${currentUser.email}">@cook_112520444</small>
-                    </div>
+                <div class="text-center mb-4">
+                    <img th:src="${currentUser.userSetting.urlImage != null ? currentUser.userSetting.urlImage : '/Avatars/default.jpg'}"
+                         class="rounded-circle mb-2" width="80" height="80" alt="Avatar">
+                    <h5 class="mb-1" th:text="${currentUser.userName}">Tên người dùng</h5>
+                    <small class="text-muted" th:text="${currentUser.email}">email@example.com</small>
                 </div>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">
-                        <a href="/profile" class="text-decoration-none text-dark">
-                            <i class="fas fa-user me-2"></i> Bếp của bạn
-                        </a>
+                        <strong>Ngày tham gia:</strong>
+                        <span th:text="${#temporals.format(currentUser.joinDate, 'dd/MM/yyyy')}">01/01/2023</span>
                     </li>
-                    <li class="list-group-item">
-                        <a href="/settings" class="text-decoration-none text-dark">
-                            <i class="fas fa-cog me-2"></i> Cài đặt
-                        </a>
+                    <div th:if="${currentUser.role.name eq 'ADMIN'}">
+                        <li class="list-group-item">
+                            <strong>Vai trò:</strong>
+                            <span th:text="${currentUser.role}">ADMIN</span>
+                        </li>
+                    </div>
+                    <li class="list-group-item" th:if="${currentUser.userSetting != null and currentUser.userSetting.voiceGender != null}">
+                        <strong>Giọng đọc:</strong>
+                        <span th:text="${currentUser.userSetting.voiceGender == 'MALE' ? 'Nam' : 'Nữ'}">Nam</span>
                     </li>
-                    <li class="list-group-item">
-                        <a href="/feedback" class="text-decoration-none text-dark">
-                            <i class="fas fa-envelope me-2"></i> Gửi thư, góp ý
-                        </a>
-                    </li>
-                    <li class="list-group-item">
-                        <a href="/logout" class="text-decoration-none text-dark">
-                            <i class="fas fa-sign-out-alt me-2"></i> Thoát
-                        </a>
-                    </li>
+                    <div th:if="${currentUser.premium}">
+                        <li class="list-group-item">
+                            <strong>Trạng thái:</strong>
+                            <span th:text="${currentUser.premium ? 'Premium' : 'Thường'}">Premium</span>
+                        </li>
+                    </div>
                 </ul>
+                <div class="mt-3 d-flex gap-2">
+                    <button type="button" class="btn  w-50 " data-bs-toggle="modal" data-bs-target="#editProfileModal" style="background-color: #FFCB65">
+                       Chỉnh sửa thông tin
+                    </button>
+                    <button type="button" class="btn w-50" data-bs-toggle="modal" data-bs-target="#updatePasswordModal" style="background-color: #C3E66E">
+                        <span th:text="${isNewPassword ? 'Cập nhật mật khẩu' : 'Đổi mật khẩu'}"></span>
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal chỉnh sửa thông tin -->
+<div th:fragment="editProfileModal" class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProfileModalLabel">Chỉnh sửa thông tin</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/profile/update}" method="post" enctype="multipart/form-data">
+                    <div class="mb-3 text-center">
+                        <label for="profileImage" class="form-label">Ảnh đại diện</label>
+                        <div class="mb-2">
+                            <img th:src="${currentUser.userSetting.urlImage != null ? currentUser.userSetting.urlImage : '/Avatars/default.jpg'}"
+                                 class="rounded-circle" width="80" height="80" alt="Avatar"
+                                 style="cursor: pointer;" onclick="document.getElementById('profileImage').click();">
+                        </div>
+                        <input type="file" class="form-control d-none" id="profileImage" name="profileImage" accept="image/*"
+                               onchange="previewImage(event)">
+                    </div>
+                    <div class="mb-3">
+                        <label for="userName" class="form-label">Tên người dùng</label>
+                        <input type="text" class="form-control" id="userName" name="userName" th:value="${currentUser.userName}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="voiceGender" class="form-label">Giọng đọc</label>
+                        <select class="form-select" id="voiceGender" name="voiceGender">
+                            <option value="">Chọn giọng</option>
+                            <option value="MALE" th:selected="${currentUser.userSetting.voiceGender.name() == 'MALE'}">Nam</option>
+                            <option value="FEMALE" th:selected="${currentUser.userSetting.voiceGender.name() == 'FEMALE'}">Nữ</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="region" class="form-label">Khu vực giọng đọc</label>
+                        <select class="form-select" id="region" name="region">
+                            <option value="">Chọn khu vực</option>
+                            <option value="NORTH" th:selected="${currentUser.userSetting.region.name() == 'NORTH'}">Miền Bắc</option>
+                            <option value="CENTRAL" th:selected="${currentUser.userSetting.region.name() == 'CENTRAL'}">Miền Trung</option>
+                            <option value="SOUTH" th:selected="${currentUser.userSetting.region.name() == 'SOUTH'}">Miền Nam</option>
+                        </select>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary">Lưu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Modal cập nhật mật khẩu -->
+<div th:fragment="updatePasswordModal" class="modal fade" id="updatePasswordModal" tabindex="-1" aria-labelledby="updatePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updatePasswordModalLabel">Cập nhật mật khẩu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/profile/update-password}" method="post">
+                    <!-- Mật khẩu hiện tại sẽ được ẩn nếu isNewPassword = true -->
+                    <div class="mb-3" id="currentPasswordContainer" th:if="${!isNewPassword}">
+                        <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
+                        <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">Mật khẩu mới</label>
+                        <input type="password" class="form-control" id="newPassword" name="newPassword" required minlength="6">
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Xác nhận mật khẩu mới</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary">Lưu</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

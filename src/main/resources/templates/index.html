@@ -180,6 +180,13 @@
 
         <!-- Sidebar phải -->
         <th:block th:replace="~{client/layout/sidebar-right :: sidebarRight}"></th:block>
+        <!-- Load modal "Bếp của bạn" -->
+        <div th:replace="~{client/layout/sidebar-right :: userProfileModal}"></div>
+
+        <div th:replace="~{client/layout/sidebar-right :: editProfileModal}"></div>
+
+        <div th:replace="~{client/layout/sidebar-right :: updatePasswordModal}"></div>
+
     </div>
 </div>
 
@@ -439,5 +446,58 @@
         }
     });
 </script>
+
+<!--model right-->
+<script>
+
+    // xem truoc avatar
+    function previewImage(event) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            const output = document.querySelector('#editProfileModal img');
+            output.src = reader.result;
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    // Giả sử modal của bạn có id "profileModal"
+    const profileModal = new bootstrap.Modal(document.getElementById('profileModal'), {
+        keyboard: false
+    });
+
+    // Function cập nhật profile và mở lại modal sau khi update thành công
+    function updateProfile(event) {
+        event.preventDefault();  // Ngừng hành động mặc định của form
+
+        // Gửi dữ liệu cập nhật lên API
+        const form = document.getElementById('updateProfileForm');
+        const formData = new FormData(form);
+
+        fetch('/profile/update', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Đóng modal hiện tại (modal chỉnh sửa thông tin)
+                    profileModal.hide();
+
+                    // Mở lại modal (nếu cần thiết)
+                    // Giả sử bạn có một modal khác để hiển thị kết quả thành công
+                    const successModal = new bootstrap.Modal(document.getElementById('successModal'), {
+                        keyboard: false
+                    });
+                    successModal.show();
+                } else {
+                    alert('Đã có lỗi xảy ra!');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+</script>
+
 </body>
 </html>
