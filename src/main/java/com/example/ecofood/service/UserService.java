@@ -1,15 +1,18 @@
 package com.example.ecofood.service;
 
 import com.example.ecofood.DTO.UserDTO;
+import com.example.ecofood.domain.Category;
 import com.example.ecofood.domain.User;
 import com.example.ecofood.domain.UserActivity;
 import com.example.ecofood.domain.UserSetting;
 import com.example.ecofood.repository.UserActivityRepository;
 import com.example.ecofood.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -18,17 +21,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService {
+
     UserRepository userRepository;
     UserSettingService userSettingService;
     PasswordEncoder passwordEncoder;
     HttpServletRequest request;
     UserActivityRepository userActivityRepository;
+    @Value("${passWord.mail}")
+    String passWordEmail ;
+
+
 
     public User findUserByUserName(String email) {
         return this.userRepository.findUsersByEmail(email);
@@ -110,17 +117,24 @@ public class UserService {
         return this.userRepository.findUsersByEmail(email);
     }
     public User createOAuth2User(String email, String name,String picture) {
+
+
         User user = new User();
         user.setEmail(email);
         user.setUserName(name);
-        user.setPasswordHash(passwordEncoder.encode(UUID.randomUUID().toString())); // random pass
         user.setJoinDate(LocalDate.now());
         user.setRole(User.Role.CUSTOMER);
+        String passWordHash = this.passwordEncoder.encode(passWordEmail);
+        user.setPasswordHash(passWordHash); // random pass
+
         this.userRepository.save(user);
 
 
         UserSetting userSetting = UserSetting.builder()
                 .user(user)
+                .accent(UserSetting.Accent.HN_PHUONGTRANG)
+                .voiceGender(UserSetting.Gender.MALE)
+                .region(Category.Region.NORTH)
                 .urlImage(picture)
                 .build();
 
@@ -135,10 +149,39 @@ public class UserService {
         return user;
     }
 
-    public String generateUserNameFromEmail(String email) {
-        return email.split("@")[0] + "_" + UUID.randomUUID().toString().substring(0, 5);
+    public UserSetting.Accent setAccent( UserSetting.Gender gender , UserSetting.Region region){
+
+        if (gender.equals(UserSetting.Gender.MALE)) {
+            switch (region) {
+                case SOUTH:
+                    return UserSetting.Accent.HCM_MINHQUAN;
+                case CENTRAL:
+                    return UserSetting.Accent.HUE_BAOQUOC;
+                default:
+                    return UserSetting.Accent.HN_TIENQUAN;
+            }
+        }else {
+            switch (region) {
+                case SOUTH:
+                    return UserSetting.Accent.HCM_DIEMMY;
+                case CENTRAL:
+                    return UserSetting.Accent.HUE_MAINGOC;
+                default:
+                    return UserSetting.Accent.HN_THANHHA;
+            }
+        }
+
     }
 
+    public Boolean isNewPassWord(){
+        User user = this.getCurrentUser();
+        return  this.passwordEncoder.matches(this.passWordEmail, user.getPasswordHash());
+    }
 
+    public void setPassWordNewUser(String pass){
+        User user = this.getCurrentUser();
+        user.setPasswordHash(this.passwordEncoder.encode(pass));
+        this.userRepository.save(user);
+    }
 
 }

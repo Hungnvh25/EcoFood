@@ -48,6 +48,11 @@ public class SecurityConfig {
     }
 
     @Bean
+    public String string(){
+        return new String();
+    }
+
+    @Bean
     public PayOS payOS() {
         return new PayOS(clientId,apiKey,checksumKey);
     }

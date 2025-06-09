@@ -1,6 +1,7 @@
 package com.example.ecofood.service;
 
 
+import com.example.ecofood.domain.Category;
 import com.example.ecofood.domain.User;
 import com.example.ecofood.domain.UserSetting;
 import com.example.ecofood.repository.UserSettingRepository;
@@ -21,6 +22,7 @@ public class UserSettingService {
                 .user(user)
                 .accent(UserSetting.Accent.HN_PHUONGTRANG)
                 .voiceGender(UserSetting.Gender.MALE)
+                .region(Category.Region.NORTH)
                 .build();
         this.userSettingRepository.save(userSetting);
     }
