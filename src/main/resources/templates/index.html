@@ -6,6 +6,13 @@
     <title>Eco Food</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        .dropdown-item:hover .dropdown-menu {
+            display: block;
+        }
+
+    </style>
+
 </head>
 <body class="bg-light">
 <div class="container-fluid p-0">
@@ -186,6 +193,10 @@
         <div th:replace="~{client/layout/sidebar-right :: editProfileModal}"></div>
 
         <div th:replace="~{client/layout/sidebar-right :: updatePasswordModal}"></div>
+        <div th:replace="~{client/layout/sidebar-right :: deleteAccountModal}"></div>
+        <div th:replace="~{client/layout/sidebar-right :: feedbackModal}"></div>
+
+
 
     </div>
 </div>

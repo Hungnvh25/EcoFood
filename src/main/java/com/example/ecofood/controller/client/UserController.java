@@ -1,9 +1,13 @@
 package com.example.ecofood.controller.client;
 
+import com.example.ecofood.Util.RandomStringGenerator;
 import com.example.ecofood.domain.Category;
+import com.example.ecofood.domain.Recipe;
 import com.example.ecofood.domain.User;
 import com.example.ecofood.domain.UserSetting;
 import com.example.ecofood.service.ImageService;
+import com.example.ecofood.service.NotificationService;
+import com.example.ecofood.service.RecipeService;
 import com.example.ecofood.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -20,6 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.List;
+import java.util.Random;
 
 @Controller("clientUserController")
 @RequiredArgsConstructor
@@ -29,6 +35,10 @@ public class UserController {
     UserService userService;
     ImageService imageService;
     PasswordEncoder passwordEncoder;
+    RandomStringGenerator randomStringGenerator;
+    RecipeService recipeService;
+    NotificationService notificationService;
+
     @PostMapping("/profile/update")
     public String updateProfile(Model model,
                                 @RequestParam("userName") String userName,
@@ -54,7 +64,7 @@ public class UserController {
             user.getUserSetting().setUrlImage(urlImage);
         }
         this.userService.saveUser(user);
-
+        String refererUrl = request.getHeader("Referer");
         // Xóa session cũ và tạo lại session với user mới
         session.invalidate();  // Hủy session hiện tại
         session = request.getSession(true);  // Tạo session mới
@@ -64,28 +74,65 @@ public class UserController {
         model.addAttribute("currentUser", user);
 
 
-        return "redirect:/";
+        return "redirect:"+ refererUrl;
     }
+
 
 
     @PostMapping("/profile/update-password")
-    public String updatePassword(@RequestParam(value = "currentPassword",required = false) String currentPassword,
+    public String updatePassword(@RequestParam(value = "currentPassword", required = false) String currentPassword,
                                  @RequestParam("newPassword") String newPassword,
                                  @RequestParam("confirmPassword") String confirmPassword,
-                                 HttpSession session) {
+                                 HttpSession session,
+                                 HttpServletRequest request) {
+        String refererUrl = request.getHeader("Referer");
+
         if (this.userService.isNewPassWord()){
             this.userService.setPassWordNewUser(confirmPassword);
-            return "redirect:/";
-        }else {
+            return "redirect:" + refererUrl;
+        } else {
             User user = this.userService.getCurrentUser();
-            if (this.passwordEncoder.matches(currentPassword,user.getPasswordHash()) && newPassword.equals(confirmPassword)){
+            if (this.passwordEncoder.matches(currentPassword, user.getPasswordHash()) && newPassword.equals(confirmPassword)){
                 this.userService.setPassWordNewUser(confirmPassword);
-                return "redirect:/";
+                return "redirect:" + refererUrl;
             }
         }
 
-        return "redirect:/";
+        return "redirect:" + refererUrl;
     }
+
+
+    @PostMapping("/profile/delete")
+    public String deleteUser() {
+
+        User user = this.userService.getCurrentUser();
+        user.getUserSetting().setUrlImage("");
+        user.setPasswordHash(this.passwordEncoder.encode(this.randomStringGenerator.generateRandomString(10)));
+        user.setEmail(this.randomStringGenerator.generateRandomString(10)+"@gmail.com");
+
+        List<Recipe> recipes = this.recipeService.getAllRecipes();
+        User userAdmin = this.userService.findByEmail("ecofood.2025@gmail.com");
+        for (Recipe recipe:recipes
+             ) {
+            if (recipe.getIsPendingRecipe() == Boolean.FALSE){
+                recipe.setUser(userAdmin);
+                this.recipeService.saveRecipe(recipe);
+            }
+        }
+        this.userService.saveUser(user);
+
+        return "redirect:/logout";
+    }
+
+
+    @PostMapping("/feedback")
+    public String feedback(HttpServletRequest request, @RequestParam("feedbackTitle") String feedbackTitle, @RequestParam("feedbackContent") String feedbackContent) {
+        String refererUrl = request.getHeader("Referer");
+        User user = this.userService.getCurrentUser();
+        this.notificationService.createFeedbackNotification(user.getUserName(),feedbackTitle,feedbackContent);
+        return "redirect:" + refererUrl;
+    }
+
 
 }
 

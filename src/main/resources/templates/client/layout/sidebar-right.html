@@ -1,4 +1,3 @@
-<!-- Sidebar -->
 <div th:fragment="sidebarRight"
      class="col-md-3 bg-white border-start p-3 position-fixed top-0 end-0 vh-110 overflow-auto">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -14,15 +13,26 @@
             </div>
             <div class="dropdown-menu p-0 shadow rounded-3 border-0" aria-labelledby="userDropdown"
                  style="min-width: 200px;">
-                <!-- SỬA DÒNG NÀY: Thêm thuộc tính mở modal -->
                 <div class="dropdown-item d-flex align-items-center py-2" style="font-size: 17px;"
                      data-bs-toggle="modal" data-bs-target="#userModalProfile">
                     <i class="fas fa-user me-2" style="font-size: 15px;"></i> Bếp của bạn
                 </div>
-                <a href="/settings" class="dropdown-item d-flex align-items-center py-2" style="font-size: 17px;">
+                <!-- Thay thế nút Cài đặt bằng dropdown con -->
+                <div class="dropdown-item d-flex align-items-center py-2 position-relative" style="font-size: 17px;">
                     <i class="fas fa-cog me-2" style="font-size: 17px;"></i> Cài đặt
-                </a>
-                <a href="/feedback" class="dropdown-item d-flex align-items-center py-2" style="font-size: 17px;">
+                    <div class="dropdown-menu shadow rounded-3 border-0" style="min-width: 200px; top: 0; left: 100%;">
+                        <a href="#" class="dropdown-item d-flex align-items-center py-2" style="font-size: 17px;"
+                           data-bs-toggle="modal" data-bs-target="#updatePasswordModal">
+                            <i class="fas fa-key me-2" style="font-size: 17px;"></i> Đổi mật khẩu
+                        </a>
+                        <a href="#" class="dropdown-item d-flex align-items-center py-2" style="font-size: 17px;"
+                           data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                            <i class="fas fa-trash-alt me-2" style="font-size: 17px;"></i> Xóa tài khoản
+                        </a>
+                    </div>
+                </div>
+                <a href="#" class="dropdown-item d-flex align-items-center py-2" style="font-size: 17px;"
+                   data-bs-toggle="modal" data-bs-target="#feedbackModal">
                     <i class="fas fa-envelope me-2" style="font-size: 17px;"></i> Gửi góp ý
                 </a>
                 <a href="/logout" class="dropdown-item d-flex align-items-center py-2 border-top"
@@ -99,8 +109,6 @@
     </div>
 </div>
 
-
-
 <!-- Modal "Bếp của bạn" -->
 <div th:fragment="userProfileModal" class="modal fade" id="userModalProfile" tabindex="-1"
      aria-labelledby="userModalProfileLabel" aria-hidden="true">
@@ -140,19 +148,17 @@
                     </div>
                 </ul>
                 <div class="mt-3 d-flex gap-2">
-                    <button type="button" class="btn  w-50 " data-bs-toggle="modal" data-bs-target="#editProfileModal" style="background-color: #FFCB65">
-                       Chỉnh sửa thông tin
+                    <button type="button" class="btn w-50" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="background-color: #FFCB65">
+                        Chỉnh sửa thông tin
                     </button>
                     <button type="button" class="btn w-50" data-bs-toggle="modal" data-bs-target="#updatePasswordModal" style="background-color: #C3E66E">
                         <span th:text="${isNewPassword ? 'Cập nhật mật khẩu' : 'Đổi mật khẩu'}"></span>
                     </button>
-
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 
 <!-- Modal chỉnh sửa thông tin -->
 <div th:fragment="editProfileModal" class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
@@ -205,8 +211,6 @@
     </div>
 </div>
 
-
-
 <!-- Modal cập nhật mật khẩu -->
 <div th:fragment="updatePasswordModal" class="modal fade" id="updatePasswordModal" tabindex="-1" aria-labelledby="updatePasswordModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -217,7 +221,6 @@
             </div>
             <div class="modal-body">
                 <form th:action="@{/profile/update-password}" method="post">
-                    <!-- Mật khẩu hiện tại sẽ được ẩn nếu isNewPassword = true -->
                     <div class="mb-3" id="currentPasswordContainer" th:if="${!isNewPassword}">
                         <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
                         <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
@@ -233,6 +236,56 @@
                     <div class="text-end">
                         <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Hủy</button>
                         <button type="submit" class="btn btn-primary">Lưu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xác nhận xóa tài khoản -->
+<div th:fragment="deleteAccountModal" class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteAccountModalLabel">Xác nhận xóa tài khoản</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa tài khoản? Hành động này không thể hoàn tác.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Không</button>
+                <form th:action="@{/profile/delete}" method="post">
+                    <button type="submit" class="btn btn-danger">Có</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal gửi góp ý -->
+<div th:fragment="feedbackModal" class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="feedbackModalLabel">Gửi góp ý</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/feedback}" method="post">
+                    <div class="mb-3">
+                        <label for="feedbackTitle" class="form-label">Tiêu đề</label>
+                        <input type="text" class="form-control" id="feedbackTitle" name="feedbackTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="feedbackContent" class="form-label">Vui lòng ghi góp ý vào đây</label>
+                        <textarea class="form-control" id="feedbackContent" name="feedbackContent" rows="5" required></textarea>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary">Gửi</button>
                     </div>
                 </form>
             </div>
