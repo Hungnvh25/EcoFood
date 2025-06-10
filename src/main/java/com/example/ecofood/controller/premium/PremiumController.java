@@ -65,7 +65,7 @@ public class PremiumController {
         user.setPremiumStartDate(LocalDateTime.now());
 
         userService.saveUser(user);
-        return "client/premium/success";
+        return "client/premium/show";
     }
 
     @RequestMapping(value = "/premium/cancel")
@@ -80,7 +80,7 @@ public class PremiumController {
             final String productName = "Gói Premium của bạn";
             final String description = this.randomStringGenerator.generateRandomString(6);
 //            final String returnUrl = baseUrl + "/premium/success";
-            final String returnUrl = baseUrl + "/premium";
+            final String returnUrl = baseUrl + "/premium/success";
             final String cancelUrl = baseUrl + "/premium/cancel";
             final int price = 2000;
             // Gen order code
@@ -104,13 +104,14 @@ public class PremiumController {
         String scheme = request.getScheme();
         String serverName = request.getServerName();
         int serverPort = request.getServerPort();
-        String contextPath = request.getContextPath();
 
         String url = scheme + "://" + serverName;
+
         if ((scheme.equals("http") && serverPort != 80) || (scheme.equals("https") && serverPort != 443)) {
             url += ":" + serverPort;
         }
-        url += contextPath;
+
         return url;
     }
+
 }
