@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -182,6 +183,10 @@ public class UserService {
         User user = this.getCurrentUser();
         user.setPasswordHash(this.passwordEncoder.encode(pass));
         this.userRepository.save(user);
+    }
+
+    public List<User> findByRoleName(String roleName){
+        return  this.userRepository.findByRole(User.Role.valueOf(roleName));
     }
 
 }

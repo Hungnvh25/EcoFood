@@ -2,6 +2,7 @@ package com.example.ecofood.service;
 
 import com.example.ecofood.domain.Notification;
 import com.example.ecofood.domain.Recipe;
+import com.example.ecofood.domain.User;
 import com.example.ecofood.repository.NotificationRepository;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -18,6 +19,8 @@ import java.util.List;
 public class NotificationService {
 
     NotificationRepository notificationRepository;
+    RecipeService recipeService;
+    UserService userService;
 
     public List<Notification> findNotificationsByEmail(String email){
 
@@ -45,6 +48,29 @@ public class NotificationService {
                 .build();
 
         this.notificationRepository.save(notification);
+    }
+
+
+    public void createFeedbackNotification(String userName, String titleFee, String description) {
+
+
+        String title = "Góp ý mới từ người dùng " ;
+        String content = String.format("Người dùng %s đã gửi góp ý: %s.",
+                userName, description);
+
+        // Lấy danh sách admin
+        List<User> admins = this.userService.findByRoleName("ADMIN");
+
+        for (User admin : admins) {
+            Notification notification = Notification.builder()
+                    .title(title+ titleFee)
+                    .content(content)
+                    .user(admin)
+                    .createdDate(LocalDate.now())
+                    .build();
+
+            this.notificationRepository.save(notification);
+        }
     }
 
 }
