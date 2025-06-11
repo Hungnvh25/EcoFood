@@ -98,7 +98,7 @@
 
                         <div class="row d-flex align-items-center mb-3" th:if="${recipe.user != null}">
                             <!-- Avatar + Tên -->
-                            <div class="col-md-4 d-flex align-items-center">
+                            <div class="col-md-6 d-flex align-items-center">
                                 <img th:src="${recipe.user.userSetting != null} ? ${recipe.user.userSetting.urlImage} : '/images/default-avatar.png'"
                                      class="rounded-circle me-2" width="40" height="40" style="object-fit: cover;" alt="Author Avatar">
                                 <div>
@@ -106,15 +106,8 @@
                                 </div>
                             </div>
 
-                            <!-- Ngày tạo -->
-                            <div class="col-md-3 small text-muted d-flex align-items-center">
-                                <i class="fas fa-calendar-alt me-1"></i>
-                                <span>Ngày tạo: </span>
-                                <span th:text="${#temporals.format(recipe.createdDate, 'dd/MM/yyyy')}">01/01/2023</span>
-                            </div>
-
                             <!-- Kiểm tra isPendingRecipe và hiển thị icon + thông báo -->
-                            <div th:if="${!recipe.isPendingRecipe}" class="col-md-5 d-flex align-items-center">
+                            <div th:if="${!recipe.isPendingRecipe}" class="col-md-6 d-flex align-items-center">
                                 <i class="fa-solid fa-medal text-success me-2" style="font-size: 1.2rem;"></i>
                                 <span class="text-success">Món ăn đã được kiểm duyệt</span>
                             </div>

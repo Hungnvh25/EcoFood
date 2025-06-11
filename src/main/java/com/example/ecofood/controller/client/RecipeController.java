@@ -31,13 +31,14 @@ public class RecipeController {
     UserService userService;
     UserActivityService userActivityService;
     UserRecipeLikeService userRecipeLikeService;
+    NotificationService notificationService;
 
 
 
     @GetMapping("/")
     public String getEcoFood(Model model, HttpServletRequest request) {
         // Lấy danh sách recipes từ service
-        List<Recipe> recipes = this.recipeService.getAllRecipes();
+        List<Recipe> recipes = this.recipeService.getAllRecipesIsPendingFalse();
         model.addAttribute("recipes", recipes);
 
         return "index";
@@ -109,12 +110,13 @@ public class RecipeController {
         if (result.hasErrors()) {
             return "client/Recipe/add";
         }
-
-        if (ingredientIds == null || instructionDescriptions == null) {
-            // Xử lý lỗi nếu cần
+        if (publish){
+            recipe.setIsPendingRecipe(true);
+            this.notificationService.createRecipePendingNotification(recipe);
         }
 
         this.recipeService.createRecipe(recipe, imageFile, ingredientIds, ingredientQuantities, ingredientUnits, instructionDescriptions, instructionImages, difficulty, mealType, region);
+
 
         return "redirect:/";
     }

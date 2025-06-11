@@ -69,5 +69,7 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
     List<Recipe> findByParentId(Long parentId);
 
+    List<Recipe> findRecipeByIsPendingRecipeFalse();
+
 
 }

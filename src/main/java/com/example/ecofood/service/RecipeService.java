@@ -51,6 +51,14 @@ public class RecipeService {
     }
 
 
+    public List<Recipe> getAllRecipesIsPendingFalse() {
+        List<Recipe> recipeList = this.recipeRepository.findRecipeByIsPendingRecipeFalse();
+        for (Recipe recipe : recipeList) {
+            this.userRecipeLikeService.getUserLikeRecipe(recipe);
+        }
+        return recipeList;
+    }
+
     public void createRecipe(Recipe recipe, MultipartFile imageFile,
                              List<Long> ingredientIds,
                              List<Float> ingredientQuantities,
@@ -63,10 +71,12 @@ public class RecipeService {
 
 
         try {
+
             // Sửa tiêu đề
             String formatTile = recipeUtils.normalizeRecipeName(recipe.getTitle());
             recipe.setTitle(formatTile);
 
+            //set imagge
             if (!imageFile.isEmpty()) {
                 String imageUrlRecipe = this.imageService.saveImage(imageFile, "Recipe");
                 recipe.setImageUrl(imageUrlRecipe);
@@ -156,25 +166,6 @@ public class RecipeService {
             System.out.println("📢 GeminiTextAudio = " + geminiTextAudio);
 
             recipe.setTextAudio(geminiTextAudio);
-
-
-            // tạo audio
-
-            HashSet<Audio> audioHashSet = new HashSet<>();
-
-            String voidCode = String.valueOf(user.getUserSetting().getAccent());
-
-            String urlAudio = this.textToSpeechService.convertTextToSpeech(geminiTextAudio,voidCode ,1.0F);
-
-            Audio audio = Audio.builder()
-                    .accent(UserSetting.Accent.fromValue(voidCode))
-                    .urlAudio(urlAudio)
-                    .voiceGender(user.getUserSetting().getVoiceGender())
-                    .recipe(recipe)
-                    .build();
-            audioHashSet.add(audio);
-
-            recipe.setAudios(audioHashSet);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -301,7 +292,6 @@ public class RecipeService {
 
     public void createRecipe(Recipe recipe) {
         recipe.setCreatedDate(java.time.LocalDate.now());
-        recipe.setIsPendingRecipe(true); // Mặc định công thức mới là pending
         recipeRepository.save(recipe);
     }
 
@@ -340,10 +330,29 @@ public class RecipeService {
     public Page<Recipe> getAllPendingRecipes(Pageable pageable) {
         return recipeRepository.findByIsPendingRecipeTrue(pageable);
     }
-    public void approveRecipe(Long id) {
+    public void approveRecipe(Long id) throws IOException {
         Recipe recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
         recipe.setIsPendingRecipe(false);
+
+        // tạo audio
+
+        User user = recipe.getUser();
+        HashSet<Audio> audioHashSet = new HashSet<>();
+
+        String voidCode = String.valueOf(user.getUserSetting().getAccent());
+        String geminiTextAudio = recipe.getTextAudio();
+        String urlAudio = this.textToSpeechService.convertTextToSpeech(geminiTextAudio,voidCode ,1.0F);
+
+        Audio audio = Audio.builder()
+                .accent(UserSetting.Accent.fromValue(voidCode))
+                .urlAudio(urlAudio)
+                .voiceGender(user.getUserSetting().getVoiceGender())
+                .recipe(recipe)
+                .build();
+        audioHashSet.add(audio);
+
+        recipe.setAudios(audioHashSet);
         recipeRepository.save(recipe);
     }
 

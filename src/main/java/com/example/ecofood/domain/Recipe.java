@@ -45,7 +45,7 @@ public class Recipe {
 
     String tileName; // để check tên gần giống
 
-    Boolean isPendingRecipe = true;  // chờ admin duyệt
+    Boolean isPendingRecipe; // chờ admin duyệt
     @Lob
     String textAudio ;
 

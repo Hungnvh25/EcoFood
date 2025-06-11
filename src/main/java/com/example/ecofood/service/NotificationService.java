@@ -73,4 +73,24 @@ public class NotificationService {
         }
     }
 
+
+    @Transactional
+    public void createRecipePendingNotification(Recipe recipe) {
+        if (recipe == null || recipe.getUser() == null) {
+            return;
+        }
+
+        String title = "Công thức đang chờ duyệt";
+        String content = String.format("Công thức '%s' của bạn đã được gửi và đang chờ admin duyệt.", recipe.getTitle());
+
+        Notification notification = Notification.builder()
+                .title(title)
+                .content(content)
+                .user(recipe.getUser())
+                .createdDate(LocalDate.now())
+                .build();
+
+        this.notificationRepository.save(notification);
+    }
+
 }
