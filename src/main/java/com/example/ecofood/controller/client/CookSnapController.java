@@ -2,6 +2,7 @@ package com.example.ecofood.controller.client;
 
 import com.example.ecofood.DTO.RecipeDetailDto;
 import com.example.ecofood.domain.Category;
+
 import com.example.ecofood.domain.CookSnap;
 import com.example.ecofood.domain.Recipe;
 import com.example.ecofood.domain.User;
@@ -109,5 +110,4 @@ public class CookSnapController {
         List<RecipeDetailDto> relatedRecipes = this.recipeService.getRelatedRecipeDetails(parentId);
         return ResponseEntity.ok(relatedRecipes);
     }
-
 }

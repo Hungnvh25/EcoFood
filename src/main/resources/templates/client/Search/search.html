@@ -36,6 +36,7 @@
                     </div>
                     <div class="d-flex gap-2" th:if="${currentUser?.premium}">
                         <select name="difficulty" class="form-select" style="max-width: 170px;">
+
                             <option value="">-- Độ khó --</option>
                             <option th:each="diff : ${difficulties}"
                                     th:text="${diff.description}"
@@ -43,6 +44,7 @@
                                     th:selected="${diff == difficulty}"></option>
                         </select>
                         <select name="mealType" class="form-select" style="max-width: 170px;">
+
                             <option value="">-- Bữa ăn --</option>
                             <option th:each="meal : ${mealTypes}"
                                     th:text="${meal.description}"
@@ -77,6 +79,7 @@
                         title="Lưu món ăn"
                         th:onclick="|toggleSave(event, ${recipe.id})|">
                     <i class="fas fa-bookmark" style="color: #999999" th:id="'save-icon-' + ${recipe.id}"></i>
+
                 </button>
 
                 <!-- Card món ăn -->
@@ -273,6 +276,7 @@
                                         title="Lưu món ăn"
                                         onclick="toggleSave(event, ${recipe.id})">
                                     <i class="fas fa-bookmark" style="color: #999999" id="save-icon-${recipe.id}"></i>
+
                                 </button>
                                 <div class="card shadow-sm rounded-3" style="border-radius: 30px">
                                     <a href="/recipe/${recipe.id}" class="text-decoration-none">
