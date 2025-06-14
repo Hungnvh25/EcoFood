@@ -19,8 +19,8 @@
                 <!-- Form -->
                 <form th:action="@{/register}" th:object="${userDTO}" method="post">
                     <div class="mb-3">
-                        <label for="userName" class="form-label">Tên đăng nhập</label>
-                        <input type="text" class="form-control" id="userName" th:field="*{userName}" placeholder="Tên đăng nhập" required>
+                        <label for="userName" class="form-label">Tên hiển thị</label>
+                        <input type="text" class="form-control" id="userName" th:field="*{userName}" placeholder="Tên hiển thị" required>
                         <span th:if="${#fields.hasErrors('userName')}" th:errors="*{userName}" class="text-danger"></span>
                     </div>
 

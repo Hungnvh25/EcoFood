@@ -23,6 +23,45 @@
     <!-- Nội dung chính -->
     <div class="col-md-7 offset-md-2 bg-white p-3 mt-3">
       <h2 class="mb-4">Món ăn bạn đã nấu</h2>
+
+      <!-- Thanh tìm kiếm & bộ lọc -->
+      <div class="d-flex flex-wrap align-items-center mb-4 gap-2">
+        <form th:action="@{/cookSnap}" method="get" class="d-flex align-items-center flex-wrap gap-2 w-100">
+          <div class="input-group" style="max-width: 300px; flex: 1 1 200px;">
+            <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm món ăn..."
+                   th:value="${keyword}" aria-label="Từ khóa tìm kiếm">
+          </div>
+          <div class="d-flex gap-2" th:if="${currentUser?.premium}">
+            <select name="difficulty" class="form-select" style="max-width: 150px;">
+              <option value="">-- Độ khó --</option>
+              <option th:each="diff : ${difficulties}"
+                      th:text="${diff.description}"
+                      th:value="${diff.name()}"
+                      th:selected="${diff == difficulty}"></option>
+            </select>
+            <select name="mealType" class="form-select" style="max-width: 150px;">
+              <option value="">-- Bữa ăn --</option>
+              <option th:each="meal : ${mealTypes}"
+                      th:text="${meal.description}"
+                      th:value="${meal.name()}"
+                      th:selected="${meal == mealType}"></option>
+            </select>
+          </div>
+          <select name="region" class="form-select" style="max-width: 225px;">
+            <option value="">-- Vùng miền --</option>
+            <option th:each="reg : ${regions}"
+                    th:text="${reg.description}"
+                    th:value="${reg.name()}"
+                    th:selected="${reg == region}"></option>
+          </select>
+          <button class="btn btn-primary" type="submit">Lọc</button>
+        </form>
+      </div>
+
+      <p class="text-muted" th:if="${keyword != null and keyword != ''}">
+        Kết quả cho từ khóa: <strong th:text="${keyword}"></strong>
+      </p>
+
       <div th:if="${cookSnaps != null and not #lists.isEmpty(cookSnaps)}" class="row row-cols-1 row-cols-md-3 g-3">
         <div th:each="cookSnap : ${cookSnaps}" class="col">
           <div class="card h-100 d-flex flex-column position-relative border border-2"

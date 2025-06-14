@@ -54,6 +54,8 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
     List<Recipe> findByUserId(Long id);
 
+    List<Recipe> findByIsPendingRecipeNullAndUserId(Long userId);
+
 
     @Query("SELECT r FROM Recipe r WHERE " +
             "LOWER(r.title) LIKE LOWER(CONCAT('%', :title, '%')) AND " +
@@ -68,6 +70,8 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     );
 
     List<Recipe> findByParentId(Long parentId);
+
+    List<Recipe> findRecipeByIsPendingRecipeFalse();
 
 
 }

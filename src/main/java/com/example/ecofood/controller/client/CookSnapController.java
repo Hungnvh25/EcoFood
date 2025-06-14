@@ -1,6 +1,8 @@
 package com.example.ecofood.controller.client;
 
 import com.example.ecofood.DTO.RecipeDetailDto;
+import com.example.ecofood.domain.Category;
+
 import com.example.ecofood.domain.CookSnap;
 import com.example.ecofood.domain.Recipe;
 import com.example.ecofood.domain.User;
@@ -65,13 +67,42 @@ public class CookSnapController {
     }
 
     @GetMapping("")
-    public String getCookedRecipes(Model model) {
+    public String getCookedRecipes(
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "difficulty", required = false) Category.Difficulty difficulty,
+            @RequestParam(name = "mealType", required = false) Category.MealType mealType,
+            @RequestParam(name = "region", required = false) Category.Region region,
+            Model model) {
+
+        List<CookSnap> cookSnaps;
 
         User user = this.userService.getCurrentUser();
+        if ((keyword != null && !keyword.isEmpty()) ||
+                (difficulty != null && !difficulty.name().isEmpty()) ||
+                (mealType != null && !mealType.name().isEmpty()) ||
+                (region != null && !region.name().isEmpty())) {
 
-        List<CookSnap> cookSnaps = cookSnapService.getCookSnapByUser(user);
+            // Tìm kiếm công thức theo các bộ lọc
+            List<Recipe> recipes = this.recipeService.searchRecipesByTitleAndFilters(keyword, difficulty, mealType, region);
+            recipes = this.recipeService.remoteRecipeListIsPremiumNull(recipes);
+            cookSnaps = this.cookSnapService.getCookSnapByUserFilters(recipes);
+        } else {
+            // Nếu không có bộ lọc nào, trả về danh sách công thức đầy đủ
+            cookSnaps = this.cookSnapService.getCookSnapByUser(user);
+        }
+
         model.addAttribute("cookSnaps", cookSnaps);
-        return "client/CookSnap/show"; // Thymeleaf template name
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("difficulty", difficulty);
+        model.addAttribute("mealType", mealType);
+        model.addAttribute("region", region);
+
+        // Truyền danh sách enum để hiển thị filter
+        model.addAttribute("difficulties", Category.Difficulty.values());
+        model.addAttribute("mealTypes", Category.MealType.values());
+        model.addAttribute("regions", Category.Region.values());
+
+        return "client/CookSnap/show";
     }
 
     @GetMapping("/{parentId}")
@@ -79,5 +110,4 @@ public class CookSnapController {
         List<RecipeDetailDto> relatedRecipes = this.recipeService.getRelatedRecipeDetails(parentId);
         return ResponseEntity.ok(relatedRecipes);
     }
-
 }

@@ -14,10 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,6 +48,14 @@ public class RecipeService {
     }
 
 
+    public List<Recipe> getAllRecipesIsPendingFalse() {
+        List<Recipe> recipeList = this.recipeRepository.findRecipeByIsPendingRecipeFalse();
+        for (Recipe recipe : recipeList) {
+            this.userRecipeLikeService.getUserLikeRecipe(recipe);
+        }
+        return recipeList;
+    }
+
     public void createRecipe(Recipe recipe, MultipartFile imageFile,
                              List<Long> ingredientIds,
                              List<Float> ingredientQuantities,
@@ -63,10 +68,12 @@ public class RecipeService {
 
 
         try {
+
             // Sửa tiêu đề
             String formatTile = recipeUtils.normalizeRecipeName(recipe.getTitle());
             recipe.setTitle(formatTile);
 
+            //set imagge
             if (!imageFile.isEmpty()) {
                 String imageUrlRecipe = this.imageService.saveImage(imageFile, "Recipe");
                 recipe.setImageUrl(imageUrlRecipe);
@@ -109,7 +116,7 @@ public class RecipeService {
                     String imageUrl = this.imageService.saveImage(instructionImages.get(i), "instruction");
                     Instruction instruction = Instruction.builder()
                             .imageUrl(imageUrl)
-                            .step((long) (i+1))
+                            .step((long) (i + 1))
                             .description(instructionDescriptions.get(i))
                             .build();
                     instructionHashSet.add(instruction);
@@ -156,25 +163,6 @@ public class RecipeService {
             System.out.println("📢 GeminiTextAudio = " + geminiTextAudio);
 
             recipe.setTextAudio(geminiTextAudio);
-
-
-            // tạo audio
-
-            HashSet<Audio> audioHashSet = new HashSet<>();
-
-            String voidCode = String.valueOf(user.getUserSetting().getAccent());
-
-            String urlAudio = this.textToSpeechService.convertTextToSpeech(geminiTextAudio,voidCode ,1.0F);
-
-            Audio audio = Audio.builder()
-                    .accent(UserSetting.Accent.fromValue(voidCode))
-                    .urlAudio(urlAudio)
-                    .voiceGender(user.getUserSetting().getVoiceGender())
-                    .recipe(recipe)
-                    .build();
-            audioHashSet.add(audio);
-
-            recipe.setAudios(audioHashSet);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -239,7 +227,6 @@ public class RecipeService {
     }
 
 
-
     public void saveRecipe(Recipe recipe) {
         this.recipeRepository.save(recipe);
     }
@@ -255,8 +242,6 @@ public class RecipeService {
 
         return this.recipeRepository.findTop5ByTitleContainingIgnoreCase(recipeUtils.normalizeRecipeName(keyword));
     }
-
-
 
 
     public Page<Recipe> getAllRecipes(Pageable pageable) {
@@ -301,7 +286,6 @@ public class RecipeService {
 
     public void createRecipe(Recipe recipe) {
         recipe.setCreatedDate(java.time.LocalDate.now());
-        recipe.setIsPendingRecipe(true); // Mặc định công thức mới là pending
         recipeRepository.save(recipe);
     }
 
@@ -321,8 +305,12 @@ public class RecipeService {
         return recipeRepository.sumLikeCount();
     }
 
-    public List<Recipe> findByUserId(Long id){
+    public List<Recipe> findByUserId(Long id) {
         return this.recipeRepository.findByUserId(id);
+    }
+
+    public List<Recipe> findRecipeByIsPendingRecipeNull(Long id) {
+        return this.recipeRepository.findByIsPendingRecipeNullAndUserId(id);
     }
 
     public Page<Recipe> searchPendingRecipes(String title, String userName, Pageable pageable) {
@@ -340,10 +328,30 @@ public class RecipeService {
     public Page<Recipe> getAllPendingRecipes(Pageable pageable) {
         return recipeRepository.findByIsPendingRecipeTrue(pageable);
     }
-    public void approveRecipe(Long id) {
+
+    public void approveRecipe(Long id) throws IOException {
         Recipe recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
         recipe.setIsPendingRecipe(false);
+
+        // tạo audio
+
+        User user = recipe.getUser();
+        HashSet<Audio> audioHashSet = new HashSet<>();
+
+        String voidCode = String.valueOf(user.getUserSetting().getAccent());
+        String geminiTextAudio = recipe.getTextAudio();
+        String urlAudio = this.textToSpeechService.convertTextToSpeech(geminiTextAudio, voidCode, 1.0F);
+
+        Audio audio = Audio.builder()
+                .accent(UserSetting.Accent.fromValue(voidCode))
+                .urlAudio(urlAudio)
+                .voiceGender(user.getUserSetting().getVoiceGender())
+                .recipe(recipe)
+                .build();
+        audioHashSet.add(audio);
+
+        recipe.setAudios(audioHashSet);
         recipeRepository.save(recipe);
     }
 
@@ -417,12 +425,47 @@ public class RecipeService {
                 .build();
     }
 
+    public List<Recipe> searchRecipesByTitleAndFilterMyRecipe(List<Recipe> recipes) {
+
+        User user = this.userService.getCurrentUser();
+        List<Recipe> recipesAllUser = this.recipeRepository.findByUserId(user.getId());
+
+        Set<Long> myRecipeIds = new HashSet<>();
+        for (Recipe recipe : recipesAllUser) {
+            myRecipeIds.add(recipe.getId());
+        }
+
+        List<Recipe> recipesFilter = new ArrayList<>(recipes);
+        recipesFilter.removeIf(recipe -> !myRecipeIds.contains(recipe.getId()));
+
+        return recipes;
+    }
+
+
+    public List<Recipe> searchRecipesByTitleAndFilterMyRecipeTest(List<Recipe> recipes) {
+
+        User user = this.userService.getCurrentUser();
+        List<Recipe> recipesAllUser = this.recipeRepository.findByIsPendingRecipeNullAndUserId(user.getId());
+
+        Set<Long> myRecipeIds = new HashSet<>();
+        for (Recipe recipe : recipesAllUser) {
+            myRecipeIds.add(recipe.getId());
+        }
+
+        List<Recipe> recipesFilter = new ArrayList<>(recipes);
+        recipesFilter.removeIf(recipe -> !myRecipeIds.contains(recipe.getId()));
+
+        return recipes;
+    }
+
+
     public List<Recipe> searchRecipesByTitleAndFilters(String keyword, Category.Difficulty difficulty,
                                                        Category.MealType mealType, Category.Region region) {
         return recipeRepository.findByTitleContainingIgnoreCaseAndCategoryDifficultyAndCategoryMealTypeAndCategoryRegion(
-                keyword, difficulty, mealType, region
-        );
+                keyword, difficulty, mealType, region);
+
     }
+
 
     public List<RecipeDetailDto> getRelatedRecipeDetails(Long parentId) {
         List<Recipe> relatedRecipes = recipeRepository.findByParentId(parentId);
@@ -431,6 +474,9 @@ public class RecipeService {
                 .collect(Collectors.toList());
     }
 
-
+    public List<Recipe> remoteRecipeListIsPremiumNull(List<Recipe> recipes) {
+        recipes.removeIf(recipe -> recipe.getIsPendingRecipe() == null);
+        return recipes;
+    }
 
 }
