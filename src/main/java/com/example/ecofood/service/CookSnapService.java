@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +30,21 @@ public class CookSnapService {
 
     public List<CookSnap> getCookSnapByUser(User user){
       return this.cookSnapRepository.findCookSnapByUserId(user.getId());
+    }
+
+    public List<CookSnap> getCookSnapByUserFilters(List<Recipe> recipes){
+        User user = this.userService.getCurrentUser();
+
+        List<CookSnap> cookSnaps = this.cookSnapRepository.findCookSnapByUserId(user.getId());
+
+        Set<Long> recipeIds = new HashSet<>();
+        for (Recipe recipe : recipes) {
+            recipeIds.add(recipe.getId());
+        }
+
+        cookSnaps.removeIf(cookSnap -> !recipeIds.contains(cookSnap.getRecipe().getId()));
+
+        return cookSnaps;
     }
 
 }

@@ -39,6 +39,7 @@ public class RecipeController {
     public String getEcoFood(Model model, HttpServletRequest request) {
         // Lấy danh sách recipes từ service
         List<Recipe> recipes = this.recipeService.getAllRecipesIsPendingFalse();
+        recipes = this.recipeService.remoteRecipeListIsPremiumNull(recipes);
         model.addAttribute("recipes", recipes);
 
         return "index";
@@ -229,15 +230,86 @@ public class RecipeController {
     }
 
     @GetMapping("/myRecipe")
-    public String getRecipeUser(Model model) {
+    public String getRecipeUser(
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "difficulty", required = false) Category.Difficulty difficulty,
+            @RequestParam(name = "mealType", required = false) Category.MealType mealType,
+            @RequestParam(name = "region", required = false) Category.Region region,
+            Model model) {
+
+        List<Recipe> recipes;
         User user = this.userService.getCurrentUser();
-        List<Recipe> recipes = this.recipeService.findByUserId(user.getId());
-        model.addAttribute("recipes",recipes);
+
+        if((keyword != null && !keyword.isEmpty()) ||
+                (difficulty != null && !difficulty.name().isEmpty()) ||
+                (mealType != null && !mealType.name().isEmpty()) ||
+                (region != null && !region.name().isEmpty())){
+            recipes = this.recipeService.searchRecipesByTitleAndFilters(keyword, difficulty, mealType, region);
+            recipes = this.recipeService.searchRecipesByTitleAndFilterMyRecipe(recipes);
+        }
+        else {
+            recipes = this.recipeService.findByUserId(user.getId());
+        }
+
+        recipes.removeIf(recipe -> recipe.getUser().getId() != user.getId());
+
+        recipes = this.recipeService.remoteRecipeListIsPremiumNull(recipes);
+        // Truyền dữ liệu sang view
+        model.addAttribute("recipes", recipes);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("difficulty", difficulty);
+        model.addAttribute("mealType", mealType);
+        model.addAttribute("region", region);
+
+        // Truyền danh sách enum để hiển thị filter
+        model.addAttribute("difficulties", Category.Difficulty.values());
+        model.addAttribute("mealTypes", Category.MealType.values());
+        model.addAttribute("regions", Category.Region.values());
+
         return "client/Recipe/myRecipe";
     }
 
 
 
+    @GetMapping("/recipeTest")
+    public String getRecipeTest(
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "difficulty", required = false) Category.Difficulty difficulty,
+            @RequestParam(name = "mealType", required = false) Category.MealType mealType,
+            @RequestParam(name = "region", required = false) Category.Region region,
+            Model model) {
+
+        List<Recipe> recipes;
+        User user = this.userService.getCurrentUser();
+
+        if((keyword != null && !keyword.isEmpty()) ||
+                (difficulty != null && !difficulty.name().isEmpty()) ||
+                (mealType != null && !mealType.name().isEmpty()) ||
+                (region != null && !region.name().isEmpty())){
+            recipes = this.recipeService.searchRecipesByTitleAndFilters(keyword, difficulty, mealType, region);
+            recipes = this.recipeService.searchRecipesByTitleAndFilterMyRecipeTest(recipes);
+        }
+        else {
+            recipes = this.recipeService.findRecipeByIsPendingRecipeNull(user.getId());
+        }
+
+        recipes.removeIf(recipe -> recipe.getUser().getId() != user.getId());
+
+
+        // Truyền dữ liệu sang view
+        model.addAttribute("recipes", recipes);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("difficulty", difficulty);
+        model.addAttribute("mealType", mealType);
+        model.addAttribute("region", region);
+
+        // Truyền danh sách enum để hiển thị filter
+        model.addAttribute("difficulties", Category.Difficulty.values());
+        model.addAttribute("mealTypes", Category.MealType.values());
+        model.addAttribute("regions", Category.Region.values());
+
+        return "client/Recipe/recipeTest";
+    }
 
 
 }

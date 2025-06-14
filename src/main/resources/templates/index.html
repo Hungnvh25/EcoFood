@@ -96,7 +96,7 @@
                                     <button class="btn btn-light btn-sm me-2"
                                             type="button"
                                             th:attr="onclick=|toggleLike(event, ${recipe.id})|">
-                                        <i class="fas fa-heart" th:id="'heart-icon-' + ${recipe.id}"
+                                        <i class="fas fa-heart" th:id="'heart-icon-' + ${recipe.id}" style="color: #999999"
                                            th:classappend="${recipe.likedByCurrentUser} ? 'text-danger' : ''"></i>
                                         <span th:id="'like-count-' + ${recipe.id}"
                                               th:text="${recipe.likeCount != null ? recipe.likeCount : '0'}">0</span>
@@ -104,13 +104,13 @@
                                     <button class="btn btn-light btn-sm"
                                             type="button"
                                             th:attr="onclick=|event.preventDefault(); event.stopPropagation(); openRecipeModal(${recipe.id}, '${recipe.title}', '${recipe.imageUrl}', '${recipe.cookingTime}', '${recipe.description}', '${recipe.user?.userName}')|">
-                                        <i class="fas fa-comment"></i>
+                                        <i class="fas fa-comment" style="color: #999999"></i>
                                         <span th:text="${recipe.comments != null ? recipe.comments.size() : '0'}">0</span>
                                     </button>
                                     <button class="btn btn-light btn-sm"
                                             type="button"
                                             th:attr="onclick=|toggleSave(event, ${recipe.id})|">
-                                        <i class="fas fa-bookmark" th:id="'save-icon-' + ${recipe.id}"></i>
+                                        <i class="fas fa-bookmark" style="color: #999999" th:id="'save-icon-' + ${recipe.id}"></i>
                                     </button>
                                 </div>
                             </div>

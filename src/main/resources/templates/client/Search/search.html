@@ -35,14 +35,14 @@
                                th:value="${keyword}" aria-label="Từ khóa tìm kiếm">
                     </div>
                     <div class="d-flex gap-2" th:if="${currentUser?.premium}">
-                        <select name="difficulty" class="form-select" style="max-width: 150px;">
+                        <select name="difficulty" class="form-select" style="max-width: 170px;">
                             <option value="">-- Độ khó --</option>
                             <option th:each="diff : ${difficulties}"
                                     th:text="${diff.description}"
                                     th:value="${diff.name()}"
                                     th:selected="${diff == difficulty}"></option>
                         </select>
-                        <select name="mealType" class="form-select" style="max-width: 150px;">
+                        <select name="mealType" class="form-select" style="max-width: 170px;">
                             <option value="">-- Bữa ăn --</option>
                             <option th:each="meal : ${mealTypes}"
                                     th:text="${meal.description}"
@@ -76,7 +76,7 @@
                         style="z-index: 1; background-color: white; border: none; width: 40px; height: 40px;"
                         title="Lưu món ăn"
                         th:onclick="|toggleSave(event, ${recipe.id})|">
-                    <i class="fas fa-bookmark" th:id="'save-icon-' + ${recipe.id}"></i>
+                    <i class="fas fa-bookmark" style="color: #999999" th:id="'save-icon-' + ${recipe.id}"></i>
                 </button>
 
                 <!-- Card món ăn -->
@@ -272,7 +272,7 @@
                                         style="z-index: 1; background-color: white; border: none; width: 40px; height: 40px;"
                                         title="Lưu món ăn"
                                         onclick="toggleSave(event, ${recipe.id})">
-                                    <i class="fas fa-bookmark" id="save-icon-${recipe.id}"></i>
+                                    <i class="fas fa-bookmark" style="color: #999999" id="save-icon-${recipe.id}"></i>
                                 </button>
                                 <div class="card shadow-sm rounded-3" style="border-radius: 30px">
                                     <a href="/recipe/${recipe.id}" class="text-decoration-none">
