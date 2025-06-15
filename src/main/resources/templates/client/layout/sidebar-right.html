@@ -138,7 +138,15 @@
                     </div>
                     <li class="list-group-item" th:if="${currentUser.userSetting != null and currentUser.userSetting.voiceGender != null}">
                         <strong>Giọng đọc:</strong>
-                        <span th:text="${currentUser.userSetting.voiceGender == 'MALE' ? 'Nam' : 'Nữ'}">Nam</span>
+                        <span th:text="
+                            ${currentUser.userSetting.voiceGender.name() == 'MALE' ? 'Nam' : 'Nữ'} +
+                            ' - ' +
+                            (${currentUser.userSetting.region.name() == 'NORTH' ? 'Miền Bắc' :
+                              currentUser.userSetting.region.name() == 'CENTRAL' ? 'Miền Trung' :
+                              currentUser.userSetting.region.name() == 'SOUTH' ? 'Miền Nam' : 'Chưa xác định'})
+                        ">
+                            Nam - Miền Bắc
+                        </span>
                     </li>
                     <div th:if="${currentUser.premium}">
                         <li class="list-group-item">

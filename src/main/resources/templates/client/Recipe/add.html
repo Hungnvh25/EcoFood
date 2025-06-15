@@ -10,25 +10,18 @@
         .dropdown-item:hover .dropdown-menu {
             display: block;
         }
-
-    </style>
-    <style>
         .is-invalid {
             border-color: #dc3545 !important;
         }
-
         .invalid-feedback {
             display: none;
         }
-
         .is-invalid ~ .invalid-feedback {
             display: block;
         }
-
         .image-select-box:hover {
             background-color: #fff3cd !important;
         }
-
         .btn-light:hover {
             background-color: #e9ecef;
         }
@@ -85,8 +78,7 @@
                     <div class="col-md-7 mb-4">
                         <div class="mb-3">
                             <input type="text" class="form-control bg-warning bg-opacity-25 border-0 py-3"
-                                   placeholder="Nhập tên món ăn" name="title" id="recipeTitle" th:field="*{title}"
-                                   required>
+                                   placeholder="Nhập tên món ăn" name="title" id="recipeTitle" th:field="*{title}">
                             <div class="invalid-feedback" th:errors="*{title}">Vui lòng nhập tên món ăn</div>
                         </div>
                         <div class="mb-3">
@@ -97,7 +89,7 @@
                         <div class="row">
                             <div class="col-6 mb-3 position-relative">
                                 <select class="form-control bg-warning bg-opacity-25 border-0 py-2 pe-4"
-                                        name="difficulty" required>
+                                        name="difficulty">
                                     <option value="" th:text="'Độ khó'"></option>
                                     <option value="EASY"
                                             th:selected="${recipe.category != null and recipe.category.difficulty == T(com.example.ecofood.domain.Category$Difficulty).EASY}">
@@ -116,8 +108,7 @@
                                 <div class="invalid-feedback">Vui lòng chọn độ khó</div>
                             </div>
                             <div class="col-6 mb-3 position-relative">
-                                <select class="form-control bg-warning bg-opacity-25 border-0 py-2 pe-4" name="mealType"
-                                        required>
+                                <select class="form-control bg-warning bg-opacity-25 border-0 py-2 pe-4" name="mealType">
                                     <option value="" th:text="'Bữa ăn'"></option>
                                     <option value="BREAKFAST"
                                             th:selected="${recipe.category != null and recipe.category.mealType == T(com.example.ecofood.domain.Category$MealType).BREAKFAST}">
@@ -146,7 +137,7 @@
                         </div>
                         <div class="row">
                             <div class="col-6 mb-3 position-relative">
-                                <select class="form-control bg-warning bg-opacity-25 border-0 py-2 pe-4" name="region" required>
+                                <select class="form-control bg-warning bg-opacity-25 border-0 py-2 pe-4" name="region">
                                     <option value="" th:text="'Chọn vùng'"></option>
                                     <option value="NORTH">Miền Bắc</option>
                                     <option value="CENTRAL">Miền Trung</option>
@@ -158,7 +149,7 @@
                             <div class="col-6 mb-3">
                                 <input type="number" class="form-control bg-warning bg-opacity-25 border-0 py-2"
                                        placeholder="Thời gian nấu (phút)" name="cookingTime" th:field="*{cookingTime}"
-                                       min="0" required>
+                                       min="0">
                                 <div class="invalid-feedback" th:errors="*{cookingTime}">Vui lòng nhập thời gian nấu hợp
                                     lệ
                                 </div>
@@ -175,8 +166,7 @@
                             <div class="me-2">Khẩu phần</div>
                             <div class="flex-grow-1">
                                 <input type="number" class="form-control bg-warning bg-opacity-25 border-0 w-100"
-                                       placeholder="Nhập số người" name="servingSize" th:field="*{servingSize}" min="1"
-                                       required>
+                                       placeholder="Nhập số người" name="servingSize" th:field="*{servingSize}" min="1">
                                 <div class="invalid-feedback" th:errors="*{servingSize}">Vui lòng nhập số khẩu phần hợp
                                     lệ
                                 </div>
@@ -198,12 +188,12 @@
                                                        class="form-control bg-warning bg-opacity-25 border-0 mb-2"
                                                        name="ingredientQuantities"
                                                        th:value="${recipeIngredient.quantity}" placeholder="Số lượng"
-                                                       min="0.01" required>
+                                                       min="0.01">
                                                 <div class="invalid-feedback">Vui lòng nhập số lượng hợp lệ</div>
                                             </div>
                                             <div class="col-6 position-relative">
                                                 <select class="form-control bg-warning bg-opacity-25 border-0 mb-2 pe-4"
-                                                        name="ingredientUnits" required>
+                                                        name="ingredientUnits">
                                                     <option value="" th:text="'Đơn vị'"
                                                             th:selected="${recipeIngredient.unit == null}"></option>
                                                     <option value="GRAM"
@@ -270,7 +260,7 @@
                                             <textarea class="form-control bg-warning bg-opacity-25 border-0 rounded p-2"
                                                       rows="3" placeholder="Nhập mô tả bước làm..."
                                                       name="instructionDescriptions"
-                                                      th:text="${instruction.description}" required></textarea>
+                                                      th:text="${instruction.description}"></textarea>
                                             <div class="invalid-feedback">Vui lòng nhập mô tả bước</div>
                                             <input type="hidden" name="instructionSteps" th:value="${iterStat.count}">
                                         </div>
@@ -327,9 +317,7 @@
                 <th:block th:replace="~{client/layout/sidebar-right :: sidebarRight}"></th:block>
                 <!-- Load modal "Bếp của bạn" -->
                 <div th:replace="~{client/layout/sidebar-right :: userProfileModal}"></div>
-
                 <div th:replace="~{client/layout/sidebar-right :: editProfileModal}"></div>
-
                 <div th:replace="~{client/layout/sidebar-right :: updatePasswordModal}"></div>
                 <div th:replace="~{client/layout/sidebar-right :: deleteAccountModal}"></div>
                 <div th:replace="~{client/layout/sidebar-right :: feedbackModal}"></div>
@@ -342,7 +330,6 @@
     </div>
 </div>
 
-<!-- Modal hiển thị thông tin món ăn -->
 <!-- Modal hiển thị thông tin món ăn -->
 <div class="modal fade" id="recipeModal" tabindex="-1" aria-labelledby="recipeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -384,8 +371,6 @@
                     </div>
                 </div>
                 <hr class="mt-2 mb-3">
-
-                <!-- Dưới chia 2 cột, mỗi cột có thể cuộn nếu dài -->
                 <div class="row" style="height: 310px;">
                     <div class="col-md-6 border-end" style="height:100%; overflow-y:auto;">
                         <h6 class="fw-bold mb-2">Nguyên liệu</h6>
@@ -401,7 +386,6 @@
             <div class="modal-footer py-2">
                 <a id="modalDetailLink" class="btn" style="background-color: #D9F99D; color: #26272c; display: none">Xem chi tiết</a>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-
             </div>
         </div>
     </div>
@@ -446,8 +430,8 @@
     const modalImage = document.getElementById('modalImage');
     const modalCookTime = document.getElementById('modalCookTime');
     const modalServingSize = document.getElementById('modalServingSize');
-    const modalDifficulty = document.getElementById('modalDifficulty'); // Thêm biến mới
-    const modalMealType = document.getElementById('modalMealType');     // Thêm biến mới
+    const modalDifficulty = document.getElementById('modalDifficulty');
+    const modalMealType = document.getElementById('modalMealType');
     const modalRegion = document.getElementById('modalRegion');
     const modalIngredients = document.getElementById('modalIngredients');
     const modalSteps = document.getElementById('modalSteps');
@@ -512,14 +496,12 @@
         }
     }
 
-
     function showRecipeModal(recipe) {
         modalTitle.textContent = recipe.tileName;
         modalImage.src = recipe.imageUrl || '/Recipe/default.jpg';
         modalCookTime.textContent = recipe.cookingTime || 0;
         modalServingSize.textContent = recipe.servingSize || 1;
 
-        // Ánh xạ độ khó
         const difficultyMap = {
             "EASY": "Dễ",
             "MEDIUM": "Trung bình",
@@ -527,7 +509,6 @@
         };
         modalDifficulty.textContent = difficultyMap[recipe.difficulty] || 'Chưa xác định';
 
-        // Ánh xạ bữa ăn
         const mealTypeMap = {
             "BREAKFAST": "Bữa sáng",
             "LUNCH": "Bữa trưa",
@@ -537,7 +518,6 @@
         };
         modalMealType.textContent = mealTypeMap[recipe.mealType] || 'Chưa xác định';
 
-        // Ánh xạ vùng
         const regionMap = {
             "NORTH": "Miền Bắc",
             "CENTRAL": "Miền Trung",
@@ -565,19 +545,10 @@
         recipeModal.show();
     }
 
-
-
-    // Tự động tìm kiếm mỗi 5 giây
     setInterval(() => {
         const keyword = recipeTitleInput.value.trim();
         searchRecipes(keyword);
     }, 6000);
-
-    // // Vẫn giữ tìm kiếm khi nhập để cập nhật tức thì
-    // recipeTitleInput.addEventListener('input', function () {
-    //     const keyword = this.value.trim();
-    //     searchRecipes(keyword); // Gọi tìm kiếm ngay khi nhập
-    // });
 </script>
 
 <!-- Quản lý bước làm -->
@@ -601,7 +572,7 @@
             <div class="d-flex align-items-center mb-2">
                 <div class="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center me-2 step-number" style="width: 30px; height: 30px;">${stepCount}</div>
                 <div class="flex-grow-1">
-                    <textarea class="form-control bg-warning bg-opacity-25 border-0 rounded p-2" rows="3" placeholder="Nhập mô tả bước làm..." name="instructionDescriptions" required></textarea>
+                    <textarea class="form-control bg-warning bg-opacity-25 border-0 rounded p-2" rows="3" placeholder="Nhập mô tả bước làm..." name="instructionDescriptions"></textarea>
                     <div class="invalid-feedback">Vui lòng nhập mô tả bước</div>
                     <input type="hidden" name="instructionSteps" value="${stepCount}">
                 </div>
@@ -730,14 +701,13 @@
             <div class="flex-grow-1">
                 <input type="text" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="ingredientNames" value="${ingredient.name}" placeholder="Tên nguyên liệu" readonly>
                 <input type="hidden" name="ingredientId" value="${ingredient.id}">
-                <div class="rowlettere
-                    row">
+                <div class="row">
                     <div class="col-6">
-                        <input type="number" step="0.01" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="ingredientQuantities" placeholder="Số lượng" min="0.01" required>
+                        <input type="number" step="0.01" class="form-control bg-warning bg-opacity-25 border-0 mb-2" name="ingredientQuantities" placeholder="Số lượng" min="0.01">
                         <div class="invalid-feedback">Vui lòng nhập số lượng hợp lệ</div>
                     </div>
                     <div class="col-6 position-relative">
-                        <select class="form-control bg-warning bg-opacity-25 border-0 mb-2 pe-4" name="ingredientUnits" required>
+                        <select class="form-control bg-warning bg-opacity-25 border-0 mb-2 pe-4" name="ingredientUnits">
                             <option value="">Đơn vị</option>
                             <option value="GRAM">Gram</option>
                             <option value="ML">ml</option>
@@ -749,11 +719,11 @@
                         <div class="invalid-feedback">Vui lòng chọn đơn vị</div>
                     </div>
                 </div>
-                <div class="ms-2">
-                    <button type="button" class="btn btn-link text-danger remove-ingredient" tabindex="-1">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
+            </div>
+            <div class="ms-2">
+                <button type="button" class="btn btn-link text-danger remove-ingredient" tabindex="-1">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
         `;
         selectedIngredients.appendChild(div);
@@ -780,24 +750,27 @@
     });
 
     document.getElementById('recipeForm').addEventListener('submit', function (e) {
-        let valid = true;
         const isPublish = document.activeElement.id === 'publishBtn';
+        const isSaveAndClose = document.activeElement.id === 'saveAndClose';
+
+        if (isSaveAndClose) {
+            // Tắt HTML5 validation khi nhấn "Lưu và đóng"
+            this.setAttribute('novalidate', 'novalidate');
+            return; // Cho phép gửi form mà không kiểm tra
+        }
+
+        // Xóa thuộc tính novalidate khi nhấn "Đăng bài"
+        this.removeAttribute('novalidate');
 
         if (isPublish) {
+            let valid = true;
+
             const titleInput = document.querySelector("input[name='title']");
             if (!titleInput.value.trim()) {
                 titleInput.classList.add('is-invalid');
                 valid = false;
             } else {
                 titleInput.classList.remove('is-invalid');
-            }
-
-            const prepTimeInput = document.querySelector("input[name='preparationTime']");
-            if (!prepTimeInput.value || prepTimeInput.value < 0) {
-                prepTimeInput.classList.add('is-invalid');
-                valid = false;
-            } else {
-                prepTimeInput.classList.remove('is-invalid');
             }
 
             const cookTimeInput = document.querySelector("input[name='cookingTime']");
@@ -830,6 +803,14 @@
                 valid = false;
             } else {
                 mealTypeSelect.classList.remove('is-invalid');
+            }
+
+            const regionSelect = document.querySelector("select[name='region']");
+            if (!regionSelect.value) {
+                regionSelect.classList.add('is-invalid');
+                valid = false;
+            } else {
+                regionSelect.classList.remove('is-invalid');
             }
 
             const ingredientItems = document.querySelectorAll("#selectedIngredients .ingredient-item");
@@ -879,8 +860,6 @@
     });
 </script>
 <script>
-
-    // xem truoc avatar
     function previewImage(event) {
         const reader = new FileReader();
         reader.onload = function() {
@@ -890,16 +869,12 @@
         reader.readAsDataURL(event.target.files[0]);
     }
 
-    // Giả sử modal của bạn có id "profileModal"
     const profileModal = new bootstrap.Modal(document.getElementById('profileModal'), {
         keyboard: false
     });
 
-    // Function cập nhật profile và mở lại modal sau khi update thành công
     function updateProfile(event) {
-        event.preventDefault();  // Ngừng hành động mặc định của form
-
-        // Gửi dữ liệu cập nhật lên API
+        event.preventDefault();
         const form = document.getElementById('updateProfileForm');
         const formData = new FormData(form);
 
@@ -909,11 +884,7 @@
         })
             .then(response => {
                 if (response.ok) {
-                    // Đóng modal hiện tại (modal chỉnh sửa thông tin)
                     profileModal.hide();
-
-                    // Mở lại modal (nếu cần thiết)
-                    // Giả sử bạn có một modal khác để hiển thị kết quả thành công
                     const successModal = new bootstrap.Modal(document.getElementById('successModal'), {
                         keyboard: false
                     });
@@ -926,7 +897,6 @@
                 console.error('Error:', error);
             });
     }
-
 </script>
 </body>
 </html>

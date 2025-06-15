@@ -16,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Collections;
 import java.util.List;
@@ -70,8 +71,16 @@ public class RecipeController {
     }
 
     @GetMapping("/recipe")
-    public String showCreateForm(Model model, HttpServletRequest request) {
-        Recipe recipe = new Recipe();
+    public String showCreateForm(@RequestParam(name = "recipeId", required = false) Long recipeId,
+                                 Model model, HttpServletRequest request) {
+        Recipe recipe;
+
+        if (recipeId != null) {
+            recipe = recipeService.getRecipeById(recipeId); // Lấy món ăn theo ID
+        } else {
+            recipe = new Recipe(); // Tạo mới nếu không có ID
+        }
+
         User currentUser = this.userService.getCurrentUser();
 
         model.addAttribute("currentUser", currentUser);
@@ -108,16 +117,26 @@ public class RecipeController {
             @RequestParam(value = "region", required = true) String region,
             @RequestParam(value = "publish", defaultValue = "false") boolean publish) {
 
-        if (result.hasErrors()) {
-            return "client/Recipe/add";
-        }
-        if (publish){
+
+        if (publish) {
+            if (result.hasErrors() || recipe.getTitle() == null || recipe.getTitle().isBlank() ||
+                    recipe.getCookingTime() == null || recipe.getServingSize() == null ||
+                    difficulty == null || mealType == null || region == null ||
+                    ingredientIds == null || ingredientIds.isEmpty() ||
+                    ingredientQuantities == null || ingredientQuantities.isEmpty() ||
+                    ingredientUnits == null || ingredientUnits.isEmpty() ||
+                    instructionDescriptions == null || instructionDescriptions.isEmpty()) {
+                return "client/Recipe/add";
+            }
             recipe.setIsPendingRecipe(true);
             this.notificationService.createRecipePendingNotification(recipe);
+            this.recipeService.createRecipe(recipe, imageFile, ingredientIds, ingredientQuantities, ingredientUnits,
+                    instructionDescriptions, instructionImages, difficulty, mealType, region);
+        } else {
+            // Gọi hàm lưu không kiểm tra bắt buộc khi không publish
+            this.recipeService.createRecipeIsPendingNull(recipe, imageFile, ingredientIds, ingredientQuantities, ingredientUnits,
+                    instructionDescriptions, instructionImages, difficulty, mealType, region);
         }
-
-        this.recipeService.createRecipe(recipe, imageFile, ingredientIds, ingredientQuantities, ingredientUnits, instructionDescriptions, instructionImages, difficulty, mealType, region);
-
 
         return "redirect:/";
     }
@@ -139,9 +158,39 @@ public class RecipeController {
             model.addAttribute("userCookSnap", userCookSnap);
 
 
-
-            this.userActivityService.saveHistoryViewRecipe(recipe);
+            if (recipe.getIsPendingRecipe()!=null){
+                this.userActivityService.saveHistoryViewRecipe(recipe);
+            }
             return "client/Recipe/recipe-detail";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("errorMessage", "Không tìm thấy món ăn với ID: " + id);
+            return "error"; // Giả định bạn có template error.html
+        }
+    }
+
+
+    @GetMapping("/recipeTest/{id}")
+    public String getRecipeDetailTest(@PathVariable Long id, Model model) {
+        try {
+            Recipe recipe = this.recipeService.getRecipeById(id);
+            model.addAttribute("recipe", recipe);
+            User user = this.userService.getCurrentUser();
+
+            CookSnap userCookSnap = recipe.getCookSnaps().stream()
+                    .filter(cookSnap -> cookSnap.getUser().getId().equals(user.getId()))
+                    .findFirst().orElse(null);
+
+            boolean hasUserCookSnap = recipe.getCookSnaps().stream()
+                    .anyMatch(cookSnap -> cookSnap.getUser().getId().equals(user.getId()));
+            model.addAttribute("hasUserCookSnap", hasUserCookSnap);
+            model.addAttribute("userCookSnap", userCookSnap);
+
+
+
+            if (recipe.getIsPendingRecipe()!=null){
+                this.userActivityService.saveHistoryViewRecipe(recipe);
+            }
+            return "client/Recipe/detail-recipeTest";
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", "Không tìm thấy món ăn với ID: " + id);
             return "error"; // Giả định bạn có template error.html
@@ -185,49 +234,18 @@ public class RecipeController {
         if (keyword == null || keyword.trim().isEmpty()) {
             return ResponseEntity.ok(Collections.emptyList());
         }
+
         List<Recipe> recipes = this.recipeService.findTop4ByTileNameLike(keyword);
-        List<RecipeDetailDto> dtos = recipes.stream().map(recipe -> {
-            List<RecipeIngredientDTO> ingredientDtos = recipe.getRecipeIngredients() != null
-                    ? recipe.getRecipeIngredients().stream().map(ri -> RecipeIngredientDTO.builder()
-                    .id(ri.getId())
-                    .ingredient(ri.getIngredient() != null
-                            ? new IngredientDTO(ri.getIngredient().getId(), ri.getIngredient().getName())
-                            : null)
-                    .quantity(ri.getQuantity() != null ? ri.getQuantity().doubleValue() : 0.0)
-                    .unit(ri.getUnit() != null ? ri.getUnit().toString() : "")
-                    .build()).toList()
-                    : Collections.emptyList();
 
-            List<InstructionDTO> instructionDtos = recipe.getInstructions() != null
-                    ? recipe.getInstructions().stream().map(i -> InstructionDTO.builder()
-                    .id(null) // Instruction không có id trong định nghĩa hiện tại
-                    .description(i.getDescription() != null ? i.getDescription() : "")
-                    .step(i.getStep() != null ? i.getStep().intValue() : 0)
-                    .imageUrl(i.getImageUrl() != null ? i.getImageUrl() : "")
-                    .build()).toList()
-                    : Collections.emptyList();
+        List<RecipeDetailDto> dtos = recipes.stream()
+                .map(this.recipeService::mapToRecipeDetailDto)
+                .collect(Collectors.toList());
 
-            return RecipeDetailDto.builder()
-                    .id(recipe.getId())
-                    .title(recipe.getTitle())
-                    .tileName(recipe.getTileName())
-                    .imageUrl(recipe.getImageUrl())
-                    .cookingTime(recipe.getCookingTime() != null ? recipe.getCookingTime() : 0)
-                    .servingSize(recipe.getServingSize() != null ? recipe.getServingSize() : 1)
-                    .difficulty(recipe.getCategory() != null ? recipe.getCategory().getDifficulty() != null ? recipe.getCategory().getDifficulty().toString() : "Chưa xác định" : "Chưa xác định") // Thêm độ khó
-                    .mealType(recipe.getCategory() != null ? recipe.getCategory().getMealType() != null ? recipe.getCategory().getMealType().toString() : "Chưa xác định" : "Chưa xác định") // Thêm bữa ăn
-                    .region(recipe.getCategory() != null ? recipe.getCategory().getRecipe() != null ? recipe.getCategory().getRegion().toString() : "Chưa xác định" : "Chưa xác định") // Thêm bữa ăn
-                    .recipeIngredients(ingredientDtos)
-                    .instructions(instructionDtos)
-                    .likeCount(recipe.getLikeCount() != null ? recipe.getLikeCount() : 0)
-                    .totalCalories(recipe.getTotalCalories() != null ? recipe.getTotalCalories() : 0.0f)
-                    .totalProtein(recipe.getTotalProtein() != null ? recipe.getTotalProtein() : 0.0f)
-                    .totalFat(recipe.getTotalFat() != null ? recipe.getTotalFat() : 0.0f)
-                    .totalCarbohydrates(recipe.getTotalCarbohydrates() != null ? recipe.getTotalCarbohydrates() : 0.0f)
-                    .build();
-        }).toList();
+        dtos.removeIf(recipeDetailDto -> recipeDetailDto.getIsPendingRecipe() == null);
         return ResponseEntity.ok(dtos);
     }
+
+
 
     @GetMapping("/myRecipe")
     public String getRecipeUser(
@@ -310,7 +328,41 @@ public class RecipeController {
 
         return "client/Recipe/recipeTest";
     }
+    @PostMapping("/userrecipe/delete")
+    public String deleteRecipe(@RequestParam("id") String id, RedirectAttributes redirectAttributes,
+                               HttpServletRequest request) {
 
+        try {
+
+            if (id == null || id.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Yêu cầu ID công thức.");
+                return "redirect:/recipeTest";
+            }
+            this.recipeService.deleteRecipe(Long.parseLong(id));
+            redirectAttributes.addFlashAttribute("success", "Công thức đã được xóa thành công.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Không thể xóa công thức: " + e.getMessage());
+        }
+        return "redirect:/recipeTest";
+    }
+
+    @PostMapping("/myrecipe/delete")
+    public String deleteMyRecipe(@RequestParam("id") String id, RedirectAttributes redirectAttributes,
+                               HttpServletRequest request) {
+
+        try {
+
+            if (id == null || id.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Yêu cầu ID công thức.");
+                return "redirect:/myRecipe";
+            }
+            this.recipeService.deleteRecipe(Long.parseLong(id));
+            redirectAttributes.addFlashAttribute("success", "Công thức đã được xóa thành công.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Không thể xóa công thức: " + e.getMessage());
+        }
+        return "redirect:/myRecipe";
+    }
 
 }
 
