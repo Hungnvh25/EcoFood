@@ -16,10 +16,13 @@ import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,6 +35,7 @@ public class RecipeService {
     ImageService imageService;
     UserService userService;
     UserRecipeLikeService userRecipeLikeService;
+    UserActivityService userActivityService;
     RecipeUtils recipeUtils = new RecipeUtils();
 
     GeminiService geminiService;
@@ -70,7 +74,7 @@ public class RecipeService {
         try {
 
             // Sửa tiêu đề
-            String formatTile = recipeUtils.normalizeRecipeName(recipe.getTitle());
+            String formatTile = recipeUtils.capitalizeFirstLetter(recipe.getTitle());
             recipe.setTitle(formatTile);
 
             //set imagge
@@ -159,17 +163,140 @@ public class RecipeService {
 
             String textAudio = textBuilder.toString();
             System.out.println("📢 AudioText = " + textAudio);
-            String geminiTextAudio = this.geminiService.generateText(textAudio);
-            System.out.println("📢 GeminiTextAudio = " + geminiTextAudio);
+
+            CompletableFuture<String> geminiTextAudioFuture = geminiService.generateTextAsync(textAudio);
+
+            this.recipeRepository.save(recipe);
+
+            String geminiTextAudio = geminiTextAudioFuture.get();  // Chờ kết quả trả về từ CompletableFuture
+            recipe.setTextAudio(geminiTextAudio);
 
             recipe.setTextAudio(geminiTextAudio);
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         this.recipeRepository.save(recipe);
     }
 
+    public void createRecipeIsPendingNull(Recipe recipe, MultipartFile imageFile,
+                                          List<Long> ingredientIds,
+                                          List<Float> ingredientQuantities,
+                                          List<String> ingredientUnits,
+                                          List<String> instructionDescriptions,
+                                          List<MultipartFile> instructionImages,
+                                          String difficulty,
+                                          String mealType,
+                                          String region) {
+
+        try {
+            // Sửa tiêu đề nếu có
+            if (recipe.getTitle() != null && !recipe.getTitle().isBlank()) {
+                String formatTile = recipeUtils.capitalizeFirstLetter(recipe.getTitle());
+                recipe.setTitle(formatTile);
+                recipe.setTileName(formatTile);
+            }
+
+            // Set image nếu có
+            if (imageFile != null && !imageFile.isEmpty()) {
+                String imageUrlRecipe = this.imageService.saveImage(imageFile, "Recipe");
+                recipe.setImageUrl(imageUrlRecipe);
+            }
+
+            User user = this.userService.getCurrentUser();
+            recipe.setUser(user);
+
+            // Lưu nguyên liệu nếu các danh sách không null và hợp lệ
+            HashSet<RecipeIngredient> recipeIngredientHashSet = new HashSet<>();
+            if (ingredientIds != null && ingredientQuantities != null && ingredientUnits != null
+                    && ingredientIds.size() == ingredientQuantities.size() && ingredientQuantities.size() == ingredientUnits.size()) {
+                for (int i = 0; i < ingredientIds.size(); i++) {
+                    if (ingredientIds.get(i) != null && ingredientQuantities.get(i) != null && ingredientUnits.get(i) != null) {
+                        Ingredient ingredient = this.ingredientRepository.findAllById(ingredientIds.get(i));
+                        if (ingredient != null) {
+                            RecipeIngredient recipeIngredient = RecipeIngredient.builder()
+                                    .ingredient(ingredient)
+                                    .recipe(recipe)
+                                    .quantity(ingredientQuantities.get(i))
+                                    .unit(RecipeIngredient.Unit.valueOf(ingredientUnits.get(i)))
+                                    .build();
+                            recipeIngredientHashSet.add(recipeIngredient);
+                            saveNutrition(recipe, ingredient, recipeIngredient);
+                        }
+                    }
+                }
+            }
+            recipe.setRecipeIngredients(recipeIngredientHashSet);
+
+            // Lưu bước làm nếu có
+            HashSet<Instruction> instructionHashSet = new HashSet<>();
+            if (instructionDescriptions != null && instructionImages != null
+                    && instructionDescriptions.size() == instructionImages.size()) {
+                for (int i = 0; i < instructionDescriptions.size(); i++) {
+                    if (instructionDescriptions.get(i) != null && !instructionDescriptions.get(i).isBlank()) {
+                        String imageUrl = null;
+                        if (instructionImages.get(i) != null && !instructionImages.get(i).isEmpty()) {
+                            imageUrl = this.imageService.saveImage(instructionImages.get(i), "instruction");
+                        }
+                        Instruction instruction = Instruction.builder()
+                                .imageUrl(imageUrl)
+                                .step((long) (i + 1))
+                                .description(instructionDescriptions.get(i))
+                                .build();
+                        instructionHashSet.add(instruction);
+                    }
+                }
+            }
+            recipe.setInstructions(instructionHashSet);
+
+            // Lưu danh mục nếu các trường không null
+            if (!difficulty.isEmpty() && !mealType.isEmpty() && !region.isEmpty()) {
+                Category category = Category.builder()
+                        .difficulty(Category.Difficulty.valueOf(difficulty))
+                        .mealType(Category.MealType.valueOf(mealType))
+                        .region(Category.Region.valueOf(region))
+                        .recipe(recipe)
+                        .build();
+                recipe.setCategory(category);
+            }
+
+            // Tạo textAudio nếu có dữ liệu
+            StringBuilder textBuilder = new StringBuilder();
+            if (recipe.getTitle() != null && !recipe.getTitle().isBlank()) {
+                textBuilder.append("Tên món ăn: ").append(recipe.getTitle()).append(". ");
+            }
+
+            if (recipe.getDescription() != null && !recipe.getDescription().isBlank()) {
+                textBuilder.append("Thông tin món ăn: ").append(recipe.getDescription()).append(". ");
+            }
+
+            if (instructionDescriptions != null && !instructionDescriptions.isEmpty()) {
+                for (int i = 0; i < instructionDescriptions.size(); i++) {
+                    if (instructionDescriptions.get(i) != null && !instructionDescriptions.get(i).isBlank()) {
+                        textBuilder.append("Bước ").append(i + 1).append(": ")
+                                .append(instructionDescriptions.get(i)).append(". ");
+                    }
+                }
+            }
+
+            String textAudio = textBuilder.toString();
+            System.out.println("📢 AudioText = " + textAudio);
+
+            CompletableFuture<String> geminiTextAudioFuture = geminiService.generateTextAsync(textAudio);
+
+            String geminiTextAudio = geminiTextAudioFuture.get();
+            recipe.setTextAudio(geminiTextAudio);
+            System.out.println("📢 GEMINI TEXT = " + geminiTextAudio);
+
+            recipe.setTextAudio(geminiTextAudio);
+
+            // Lưu công thức
+            this.recipeRepository.save(recipe);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private void saveNutrition(Recipe recipe, Ingredient ingredient, RecipeIngredient recipeIngredient) {
 
@@ -206,10 +333,6 @@ public class RecipeService {
         recipe.setTotalFat(totalFat);
         recipe.setTotalCarbohydrates(totalCarbohydrates);
 
-    }
-
-    public List<Recipe> searchRecipesByTitle(String keyword) {
-        return recipeRepository.findByTitleContainingIgnoreCase(keyword);
     }
 
     public Recipe getRecipeById(Long id) {
@@ -276,11 +399,21 @@ public class RecipeService {
         }
     }
 
-
+    @Transactional
     public void deleteRecipe(Long id) {
         if (!recipeRepository.existsById(id)) {
             throw new IllegalArgumentException("Recipe with ID " + id + " does not exist.");
         }
+
+        this.userRecipeLikeService.deleteByRecipeId(id);
+        Recipe recipe = getRecipeById(id);
+        List<UserActivity> userActivities = this.userActivityService.findAllByRecipeIds(id);
+        for (UserActivity userActivity : userActivities) {
+            userActivity.getRecipeIds().removeIf(recipeId -> recipeId.equals(id));
+            this.userActivityService.saveUserActivity(userActivity);
+        }
+
+        System.out.println("Deleted recipe "+ recipe.getTitle() + ": ID "+ recipe.getId());
         recipeRepository.deleteById(id);
     }
 
@@ -294,7 +427,7 @@ public class RecipeService {
     }
 
     public long getTotalApprovedRecipes() {
-        return recipeRepository.countByIsPendingRecipeFalse(); // Đếm công thức đã duyệt
+        return recipeRepository.countByIsPendingRecipeFalse();
     }
 
     public long getPendingRecipesCount() {
@@ -334,24 +467,28 @@ public class RecipeService {
                 .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
         recipe.setIsPendingRecipe(false);
 
-        // tạo audio
-
         User user = recipe.getUser();
-        HashSet<Audio> audioHashSet = new HashSet<>();
-
         String voidCode = String.valueOf(user.getUserSetting().getAccent());
-        String geminiTextAudio = recipe.getTextAudio();
-        String urlAudio = this.textToSpeechService.convertTextToSpeech(geminiTextAudio, voidCode, 1.0F);
 
-        Audio audio = Audio.builder()
-                .accent(UserSetting.Accent.fromValue(voidCode))
-                .urlAudio(urlAudio)
-                .voiceGender(user.getUserSetting().getVoiceGender())
-                .recipe(recipe)
-                .build();
-        audioHashSet.add(audio);
+        // Kiểm tra nếu recipe chưa có audios hoặc rỗng → tạo mới
+        if (recipe.getAudios() == null || recipe.getAudios().isEmpty()) {
+            String geminiTextAudio = recipe.getTextAudio();
+            String urlAudio = this.textToSpeechService.convertTextToSpeech(geminiTextAudio, voidCode, 1.0F);
 
-        recipe.setAudios(audioHashSet);
+            Audio audio = Audio.builder()
+                    .accent(UserSetting.Accent.fromValue(voidCode))
+                    .urlAudio(urlAudio)
+                    .voiceGender(user.getUserSetting().getVoiceGender())
+                    .recipe(recipe)
+                    .build();
+
+            recipe.getAudios().clear(); // Đảm bảo không bị duplicate
+            recipe.getAudios().add(audio);
+        } else {
+            // Nếu đã có audio → giữ nguyên, không làm gì thêm
+            // Có thể log lại hoặc cập nhật thông tin nếu cần
+        }
+
         recipeRepository.save(recipe);
     }
 
@@ -399,10 +536,15 @@ public class RecipeService {
                 .id(recipe.getId())
                 .title(recipe.getTitle())
                 .tileName(recipe.getTileName())
-                .imageUrl(recipe.getImageUrl())
+                .description(recipe.getDescription())
+                .preparationTime(recipe.getPreparationTime())
                 .cookingTime(recipe.getCookingTime())
                 .servingSize(recipe.getServingSize())
+                .imageUrl(recipe.getImageUrl())
                 .likeCount(recipe.getLikeCount())
+                .createdDate(recipe.getCreatedDate())
+                .updatedDate(recipe.getUpdatedDate())
+                .isPendingRecipe(recipe.getIsPendingRecipe())
                 .totalCalories(recipe.getTotalCalories())
                 .totalProtein(recipe.getTotalProtein())
                 .totalFat(recipe.getTotalFat())
@@ -422,8 +564,10 @@ public class RecipeService {
                                 .imageUrl(instruction.getImageUrl())
                                 .build())
                         .collect(Collectors.toList()) : List.of())
+                .region(recipe.getCategory() != null ? recipe.getCategory().getName() : null) // Thêm thông tin vùng miền từ category (nếu có)
                 .build();
     }
+
 
     public List<Recipe> searchRecipesByTitleAndFilterMyRecipe(List<Recipe> recipes) {
 

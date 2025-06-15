@@ -47,4 +47,16 @@ public class UserActivityService {
 
     }
 
+    public void deleteByRecipeId(Long recipeId){
+        this.userActivityRepository.deleteByRecipeIdsContaining(recipeId);
+    }
+
+    public List<UserActivity> findAllByRecipeIds(Long recipeId){
+       return this.userActivityRepository.findAllByRecipeIds(recipeId);
+    }
+
+    public void saveUserActivity(UserActivity userActivity){
+        this.userActivityRepository.save(userActivity);
+    }
+
 }

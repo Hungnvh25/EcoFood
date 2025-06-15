@@ -67,15 +67,15 @@ public class Recipe {
     @JoinColumn(name = "user_id")
     User user;
 
-    @OneToMany(mappedBy = "recipe")
-    Set<Comment> comments = new HashSet<>();
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Comment> comments = new HashSet<>();
 
 
-    @OneToMany(mappedBy = "recipe")
-    Set<CookSnap> cookSnaps = new HashSet<>();
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CookSnap> cookSnaps = new HashSet<>();
 
-    @OneToMany(mappedBy = "recipe")
-    Set<SaveRecipe> saveRecipes = new HashSet<>();
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<SaveRecipe> saveRecipes = new HashSet<>();
 
     @OneToMany(mappedBy = "recipe",cascade = CascadeType.ALL, orphanRemoval = true)
     Set<Audio> audios = new HashSet<>();

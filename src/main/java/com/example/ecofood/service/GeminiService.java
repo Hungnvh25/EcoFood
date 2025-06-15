@@ -1,15 +1,14 @@
 package com.example.ecofood.service;
 
-
-
 import com.google.genai.Client;
 import com.google.genai.ResponseStream;
 import com.google.genai.types.*;
-
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class GeminiService {
@@ -68,7 +67,8 @@ public class GeminiService {
         this.client = Client.builder().apiKey(apiKey).build();
     }
 
-    public String generateText(String input) {
+    @Async
+    public CompletableFuture<String> generateTextAsync(String input) {
         int maxRetries = 3;
         int attempt = 0;
         String resultString;
@@ -76,7 +76,7 @@ public class GeminiService {
         int inputStepCount = countStepsInText(input);
 
         do {
-            System.out.println("Gọi Gemini lần " + (attempt+1));
+            System.out.println("Gọi Gemini lần " + (attempt + 1));
             resultString = callGeminiAPI(input);
             int outputStepCount = countStepsInText(resultString);
 
@@ -87,12 +87,11 @@ public class GeminiService {
             attempt++;
         } while (attempt < maxRetries);
 
-        return resultString;
+        return CompletableFuture.completedFuture(resultString);
     }
 
-
     public String callGeminiAPI(String input) {
-        String model = "gemini-2.5-flash-preview-05-20";
+        String model = "gemini-1.5-flash";
         String resultString;
         // Tạo content từ input
         List<Content> contents = List.of(
@@ -126,10 +125,8 @@ public class GeminiService {
             }
 
             resultString = result.toString().trim();
-
-            resultString =  resultString.replace("Optional[","");
-            resultString = resultString.replace("]","");
-
+            resultString = resultString.replace("Optional[", "");
+            resultString = resultString.replace("]", "");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -138,9 +135,6 @@ public class GeminiService {
 
         return resultString;
     }
-
-
-
 
     private int countStepsInText(String text) {
         if (text == null || text.isEmpty()) return 0;

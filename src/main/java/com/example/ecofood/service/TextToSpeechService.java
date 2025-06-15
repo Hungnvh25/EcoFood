@@ -4,6 +4,7 @@ import com.example.ecofood.DTO.TTSObj;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -11,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class TextToSpeechService {
@@ -19,6 +21,17 @@ public class TextToSpeechService {
 
     @Value("${viettel.api.key}")
     private String TOKEN;
+
+    @Async
+    public CompletableFuture<String> convertTextToSpeechAsync(String text, String voiceCode, float speed) throws IOException {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return convertTextToSpeech(text, voiceCode, speed);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to convert text to speech", e);
+            }
+        });
+    }
 
     public String convertTextToSpeech(String text, String voiceCode, float speed) throws IOException {
         MediaType mediaType = MediaType.parse("application/json");
@@ -49,36 +62,26 @@ public class TextToSpeechService {
 
             byte[] audioBytes = response.body().bytes();
 
-            // Tạo tên file ngẫu nhiên
             String fileName = UUID.randomUUID().toString() + ".mp3";
-
-            // Đường dẫn lưu file
             String absolutePathSrc = Paths.get("src/main/resources/static/audio/", fileName).toString();
             String absolutePathTarget = Paths.get("target/classes/static/audio/", fileName).toString();
 
-            // Tạo thư mục nếu chưa tồn tại
             File dirSrc = new File("src/main/resources/static/audio/");
-            if (!dirSrc.exists()) {
-                dirSrc.mkdirs();
-            }
+            if (!dirSrc.exists()) dirSrc.mkdirs();
 
             File dirTarget = new File("target/classes/static/audio/");
-            if (!dirTarget.exists()) {
-                dirTarget.mkdirs();
-            }
+            if (!dirTarget.exists()) dirTarget.mkdirs();
 
-            // Ghi file vào src/main/resources
             try (FileOutputStream fos = new FileOutputStream(absolutePathSrc)) {
                 fos.write(audioBytes);
             }
 
-            // Ghi file vào target/classes
             try (FileOutputStream fos = new FileOutputStream(absolutePathTarget)) {
                 fos.write(audioBytes);
             }
 
-            // Trả về đường dẫn tương đối client có thể truy cập (Spring Boot phục vụ static ở /static/**)
             return "/audio/" + fileName;
         }
     }
 }
+

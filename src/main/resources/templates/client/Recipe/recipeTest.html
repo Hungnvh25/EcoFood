@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Thông Báo và Món Ăn - Eco Food</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"/>
     <style>
         .dropdown-item:hover .dropdown-menu {
             display: block;
         }
-
     </style>
 </head>
 <body class="bg-light">
@@ -66,21 +65,27 @@
                     <div class="card h-100 d-flex flex-column position-relative border border-2"
                          th:attr="data-pending=${recipe.isPendingRecipe}">
                         <img th:src="${recipe.imageUrl != null ? recipe.imageUrl : '/images/default-recipe.jpg'}"
-                             class="card-img-top" alt="Recipe Image" style="height: 150px; object-fit: cover;" />
-                        <div th:if="${recipe.isPendingRecipe ==  true || recipe.isPendingRecipe != null }" class="position-absolute top-0 end-0 p-2">
+                             class="card-img-top" alt="Recipe Image" style="height: 150px; object-fit: cover;"/>
+                        <div th:if="${recipe.isPendingRecipe == true}" class="position-absolute top-0 end-0 p-2">
                             <i class="fa-solid fa-medal" style="color: #198754; font-size: 1.5rem;"></i>
                         </div>
                         <div class="card-body d-flex flex-column justify-content-between p-2">
                             <div>
-                                <h5 class="card-title text-truncate fs-5" th:text="${recipe.title}"></h5>
-                                <p class="card-text" th:text="${#strings.abbreviate(recipe.description, 80)}"></p>
+                                <h5 class="card-title text-truncate fs-5"
+                                    th:text="${recipe.title != null ? recipe.title : 'Chưa có tiêu đề'}"></h5>
+                                <p class="card-text"
+                                   th:text="${recipe.description != null and not #strings.isEmpty(recipe.description) ? #strings.abbreviate(recipe.description, 80) : 'Chưa có mô tả'}"></p>
                                 <p class="card-text text-muted small">
-                                    Món ăn : <span th:text="${recipe.getCategory().getRegion()}"></span><br />
-                                    Tổng calo: <span th:text="${recipe.totalCalories} + ' kcal'"></span><br />
-                                    Được thích: <span th:text="${recipe.likeCount}"></span>
+                                    Món ăn: <span
+                                        th:text="${recipe.getCategory() != null and recipe.getCategory().getRegion() != null ? recipe.getCategory().getRegion().description : 'Chưa xác định'}"></span><br/>
+                                    Tổng calo: <span
+                                        th:text="${recipe.totalCalories != null ? recipe.totalCalories + ' kcal' : 'Chưa tính toán'}"></span><br/>
+                                    Được thích: <span
+                                        th:text="${recipe.likeCount != null ? recipe.likeCount : '0'}"></span>
                                 </p>
                             </div>
-                            <a th:href="@{/recipe/{id}(id=${recipe.id})}" class="btn btn-primary mt-auto w-50 me-auto btn-sm">Xem chi tiết</a>
+                            <a th:href="@{/recipeTest/{id}(id=${recipe.id})}"
+                               class="btn btn-primary mt-auto w-50 me-auto btn-sm">Xem chi tiết</a>
                         </div>
                     </div>
                 </div>
@@ -88,72 +93,62 @@
             <div th:if="${recipes == null or #lists.isEmpty(recipes)}" class="alert alert-info">
                 Hiện tại không có món ăn nào.
             </div>
-
-            <!-- Sidebar phải -->
-            <th:block th:replace="~{client/layout/sidebar-right :: sidebarRight}"></th:block>
-            <!-- Load modal "Bếp của bạn" -->
-            <div th:replace="~{client/layout/sidebar-right :: userProfileModal}"></div>
-
-            <div th:replace="~{client/layout/sidebar-right :: editProfileModal}"></div>
-
-            <div th:replace="~{client/layout/sidebar-right :: updatePasswordModal}"></div>
-            <div th:replace="~{client/layout/sidebar-right :: deleteAccountModal}"></div>
-            <div th:replace="~{client/layout/sidebar-right :: feedbackModal}"></div>
         </div>
-    </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Sidebar phải -->
+        <th:block th:replace="~{client/layout/sidebar-right :: sidebarRight}"></th:block>
+        <!-- Load modal "Bếp của bạn" -->
+        <div th:replace="~{client/layout/sidebar-right :: userProfileModal}"></div>
+        <div th:replace="~{client/layout/sidebar-right :: editProfileModal}"></th:block>
+            <div th:replace="~{client/layout/sidebar-right :: updatePasswordModal}"></th:block>
+                <div th:replace="~{client/layout/sidebar-right :: deleteAccountModal}"></th:block>
+                    <div th:replace="~{client/layout/sidebar-right :: feedbackModal}"></th:block>
+                    </div>
+                </div>
 
-<script>
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    // xem truoc avatar
-    function previewImage(event) {
-        const reader = new FileReader();
-        reader.onload = function() {
-            const output = document.querySelector('#editProfileModal img');
-            output.src = reader.result;
-        }
-        reader.readAsDataURL(event.target.files[0]);
-    }
+                <script>
+                    // Xem trước avatar
+                    function previewImage(event) {
+                        const reader = new FileReader();
+                        reader.onload = function () {
+                            const output = document.querySelector('#editProfileModal img');
+                            output.src = reader.result;
+                        }
+                        reader.readAsDataURL(event.target.files[0]);
+                    }
 
-    // Giả sử modal của bạn có id "profileModal"
-    const profileModal = new bootstrap.Modal(document.getElementById('profileModal'), {
-        keyboard: false
-    });
-
-    // Function cập nhật profile và mở lại modal sau khi update thành công
-    function updateProfile(event) {
-        event.preventDefault();  // Ngừng hành động mặc định của form
-
-        // Gửi dữ liệu cập nhật lên API
-        const form = document.getElementById('updateProfileForm');
-        const formData = new FormData(form);
-
-        fetch('/profile/update', {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => {
-                if (response.ok) {
-                    // Đóng modal hiện tại (modal chỉnh sửa thông tin)
-                    profileModal.hide();
-
-                    // Mở lại modal (nếu cần thiết)
-                    // Giả sử bạn có một modal khác để hiển thị kết quả thành công
-                    const successModal = new bootstrap.Modal(document.getElementById('successModal'), {
+                    // Khởi tạo modal profile
+                    const profileModal = new bootstrap.Modal(document.getElementById('profileModal'), {
                         keyboard: false
                     });
-                    successModal.show();
-                } else {
-                    alert('Đã có lỗi xảy ra!');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-    }
 
-</script>
+                    // Cập nhật profile
+                    function updateProfile(event) {
+                        event.preventDefault();
+                        const form = document.getElementById('updateProfileForm');
+                        const formData = new FormData(form);
+
+                        fetch('/profile/update', {
+                            method: 'POST',
+                            body: formData
+                        })
+                            .then(response => {
+                                if (response.ok) {
+                                    profileModal.hide();
+                                    const successModal = new bootstrap.Modal(document.getElementById('successModal'), {
+                                        keyboard: false
+                                    });
+                                    successModal.show();
+                                } else {
+                                    alert('Đã có lỗi xảy ra!');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
+                    }
+                </script>
 </body>
 </html>

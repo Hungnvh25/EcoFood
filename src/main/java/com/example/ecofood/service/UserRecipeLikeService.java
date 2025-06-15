@@ -41,4 +41,8 @@ public class UserRecipeLikeService {
     public void saveUserRecipeLike(UserRecipeLike userRecipeLike){
         this.userRecipeLikeRepository.save(userRecipeLike);
     }
+
+    public void deleteByRecipeId(Long recipeId){
+        this.userRecipeLikeRepository.deleteByRecipeId(recipeId);
+    }
 }

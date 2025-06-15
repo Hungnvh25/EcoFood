@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface UserRecipeLikeRepository extends JpaRepository<UserRecipeLike, Long> {
     boolean existsByUserAndRecipe(User user, Recipe recipe);
     UserRecipeLike findByUserAndRecipe(User user, Recipe recipe);
+
+    void deleteByRecipeId(Long id);
 }
