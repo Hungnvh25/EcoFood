@@ -127,7 +127,7 @@
                                             <i class="fas fa-fire text-dark fs-6"></i>
                                         </div>
                                         <div>
-                                            <div class="text-muted small">Calories</div>
+                                            <div class="text-muted small">Năng Lượng</div>
                                             <div class="fw-semibold" style="font-size: 0.85rem;">
                                                 <span th:text="${#numbers.formatDecimal(recipe.totalCalories != null ? recipe.totalCalories : 0, 0, 1)}">300</span>
                                                 <span class="fw-normal" style="font-size: 0.7rem;">kcal</span>
@@ -142,7 +142,7 @@
                                             <i class="fas fa-bowl-rice text-dark fs-6"></i>
                                         </div>
                                         <div>
-                                            <div class="text-muted small">Carbs</div>
+                                            <div class="text-muted small">Tinh Bột</div>
                                             <div class="fw-semibold" style="font-size: 0.85rem;">
                                                 <span th:text="${#numbers.formatDecimal(recipe.totalCarbohydrates != null ? recipe.totalCarbohydrates : 0, 0, 1)}">60</span>
                                                 <span class="fw-normal" style="font-size: 0.7rem;">gr</span>
@@ -157,7 +157,7 @@
                                             <i class="fas fa-dumbbell text-dark fs-6"></i>
                                         </div>
                                         <div>
-                                            <div class="text-muted small">Protein</div>
+                                            <div class="text-muted small">Chất Đạm</div>
                                             <div class="fw-semibold" style="font-size: 0.85rem;">
                                                 <span th:text="${#numbers.formatDecimal(recipe.totalProtein != null ? recipe.totalProtein : 0, 0, 1)}">35</span>
                                                 <span class="fw-normal" style="font-size: 0.7rem;">gr</span>
@@ -172,7 +172,7 @@
                                             <i class="fas fa-tint text-dark fs-6"></i>
                                         </div>
                                         <div>
-                                            <div class="text-muted small">Fats</div>
+                                            <div class="text-muted small">Chất Béo</div>
                                             <div class="fw-semibold" style="font-size: 0.85rem;">
                                                 <span th:text="${#numbers.formatDecimal(recipe.totalFat != null ? recipe.totalFat : 0, 0, 1)}">12</span>
                                                 <span class="fw-normal" style="font-size: 0.7rem;">gr</span>
