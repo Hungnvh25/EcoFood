@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -45,36 +46,41 @@ public class UserController {
                                 @RequestParam(value = "voiceGender", required = false) String voiceGender,
                                 @RequestParam(value = "region", required = false) String region,
                                 @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
-                                HttpSession session, HttpServletRequest request
+                                HttpSession session, HttpServletRequest request, RedirectAttributes redirectAttributes
             ) throws IOException {
-
-        UserSetting.Gender gender = UserSetting.Gender.valueOf(voiceGender);
-
-        User user = this.userService.getCurrentUser();
-        user.setUserName(userName);
-        user.getUserSetting().setVoiceGender(gender);
-        user.getUserSetting().setRegion(Category.Region.valueOf(region));
-
-        user.getUserSetting().setAccent(this.userService.setAccent(UserSetting.Gender.valueOf(voiceGender),UserSetting.Region.valueOf(region)));
-
-        if (!profileImage.isEmpty()) {
-
-            String urlImage = this.imageService.saveImage(profileImage,"Avatars");
-
-            user.getUserSetting().setUrlImage(urlImage);
-        }
-        this.userService.saveUser(user);
         String refererUrl = request.getHeader("Referer");
-        // Xóa session cũ và tạo lại session với user mới
-        session.invalidate();  // Hủy session hiện tại
-        session = request.getSession(true);  // Tạo session mới
-        session.setAttribute("currentUser", user);  // Lưu thông tin người dùng mới vào session
 
-        // Cập nhật model
-        model.addAttribute("currentUser", user);
+        try{
+            UserSetting.Gender gender = UserSetting.Gender.valueOf(voiceGender);
+
+            User user = this.userService.getCurrentUser();
+            user.setUserName(userName);
+            user.getUserSetting().setVoiceGender(gender);
+            user.getUserSetting().setRegion(Category.Region.valueOf(region));
+
+            user.getUserSetting().setAccent(this.userService.setAccent(UserSetting.Gender.valueOf(voiceGender),UserSetting.Region.valueOf(region)));
+
+            if (!profileImage.isEmpty()) {
+
+                String urlImage = this.imageService.saveImage(profileImage,"Avatars");
+
+                user.getUserSetting().setUrlImage(urlImage);
+            }
+            this.userService.saveUser(user);
+
+            session.invalidate();
+            session = request.getSession(true);
+            session.setAttribute("currentUser", user);
+            redirectAttributes.addFlashAttribute("success", "Cập nhật thành công");
+            // Cập nhật model
+            model.addAttribute("currentUser", user);
 
 
-        return "redirect:"+ refererUrl;
+            return "redirect:"+ refererUrl;
+        }catch (Exception ex){
+            redirectAttributes.addFlashAttribute("failed", "Có lỗi khi cập nhật: " + ex.getMessage());
+            return "redirect:"+ refererUrl;
+        }
     }
 
 
@@ -83,22 +89,28 @@ public class UserController {
     public String updatePassword(@RequestParam(value = "currentPassword", required = false) String currentPassword,
                                  @RequestParam("newPassword") String newPassword,
                                  @RequestParam("confirmPassword") String confirmPassword,
-                                 HttpSession session,
-                                 HttpServletRequest request) {
+                                 HttpServletRequest request,RedirectAttributes redirectAttributes) {
         String refererUrl = request.getHeader("Referer");
 
-        if (this.userService.isNewPassWord()){
-            this.userService.setPassWordNewUser(confirmPassword);
-            return "redirect:" + refererUrl;
-        } else {
-            User user = this.userService.getCurrentUser();
-            if (this.passwordEncoder.matches(currentPassword, user.getPasswordHash()) && newPassword.equals(confirmPassword)){
+        try {
+            if (this.userService.isNewPassWord()){
                 this.userService.setPassWordNewUser(confirmPassword);
+                redirectAttributes.addFlashAttribute("success", "Cập nhật mật khẩu thành công");
                 return "redirect:" + refererUrl;
+            } else {
+                User user = this.userService.getCurrentUser();
+                if (this.passwordEncoder.matches(currentPassword, user.getPasswordHash()) && newPassword.equals(confirmPassword)){
+                    this.userService.setPassWordNewUser(confirmPassword);
+                    redirectAttributes.addFlashAttribute("success", "Cập nhật mật khẩu thành công");
+                    return "redirect:" + refererUrl;
+                }
             }
+            redirectAttributes.addFlashAttribute("failed", "Có lỗi khi cập nhật  mật khẩu: " );
+            return "redirect:" + refererUrl;
+        }catch (Exception e){
+            redirectAttributes.addFlashAttribute("failed", "Có lỗi khi cập nhật  mật khẩu: " + e.getMessage());
+            return "redirect:" + refererUrl;
         }
-
-        return "redirect:" + refererUrl;
     }
 
 
@@ -126,11 +138,20 @@ public class UserController {
 
 
     @PostMapping("/feedback")
-    public String feedback(HttpServletRequest request, @RequestParam("feedbackTitle") String feedbackTitle, @RequestParam("feedbackContent") String feedbackContent) {
+    public String feedback(HttpServletRequest request, @RequestParam("feedbackTitle") String feedbackTitle,
+                           @RequestParam("feedbackContent") String feedbackContent,RedirectAttributes redirectAttributes) {
         String refererUrl = request.getHeader("Referer");
-        User user = this.userService.getCurrentUser();
-        this.notificationService.createFeedbackNotification(user.getUserName(),feedbackTitle,feedbackContent);
-        return "redirect:" + refererUrl;
+
+        try {
+            User user = this.userService.getCurrentUser();
+            this.notificationService.createFeedbackNotification(user.getUserName(),feedbackTitle,feedbackContent);
+
+            redirectAttributes.addFlashAttribute("success", "Bạn đã gửi thành công");
+            return "redirect:" + refererUrl;
+        }catch (Exception ex){
+            redirectAttributes.addFlashAttribute("failed", "Gửi thất bại : "+ex.getMessage());
+            return "redirect:" + refererUrl;
+        }
     }
 
 

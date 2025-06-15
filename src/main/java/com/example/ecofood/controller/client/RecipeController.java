@@ -115,30 +115,41 @@ public class RecipeController {
             @RequestParam(value = "difficulty", required = true) String difficulty,
             @RequestParam(value = "mealType", required = true) String mealType,
             @RequestParam(value = "region", required = true) String region,
-            @RequestParam(value = "publish", defaultValue = "false") boolean publish) {
+            @RequestParam(value = "publish", defaultValue = "false") boolean publish,RedirectAttributes redirectAttributes) {
 
+        try {
+            String message ;
+            if (publish) {
+                if (result.hasErrors() || recipe.getTitle() == null || recipe.getTitle().isBlank() ||
+                        recipe.getCookingTime() == null || recipe.getServingSize() == null ||
+                        difficulty == null || mealType == null || region == null ||
+                        ingredientIds == null || ingredientIds.isEmpty() ||
+                        ingredientQuantities == null || ingredientQuantities.isEmpty() ||
+                        ingredientUnits == null || ingredientUnits.isEmpty() ||
+                        instructionDescriptions == null || instructionDescriptions.isEmpty()) {
+                    return "client/Recipe/add";
+                }
+                recipe.setIsPendingRecipe(true);
+                this.notificationService.createRecipePendingNotification(recipe);
+                this.recipeService.createRecipe(recipe, imageFile, ingredientIds, ingredientQuantities, ingredientUnits,
+                        instructionDescriptions, instructionImages, difficulty, mealType, region);
+                message = "Món ăn của bạn đang được chờ duyệt";
+            } else {
+                // Gọi hàm lưu không kiểm tra bắt buộc khi không publish
+                this.recipeService.createRecipeIsPendingNull(recipe, imageFile, ingredientIds, ingredientQuantities, ingredientUnits,
+                        instructionDescriptions, instructionImages, difficulty, mealType, region);
+                message = "Món ăn lưu thành công vào món nháp";
 
-        if (publish) {
-            if (result.hasErrors() || recipe.getTitle() == null || recipe.getTitle().isBlank() ||
-                    recipe.getCookingTime() == null || recipe.getServingSize() == null ||
-                    difficulty == null || mealType == null || region == null ||
-                    ingredientIds == null || ingredientIds.isEmpty() ||
-                    ingredientQuantities == null || ingredientQuantities.isEmpty() ||
-                    ingredientUnits == null || ingredientUnits.isEmpty() ||
-                    instructionDescriptions == null || instructionDescriptions.isEmpty()) {
-                return "client/Recipe/add";
             }
-            recipe.setIsPendingRecipe(true);
-            this.notificationService.createRecipePendingNotification(recipe);
-            this.recipeService.createRecipe(recipe, imageFile, ingredientIds, ingredientQuantities, ingredientUnits,
-                    instructionDescriptions, instructionImages, difficulty, mealType, region);
-        } else {
-            // Gọi hàm lưu không kiểm tra bắt buộc khi không publish
-            this.recipeService.createRecipeIsPendingNull(recipe, imageFile, ingredientIds, ingredientQuantities, ingredientUnits,
-                    instructionDescriptions, instructionImages, difficulty, mealType, region);
+            redirectAttributes.addFlashAttribute("success", message);
+
+            return "redirect:/";
+        }catch (Exception e){
+            redirectAttributes.addFlashAttribute("failed", "Có lỗi khi tạo món: " + e.getMessage());
+            return "redirect:/";
+
         }
 
-        return "redirect:/";
     }
 
     @GetMapping("/recipe/{id}")
@@ -335,13 +346,13 @@ public class RecipeController {
         try {
 
             if (id == null || id.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "Yêu cầu ID công thức.");
+                redirectAttributes.addFlashAttribute("failed", "Yêu cầu ID công thức.");
                 return "redirect:/recipeTest";
             }
             this.recipeService.deleteRecipe(Long.parseLong(id));
             redirectAttributes.addFlashAttribute("success", "Công thức đã được xóa thành công.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Không thể xóa công thức: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("failed", "Không thể xóa công thức: " + e.getMessage());
         }
         return "redirect:/recipeTest";
     }
@@ -353,13 +364,13 @@ public class RecipeController {
         try {
 
             if (id == null || id.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "Yêu cầu ID công thức.");
+                redirectAttributes.addFlashAttribute("failed", "Yêu cầu ID công thức.");
                 return "redirect:/myRecipe";
             }
             this.recipeService.deleteRecipe(Long.parseLong(id));
             redirectAttributes.addFlashAttribute("success", "Công thức đã được xóa thành công.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Không thể xóa công thức: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("failed", "Không thể xóa công thức: " + e.getMessage());
         }
         return "redirect:/myRecipe";
     }

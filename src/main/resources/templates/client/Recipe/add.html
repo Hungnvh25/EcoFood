@@ -321,6 +321,8 @@
                 <div th:replace="~{client/layout/sidebar-right :: updatePasswordModal}"></div>
                 <div th:replace="~{client/layout/sidebar-right :: deleteAccountModal}"></div>
                 <div th:replace="~{client/layout/sidebar-right :: feedbackModal}"></div>
+                <!-- Thêm fragment Toast -->
+                <div th:replace="~{client/layout/toast :: toast(failed=${failed}, success=${success})}"></div>
             </div>
             <div id="relatedRecipesContainer" class="bg-light p-3 d-none">
                 <h5 class="mb-3">Món ăn liên quan</h5>

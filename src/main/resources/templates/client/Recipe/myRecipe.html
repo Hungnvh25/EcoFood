@@ -117,6 +117,8 @@
             <div th:replace="~{client/layout/sidebar-right :: updatePasswordModal}"></div>
             <div th:replace="~{client/layout/sidebar-right :: deleteAccountModal}"></div>
             <div th:replace="~{client/layout/sidebar-right :: feedbackModal}"></div>
+            <!-- Thêm fragment Toast -->
+            <div th:replace="~{client/layout/toast :: toast(failed=${failed}, success=${success})}"></div>
         </div>
     </div>
 </div>
