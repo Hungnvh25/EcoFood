@@ -146,6 +146,7 @@ public class RecipeController {
             return "redirect:/";
         }catch (Exception e){
             redirectAttributes.addFlashAttribute("failed", "Có lỗi khi tạo món: " + e.getMessage());
+            System.out.println(e);
             return "redirect:/";
 
         }
