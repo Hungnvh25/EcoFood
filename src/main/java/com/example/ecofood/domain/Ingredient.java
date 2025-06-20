@@ -42,13 +42,7 @@ public class Ingredient {
     @OneToMany(mappedBy = "ingredient")
     Set<RecipeIngredient> recipeIngredients = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "ingredient_allergen",
-            joinColumns = @JoinColumn(name = "ingredient_id"),
-            inverseJoinColumns = @JoinColumn(name = "allergen_id")
-    )
-    private Set<Allergen> allergens;
+
 
 
 }
