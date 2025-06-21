@@ -17,7 +17,7 @@
 <div class="container-fluid">
     <div class="row">
         <!-- Sidebar -->
-        <th:block th:replace="~{admin/layout/sidebar :: sidebar}"></th:block>
+        <th:block th:replace="~{client/layout/sidebar-left :: sidebarLeft}"></th:block>
 
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
             <!-- Header -->
@@ -74,7 +74,7 @@
                 </div>
 
                 <!-- Form tìm kiếm -->
-                <form th:action="@{/admin/recipe/pending-recipes}" method="get" class="mb-3">
+                <form th:action="@{/admin/pending-recipes}" method="get" class="mb-3">
                     <div class="row g-2">
                         <div class="col-md-4">
                             <input type="text" name="title" class="form-control" placeholder="Tìm kiếm theo tiêu đề" th:value="${param.title}" />
@@ -86,7 +86,7 @@
                             <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
                         </div>
                         <div class="col-md-2">
-                            <a th:href="@{/admin/recipe/pending-recipes}" class="btn btn-secondary w-100">Xem tất cả công thức</a>
+                            <a th:href="@{/admin/pending-recipes}" class="btn btn-secondary w-100">Xem tất cả công thức</a>
                         </div>
                     </div>
                 </form>
@@ -139,13 +139,13 @@
                 <nav aria-label="Phân trang" th:unless="${recipes.content.isEmpty()}">
                     <ul class="pagination justify-content-center">
                         <li class="page-item" th:classappend="${recipes.first} ? 'disabled' : ''">
-                            <a class="page-link" th:href="@{/admin/recipe/pending-recipes(page=${recipes.number - 1}, title=${param.title}, userName=${param.userName})}">Trước</a>
+                            <a class="page-link" th:href="@{/admin/pending-recipes(page=${recipes.number - 1}, title=${param.title}, userName=${param.userName})}">Trước</a>
                         </li>
                         <li class="page-item" th:each="i : ${#numbers.sequence(0, recipes.totalPages - 1)}" th:classappend="${i == recipes.number} ? 'active' : ''">
-                            <a class="page-link" th:href="@{/admin/recipe/pending-recipes(page=${i}, title=${param.title}, userName=${param.userName})}" th:text="${i + 1}"></a>
+                            <a class="page-link" th:href="@{/admin/pending-recipes(page=${i}, title=${param.title}, userName=${param.userName})}" th:text="${i + 1}"></a>
                         </li>
                         <li class="page-item" th:classappend="${recipes.last} ? 'disabled' : ''">
-                            <a class="page-link" th:href="@{/admin/recipe/pending-recipes(page=${recipes.number + 1}, title=${param.title}, userName=${param.userName})}">Tiếp</a>
+                            <a class="page-link" th:href="@{/admin/pending-recipes(page=${recipes.number + 1}, title=${param.title}, userName=${param.userName})}">Tiếp</a>
                         </li>
                     </ul>
                 </nav>
