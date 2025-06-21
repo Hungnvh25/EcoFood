@@ -6,6 +6,7 @@ import com.example.ecofood.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,6 +32,25 @@ public class EmailService {
                         "Trân trọng,\n" +
                         "Đội ngũ EcoFood",
                 user.getUserName(), user.getEmail(), confirmPassword));
+
+        sendNotification(message);
+    }
+    @Async
+    public void sendOtpEmail(String email, String otp) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("ecofood.2025@gmail.com"); // Email của bạn
+        message.setTo(email);
+        message.setSubject("Mã OTP để đặt lại mật khẩu");
+        message.setText(String.format(
+                "Chào bạn,\n\n" +
+                        "Bạn đã yêu cầu đặt lại mật khẩu cho tài khoản của mình. " +
+                        "Mã OTP của bạn là:\n\n" +
+                        "%s\n\n" +
+                        "Vui lòng sử dụng mã này để xác nhận. Mã OTP có hiệu lực trong 5 phút.\n" +
+                        "Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.\n\n" +
+                        "Trân trọng,\n" +
+                        "Đội ngũ EcoFood",
+                otp));
 
         sendNotification(message);
     }
