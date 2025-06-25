@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eco Food</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <!-- Thêm Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .dropdown-item:hover .dropdown-menu {
             display: block;
@@ -125,7 +127,7 @@
                                             <i class="fas fa-fire text-dark fs-6"></i>
                                         </div>
                                         <div>
-                                            <div class="text-muted small">Calories</div>
+                                            <div class="text-muted small">Năng Lượng</div>
                                             <div class="fw-semibold" style="font-size: 0.85rem;">
                                                 <span th:text="${#numbers.formatDecimal(recipe.totalCalories != null ? recipe.totalCalories : 0, 0, 1)}">300</span>
                                                 <span class="fw-normal" style="font-size: 0.7rem;">kcal</span>
@@ -140,7 +142,7 @@
                                             <i class="fas fa-bowl-rice text-dark fs-6"></i>
                                         </div>
                                         <div>
-                                            <div class="text-muted small">Carbs</div>
+                                            <div class="text-muted small">Tinh Bột</div>
                                             <div class="fw-semibold" style="font-size: 0.85rem;">
                                                 <span th:text="${#numbers.formatDecimal(recipe.totalCarbohydrates != null ? recipe.totalCarbohydrates : 0, 0, 1)}">60</span>
                                                 <span class="fw-normal" style="font-size: 0.7rem;">gr</span>
@@ -155,7 +157,7 @@
                                             <i class="fas fa-dumbbell text-dark fs-6"></i>
                                         </div>
                                         <div>
-                                            <div class="text-muted small">Protein</div>
+                                            <div class="text-muted small">Chất Đạm</div>
                                             <div class="fw-semibold" style="font-size: 0.85rem;">
                                                 <span th:text="${#numbers.formatDecimal(recipe.totalProtein != null ? recipe.totalProtein : 0, 0, 1)}">35</span>
                                                 <span class="fw-normal" style="font-size: 0.7rem;">gr</span>
@@ -170,7 +172,7 @@
                                             <i class="fas fa-tint text-dark fs-6"></i>
                                         </div>
                                         <div>
-                                            <div class="text-muted small">Fats</div>
+                                            <div class="text-muted small">Chất Béo</div>
                                             <div class="fw-semibold" style="font-size: 0.85rem;">
                                                 <span th:text="${#numbers.formatDecimal(recipe.totalFat != null ? recipe.totalFat : 0, 0, 1)}">12</span>
                                                 <span class="fw-normal" style="font-size: 0.7rem;">gr</span>
@@ -196,8 +198,8 @@
         <div th:replace="~{client/layout/sidebar-right :: deleteAccountModal}"></div>
         <div th:replace="~{client/layout/sidebar-right :: feedbackModal}"></div>
 
-
-
+        <!-- Thêm fragment Toast -->
+        <div th:replace="~{client/layout/toast :: toast(failed=${failed}, success=${success})}"></div>
     </div>
 </div>
 
@@ -228,8 +230,6 @@
         </div>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Tim -->
 <script>
@@ -476,39 +476,17 @@
         keyboard: false
     });
 
-    // Function cập nhật profile và mở lại modal sau khi update thành công
-    function updateProfile(event) {
-        event.preventDefault();  // Ngừng hành động mặc định của form
-
-        // Gửi dữ liệu cập nhật lên API
-        const form = document.getElementById('updateProfileForm');
-        const formData = new FormData(form);
-
-        fetch('/profile/update', {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => {
-                if (response.ok) {
-                    // Đóng modal hiện tại (modal chỉnh sửa thông tin)
-                    profileModal.hide();
-
-                    // Mở lại modal (nếu cần thiết)
-                    // Giả sử bạn có một modal khác để hiển thị kết quả thành công
-                    const successModal = new bootstrap.Modal(document.getElementById('successModal'), {
-                        keyboard: false
-                    });
-                    successModal.show();
-                } else {
-                    alert('Đã có lỗi xảy ra!');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-    }
-
 </script>
+
+<script th:inline="javascript">
+    console.log("success:", [[${success}]]);
+    console.log("failed:", [[${failed}]]);
+</script>
+
+
+
+<!-- Thêm Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

@@ -1,51 +1,135 @@
-<div  th:fragment="sidebarLeft" class="col-md-2 bg-white shadow-sm position-fixed top-0 start-0 vh-100 overflow-auto ">
+<div th:fragment="sidebarLeft" class="col-md-2 bg-white shadow-sm position-fixed top-0 start-0 vh-100 overflow-auto">
   <div class="mb-3 py-3">
     <a href="/">
-      <img src="/image/logo.png" class="rounded mx-auto d-block img-fluid " alt="Eco Food Logo" width="260"
-           height="140">
+      <img src="/image/logo.png" class="rounded mx-auto d-block img-fluid" alt="Logo Eco Food" width="260" height="140">
     </a>
   </div>
+
   <div class="list-group list-group-flush mt-3 ps-3">
-    <a href="/" class="list-group-item list-group-item-action border-0 py-3 ms-3"
-       onmouseover="this.style.backgroundColor='#C3E66E'"
-       onmouseout="this.style.backgroundColor=''">
+    <a href="/" class="list-group-item list-group-item-action border-0 py-3 ms-3 menu-item-hover" data-page="/">
       <i class="fas fa-home me-2"></i> Trang chủ
     </a>
-    <a href="/notification" class="list-group-item list-group-item-action border-0 py-3 ms-3"
-       onmouseover="this.style.backgroundColor='#C3E66E'"
-       onmouseout="this.style.backgroundColor=''">
+
+    <a href="/notification" class="list-group-item list-group-item-action border-0 py-3 ms-3 menu-item-hover" data-page="/notification">
       <i class="fas fa-bell me-2"></i> Thông báo
     </a>
-    <a href="/premium" class="list-group-item list-group-item-action border-0 py-3 ms-3"
-       onmouseover="this.style.backgroundColor='#C3E66E'"
-       onmouseout="this.style.backgroundColor=''">
+
+    <a href="/premium" class="list-group-item list-group-item-action border-0 py-3 ms-3 menu-item-hover" data-page="/premium">
       <i class="fas fa-gem me-2"></i> Premium
     </a>
-    <div class="list-group-item list-group-item-action border-0 py-3 ms-3">
-      <i class="fas fa-utensils me-2"></i>Kho món ngon
-      <span class="d-block ps-4">của bạn</span>
 
-    </div>
-    <a href="/saveRecipe" class="list-group-item list-group-item-action border-0 py-3 ms-4"
-       onmouseover="this.style.backgroundColor='#C3E66E'"
-       onmouseout="this.style.backgroundColor=''">
+    <a href="/saveRecipe" class="list-group-item list-group-item-action border-0 py-3 ms-4 menu-item-hover" data-page="/saveRecipe">
       <i class="fas fa-bookmark me-2"></i> Đã lưu
     </a>
-    <a href="/myRecipe" class="list-group-item list-group-item-action border-0 py-3 ms-4"
-       onmouseover="this.style.backgroundColor='#C3E66E'"
-       onmouseout="this.style.backgroundColor=''">
+
+    <a href="/myRecipe" class="list-group-item list-group-item-action border-0 py-3 ms-4 menu-item-hover" data-page="/myRecipe">
       <i class="fas fa-user me-2"></i> Món của tôi
     </a>
-    <a href="/cookSnap" class="list-group-item list-group-item-action border-0 py-3 ms-4"
-       onmouseover="this.style.backgroundColor='#C3E66E'"
-       onmouseout="this.style.backgroundColor=''">
+
+    <a href="/cookSnap" class="list-group-item list-group-item-action border-0 py-3 ms-4 menu-item-hover" data-page="/cookSnap">
       <i class="fas fa-clock me-2"></i> Đã nấu
     </a>
-    <a href="/recipeTest" class="list-group-item list-group-item-action border-0 py-3 ms-4"
-       onmouseover="this.style.backgroundColor='#C3E66E'"
-       onmouseout="this.style.backgroundColor=''">
+
+    <a href="/recipeTest" class="list-group-item list-group-item-action border-0 py-3 ms-4 menu-item-hover" data-page="/recipeTest">
       <i class="fas fa-file-pen me-2"></i> Món nháp
     </a>
 
+    <!-- Menu Admin -->
+    <div>
+      <a href="#adminSubMenu" class="list-group-item list-group-item-action border-0 py-3 ms-4 menu-item-hover"
+         data-bs-toggle="collapse" id="adminToggle">
+        <i class="fas fa-user-tie me-2"></i> Quản trị viên
+      </a>
+
+      <div class="collapse" id="adminSubMenu">
+        <div class="list-group list-group-flush ps-4">
+
+          <a href="/admin/user" class="list-group-item list-group-item-action border-0 py-2 ms-4 menu-item-hover" data-page="/admin/user">
+            <i class="fas fa-users me-2"></i> Người dùng
+          </a>
+
+          <a href="/admin/recipe" class="list-group-item list-group-item-action border-0 py-2 ms-4 menu-item-hover" data-page="/admin/recipe">
+            <i class="fas fa-utensils me-2"></i> Công thức
+          </a>
+
+          <!-- Recipe Pending - ĐÃ RÚT GỌN LINK VÀO DATA-PAGE -->
+          <a href="/admin/pending-recipes" class="list-group-item list-group-item-action border-0 py-2 ms-4 menu-item-hover" data-page="/admin/pending-recipes">
+            <i class="fas fa-utensils me-2"></i> Công thức chờ duyệt
+          </a>
+
+          <a href="/admin/ingredient" class="list-group-item list-group-item-action border-0 py-2 ms-4 menu-item-hover" data-page="/admin/ingredient">
+            <i class="fas fa-apple-alt me-2"></i> Nguyên liệu
+          </a>
+
+        </div>
+      </div>
+    </div>
   </div>
+
+  <style>
+    /* Trạng thái đang chọn */
+    .menu-item-active {
+      background-color: #C3E66E !important;
+      font-weight: bold;
+    }
+
+    /* Trạng thái hover */
+    .menu-item-hover:hover {
+      background-color: #C3E66E !important;
+    }
+
+    /* Ngăn hiệu ứng chuyển tiếp trên các mục menu */
+    .menu-item-hover {
+      transition: none !important;
+      animation: none !important;
+      will-change: auto;
+    }
+
+    /* Ngăn icon toggle bị chậm khi xoay */
+    .transition-none {
+      transition: none !important;
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const currentPath = window.location.pathname;
+
+      const menuItems = document.querySelectorAll('a[data-page]');
+      let activeFound = false;
+
+      menuItems.forEach(item => {
+        const href = item.getAttribute('data-page');
+
+        // Chỉ match đúng đường dẫn hoặc sub-path
+        if (href === currentPath || currentPath.startsWith(href + '/')) {
+          item.classList.add('menu-item-active');
+          activeFound = true;
+
+          // Nếu là trang admin, mở submenu
+          if (href.startsWith('/admin/')) {
+            const adminSubMenu = document.getElementById('adminSubMenu');
+            const adminToggle = document.getElementById('adminToggle');
+            if (adminSubMenu) {
+              adminSubMenu.classList.add('show');
+              const chevron = adminToggle.querySelector('.fa-chevron-down');
+              if (chevron) chevron.style.transform = 'rotate(180deg)';
+            }
+          }
+        }
+      });
+
+      // Xử lý toggle cho menu admin
+      const adminToggle = document.getElementById('adminToggle');
+      if (adminToggle) {
+        adminToggle.addEventListener('click', function() {
+          const chevron = this.querySelector('.fa-chevron-down');
+          if (chevron) {
+            const isRotated = chevron.style.transform === 'rotate(180deg)';
+            chevron.style.transform = isRotated ? 'rotate(0deg)' : 'rotate(180deg)';
+          }
+        });
+      }
+    });
+  </script>
 </div>

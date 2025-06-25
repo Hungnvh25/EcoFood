@@ -1,6 +1,7 @@
 package com.example.ecofood.controller.client;
 
 
+import com.example.ecofood.Util.RandomStringGenerator;
 import com.example.ecofood.auth.JwtUtil;
 import com.example.ecofood.DTO.LoginDTO;
 import com.example.ecofood.DTO.UserDTO;
@@ -15,13 +16,15 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -31,7 +34,8 @@ public class HomePage {
     UserService userService;
     RecipeService recipeService;
     EmailService emailService;
-
+    RandomStringGenerator randomStringGenerator;
+    PasswordEncoder passwordEncoder;
 
 
     @GetMapping("/login")
@@ -55,6 +59,7 @@ public class HomePage {
         model.addAttribute("userDTO", new UserDTO());
         return "client/register";
     }
+
 
 
     @PostMapping("/register")
@@ -118,6 +123,102 @@ public class HomePage {
         return "403";
     }
 
+
+    @GetMapping("/forgot-password")
+    public String getForgotPassword(Model model) {
+        // Kiểm tra đã đăng nhập chưa
+        if (this.userService.getCurrentUser() != null) {
+            return "redirect:/";
+        }
+        model.addAttribute("userDTO", new UserDTO());
+        return "client/forgot-password";
+    }
+
+    @PostMapping("/forgot-password/send-otp")
+    @ResponseBody
+    public Map<String, Object> sendOtp(@RequestParam("email") String email, HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+
+        if (!this.userService.isEmailExist(email)) {
+            response.put("success", false);
+            response.put("message", "Email không tồn tại.");
+            return response;
+        }
+
+        String otp = this.randomStringGenerator.generateOtp();
+        session.setAttribute("otp", otp);
+        session.setAttribute("email", email);
+
+        try {
+            this.emailService.sendOtpEmail(email, otp);
+            response.put("success", true);
+            response.put("message", "OTP đã được gửi.");
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Lỗi khi gửi OTP. Vui lòng thử lại.");
+        }
+
+        return response;
+    }
+
+    @PostMapping("/forgot-password/verify-otp")
+    @ResponseBody
+    public Map<String, Object> verifyOtp(@RequestParam("otp") String otp, HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        String storedOtp = (String) session.getAttribute("otp");
+        String email = (String) session.getAttribute("email");
+
+        if (storedOtp == null || email == null) {
+            response.put("success", false);
+            response.put("message", "Phiên làm việc hết hạn. Vui lòng thử lại.");
+            return response;
+        }
+
+        if (!storedOtp.equals(otp)) {
+            response.put("success", false);
+            response.put("message", "Mã OTP không đúng.");
+            return response;
+        }
+
+        response.put("success", true);
+        return response;
+    }
+
+    @PostMapping("/forgot-password/reset-password")
+    @ResponseBody
+    public Map<String, Object> resetPassword(
+            @RequestParam("newPassword") String newPassword,
+            @RequestParam("confirmPassword") String confirmPassword,
+            HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        String email = (String) session.getAttribute("email");
+
+        if (email == null) {
+            response.put("success", false);
+            response.put("message", "Phiên làm việc hết hạn. Vui lòng thử lại.");
+            return response;
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            response.put("success", false);
+            response.put("message", "Mật khẩu xác nhận không khớp.");
+            return response;
+        }
+
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        User user = this.userService.findByEmail(email);
+        user.setPasswordHash(encodedPassword);
+        this.userService.saveUser(user);
+
+        System.out.println("Cập nhật mật khẩu mới cho " + email + ": " + encodedPassword);
+
+        session.removeAttribute("otp");
+        session.removeAttribute("email");
+
+        response.put("success", true);
+        response.put("message", "Mật khẩu đã được đặt lại thành công!");
+        return response;
+    }
 
 }
 

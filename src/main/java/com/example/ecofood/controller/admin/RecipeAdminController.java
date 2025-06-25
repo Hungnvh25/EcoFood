@@ -105,7 +105,7 @@ public class RecipeAdminController {
         return "redirect:/admin/recipe";
     }
 
-    @GetMapping("/recipe/pending-recipes")
+    @GetMapping("/pending-recipes")
     public String getPendingRecipes(Model model,
                                     @RequestParam(defaultValue = "0") int page,
                                     @RequestParam(required = false) String title,
@@ -131,13 +131,13 @@ public class RecipeAdminController {
     public String approveRecipe(@RequestParam("id") String id, RedirectAttributes redirectAttributes) {
         try {
             if (id == null || id.isEmpty()) {redirectAttributes.addFlashAttribute("error", "Yêu cầu ID công thức.");
-                return "redirect:/admin/recipe/pending-recipes";
+                return "redirect:/admin/pending-recipes";
             }
             Long recipeId = Long.parseLong(id);
             Recipe recipe = this.recipeService.getRecipeById(recipeId);
             if (!recipe.getIsPendingRecipe()) {
                 redirectAttributes.addFlashAttribute("error", "Công thức này không ở trạng thái đang chờ duyệt.");
-                return "redirect:/admin/recipe/pending-recipes";
+                return "redirect:/admin/pending-recipes";
             }
             this.recipeService.approveRecipe(recipeId);
             this.notificationService.createRecipeStatusNotification(recipe,true);
@@ -147,7 +147,7 @@ public class RecipeAdminController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Không thể phê duyệt công thức: " + e.getMessage());
         }
-        return "redirect:/admin/recipe/pending-recipes";
+        return "redirect:/admin/pending-recipes";
     }
 
     @PostMapping("/recipe/pending/delete")
@@ -155,13 +155,13 @@ public class RecipeAdminController {
         try {
             if (id == null || id.isEmpty()) {
                 redirectAttributes.addFlashAttribute("error", "Yêu cầu ID công thức.");
-                return "redirect:/admin/recipe/pending-recipes";
+                return "redirect:/admin/pending-recipes";
             }
             Long recipeId = Long.parseLong(id);
             Recipe recipe = this.recipeService.getRecipeById(recipeId);
             if (!recipe.getIsPendingRecipe()) {
                 redirectAttributes.addFlashAttribute("error", "Chỉ có thể xóa công thức đang chờ duyệt.");
-                return "redirect:/admin/recipe/pending-recipes";
+                return "redirect:/admin/pending-recipes";
             }
             this.recipeService.deleteRecipe(recipeId);
             redirectAttributes.addFlashAttribute("success", "Công thức đã được xóa thành công.");
@@ -170,7 +170,7 @@ public class RecipeAdminController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Không thể xóa công thức: " + e.getMessage());
         }
-        return "redirect:/admin/recipe/pending-recipes";
+        return "redirect:/admin/pending-recipes";
     }
 
     @GetMapping("/recipe/similar")
@@ -195,7 +195,7 @@ public class RecipeAdminController {
         try {
             if (recipeId == null || recipeId.isEmpty()) {
                 redirectAttributes.addFlashAttribute("error", "Yêu cầu ID công thức.");
-                return "redirect:/admin/recipe/pending-recipes";
+                return "redirect:/admin/pending-recipes";
             }
             Long recipeIdLong = Long.parseLong(recipeId);
             Long parentIdLong = (parentId != null && !parentId.isEmpty()) ? Long.parseLong(parentId) : null;
@@ -203,7 +203,7 @@ public class RecipeAdminController {
                 Recipe parentRecipe = this.recipeService.getRecipeById(parentIdLong);
                 if (parentRecipe.getIsPendingRecipe()) {
                     redirectAttributes.addFlashAttribute("error", "Công thức cha không được ở trạng thái đang chờ duyệt.");
-                    return "redirect:/admin/recipe/pending-recipes";
+                    return "redirect:/admin/pending-recipes";
                 }
             }
             this.recipeService.setParentRecipe(recipeIdLong, parentIdLong);
@@ -213,7 +213,7 @@ public class RecipeAdminController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Không thể thiết lập công thức cha: " + e.getMessage());
         }
-        return "redirect:/admin/recipe/pending-recipes";
+        return "redirect:/admin/pending-recipes";
     }
 
     @GetMapping("/recipe/details/{id}")

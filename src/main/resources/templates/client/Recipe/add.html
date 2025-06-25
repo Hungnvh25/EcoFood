@@ -139,9 +139,12 @@
                             <div class="col-6 mb-3 position-relative">
                                 <select class="form-control bg-warning bg-opacity-25 border-0 py-2 pe-4" name="region">
                                     <option value="" th:text="'Chọn vùng'"></option>
-                                    <option value="NORTH">Miền Bắc</option>
-                                    <option value="CENTRAL">Miền Trung</option>
-                                    <option value="SOUTH">Miền Nam</option>
+                                    <option value="NORTH"
+                                            th:selected="${recipe.category != null && recipe.category.region.name() == 'NORTH'}">Miền Bắc</option>
+                                    <option value="CENTRAL"
+                                            th:selected="${recipe.category != null && recipe.category.region.name() == 'CENTRAL'}">Miền Trung</option>
+                                    <option value="SOUTH"
+                                            th:selected="${recipe.category != null && recipe.category.region.name() == 'SOUTH'}">Miền Nam</option>
                                 </select>
                                 <i class="fas fa-angle-down position-absolute end-0 top-50 translate-middle-y me-4 text-muted pointer-events-none"></i>
                                 <div class="invalid-feedback">Vui lòng chọn vùng</div>
@@ -197,20 +200,20 @@
                                                     <option value="" th:text="'Đơn vị'"
                                                             th:selected="${recipeIngredient.unit == null}"></option>
                                                     <option value="GRAM"
-                                                            th:selected="${recipeIngredient.unit == 'GRAM'}">Gram
+                                                            th:selected="${recipeIngredient.unit.name() == 'GRAM'}">Gram
                                                     </option>
-                                                    <option value="ML" th:selected="${recipeIngredient.unit == 'ML'}">
+                                                    <option value="ML" th:selected="${recipeIngredient.unit.name() == 'ML'}">
                                                         ml
                                                     </option>
                                                     <option value="PIECE"
-                                                            th:selected="${recipeIngredient.unit == 'PIECE'}">Cái
+                                                            th:selected="${recipeIngredient.unit.name() == 'PIECE'}">Cái
                                                     </option>
                                                     <option value="TABLESPOON"
-                                                            th:selected="${recipeIngredient.unit == 'TABLESPOON'}">Thìa
+                                                            th:selected="${recipeIngredient.unit.name() == 'TABLESPOON'}">Thìa
                                                         canh
                                                     </option>
                                                     <option value="TEASPOON"
-                                                            th:selected="${recipeIngredient.unit == 'TEASPOON'}">Thìa cà
+                                                            th:selected="${recipeIngredient.unit.name() == 'TEASPOON'}">Thìa cà
                                                         phê
                                                     </option>
                                                 </select>
@@ -321,6 +324,8 @@
                 <div th:replace="~{client/layout/sidebar-right :: updatePasswordModal}"></div>
                 <div th:replace="~{client/layout/sidebar-right :: deleteAccountModal}"></div>
                 <div th:replace="~{client/layout/sidebar-right :: feedbackModal}"></div>
+                <!-- Thêm fragment Toast -->
+                <div th:replace="~{client/layout/toast :: toast(failed=${failed}, success=${success})}"></div>
             </div>
             <div id="relatedRecipesContainer" class="bg-light p-3 d-none">
                 <h5 class="mb-3">Món ăn liên quan</h5>

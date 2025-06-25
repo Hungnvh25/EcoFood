@@ -190,6 +190,11 @@ public class RecipeService {
                                           String region) {
 
         try {
+            if (recipe.getId() != null){
+                recipe = this.getRecipeById(recipe.getId());
+            }
+
+
             // Sửa tiêu đề nếu có
             if (recipe.getTitle() != null && !recipe.getTitle().isBlank()) {
                 String formatTile = recipeUtils.capitalizeFirstLetter(recipe.getTitle());
@@ -207,7 +212,9 @@ public class RecipeService {
             recipe.setUser(user);
 
             // Lưu nguyên liệu nếu các danh sách không null và hợp lệ
-            HashSet<RecipeIngredient> recipeIngredientHashSet = new HashSet<>();
+
+            Set<RecipeIngredient> recipeIngredientHashSet = new HashSet<>();
+
             if (ingredientIds != null && ingredientQuantities != null && ingredientUnits != null
                     && ingredientIds.size() == ingredientQuantities.size() && ingredientQuantities.size() == ingredientUnits.size()) {
                 for (int i = 0; i < ingredientIds.size(); i++) {
@@ -226,9 +233,14 @@ public class RecipeService {
                     }
                 }
             }
-            recipe.setRecipeIngredients(recipeIngredientHashSet);
+            recipe.getRecipeIngredients().clear();
+            recipe.getRecipeIngredients().addAll(recipeIngredientHashSet);
 
             // Lưu bước làm nếu có
+            if (recipe.getInstructions().isEmpty()){
+                recipe.getInstructions().clear();
+            }
+
             HashSet<Instruction> instructionHashSet = new HashSet<>();
             if (instructionDescriptions != null && instructionImages != null
                     && instructionDescriptions.size() == instructionImages.size()) {
@@ -250,15 +262,24 @@ public class RecipeService {
             recipe.setInstructions(instructionHashSet);
 
             // Lưu danh mục nếu các trường không null
-            if (!difficulty.isEmpty() && !mealType.isEmpty() && !region.isEmpty()) {
-                Category category = Category.builder()
-                        .difficulty(Category.Difficulty.valueOf(difficulty))
-                        .mealType(Category.MealType.valueOf(mealType))
-                        .region(Category.Region.valueOf(region))
-                        .recipe(recipe)
-                        .build();
-                recipe.setCategory(category);
+            if(recipe.getCategory() != null){
+                recipe.getCategory().setRecipe(recipe);
+                recipe.getCategory().setDifficulty(Category.Difficulty.valueOf(difficulty));
+                recipe.getCategory().setMealType(Category.MealType.valueOf(mealType));
+                recipe.getCategory().setRegion(Category.Region.valueOf(region));
+            }else {
+                if (!difficulty.isEmpty() && !mealType.isEmpty() && !region.isEmpty()) {
+                    Category category = Category.builder()
+                            .difficulty(Category.Difficulty.valueOf(difficulty))
+                            .mealType(Category.MealType.valueOf(mealType))
+                            .region(Category.Region.valueOf(region))
+                            .recipe(recipe)
+                            .build();
+                    recipe.setCategory(category);
+                }
+
             }
+
 
             // Tạo textAudio nếu có dữ liệu
             StringBuilder textBuilder = new StringBuilder();

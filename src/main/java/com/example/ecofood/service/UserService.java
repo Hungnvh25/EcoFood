@@ -189,4 +189,9 @@ public class UserService {
         return  this.userRepository.findByRole(User.Role.valueOf(roleName));
     }
 
+    public Boolean isEmailExist(String email){
+        User user = findByEmail(email);
+        return user == null? false:true;
+    }
+
 }

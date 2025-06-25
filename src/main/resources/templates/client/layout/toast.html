@@ -1,0 +1,59 @@
+
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+
+</head>
+<body>
+<div th:fragment="toast(failed, success)">
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1050;">
+        <!-- Toast cho thông báo thành công -->
+        <div th:if="${success != null}" class="toast toast-success-custom border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="fas fa-bell me-2"></i>
+                <strong class="me-auto">Thông báo</strong>
+                <small class="text-muted">Vừa xong</small>
+                <button type="button" class="btn-close ms-2 mb-1" data-bs-dismiss="toast" aria-label="Close">
+                </button>
+            </div>
+            <div class="toast-body">
+                <span th:text="${success}"></span>
+            </div>
+        </div>
+        <!-- Toast cho thông báo thất bại -->
+        <div th:if="${failed != null}" class="toast text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <strong class="me-auto">Thông báo</strong>
+                <small class="text-muted">Vừa xong</small>
+                <button type="button" class="btn-close btn-close-white ms-2 mb-1" data-bs-dismiss="toast" aria-label="Close">
+                </button>
+            </div>
+            <div class="toast-body">
+                <span th:text="${failed}"></span>
+            </div>
+        </div>
+    </div>
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            var toasts = document.querySelectorAll('.toast');
+            toasts.forEach(function (toast) {
+                var bsToast = new bootstrap.Toast(toast, {
+                    delay: 3000 // Toast tự động biến mất sau 3 giây
+                });
+                bsToast.show();
+            });
+        });
+    </script>
+    <style>
+        .toast-success-custom {
+            background-color: #a2ea05 !important;
+            color: #000 !important; /* Màu chữ đen để dễ đọc */
+        }
+
+
+    </style>
+</div>
+</body>
+</html>

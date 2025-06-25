@@ -3,6 +3,7 @@ package com.example.ecofood.Util;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
+import java.util.Random;
 
 @Component
 public class RandomStringGenerator {
@@ -16,6 +17,12 @@ public class RandomStringGenerator {
             sb.append(CHARACTERS.charAt(index));
         }
         return sb.toString();
+    }
+
+    public String generateOtp() {
+        Random random = new Random();
+        int otp = 100000 + random.nextInt(900000);
+        return String.valueOf(otp);
     }
 
 }
