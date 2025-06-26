@@ -18,52 +18,56 @@
       <i class="fas fa-gem me-2"></i> Premium
     </a>
 
-    <a href="/saveRecipe" class="list-group-item list-group-item-action border-0 py-3 ms-4 menu-item-hover" data-page="/saveRecipe">
+    <a href="/saveRecipe" class="list-group-item list-group-item-action border-0 py-3 ms-3 menu-item-hover" data-page="/saveRecipe">
       <i class="fas fa-bookmark me-2"></i> Đã lưu
     </a>
 
-    <a href="/myRecipe" class="list-group-item list-group-item-action border-0 py-3 ms-4 menu-item-hover" data-page="/myRecipe">
+    <a href="/myRecipe" class="list-group-item list-group-item-action border-0 py-3 ms-3 menu-item-hover" data-page="/myRecipe">
       <i class="fas fa-user me-2"></i> Món của tôi
     </a>
 
-    <a href="/cookSnap" class="list-group-item list-group-item-action border-0 py-3 ms-4 menu-item-hover" data-page="/cookSnap">
+    <a href="/cookSnap" class="list-group-item list-group-item-action border-0 py-3 ms-3 menu-item-hover" data-page="/cookSnap">
       <i class="fas fa-clock me-2"></i> Đã nấu
     </a>
 
-    <a href="/recipeTest" class="list-group-item list-group-item-action border-0 py-3 ms-4 menu-item-hover" data-page="/recipeTest">
+    <a href="/recipeTest" class="list-group-item list-group-item-action border-0 py-3 ms-3 menu-item-hover" data-page="/recipeTest">
       <i class="fas fa-file-pen me-2"></i> Món nháp
     </a>
 
     <!-- Menu Admin -->
-    <div>
-      <a href="#adminSubMenu" class="list-group-item list-group-item-action border-0 py-3 ms-4 menu-item-hover"
+    <div th:if="${currentUser.role.name() == 'ADMIN'}" >
+
+      <div>
+      <a href="#adminSubMenu" class="list-group-item list-group-item-action border-0 py-3 ms-3 menu-item-hover"
          data-bs-toggle="collapse" id="adminToggle">
         <i class="fas fa-user-tie me-2"></i> Quản trị viên
       </a>
 
       <div class="collapse" id="adminSubMenu">
-        <div class="list-group list-group-flush ps-4">
+        <div class="list-group list-group-flush ps-3">
 
-          <a href="/admin/user" class="list-group-item list-group-item-action border-0 py-2 ms-4 menu-item-hover" data-page="/admin/user">
+          <a href="/admin/user" class="list-group-item list-group-item-action border-0 py-2 ms-3 menu-item-hover" data-page="/admin/user">
             <i class="fas fa-users me-2"></i> Người dùng
           </a>
 
-          <a href="/admin/recipe" class="list-group-item list-group-item-action border-0 py-2 ms-4 menu-item-hover" data-page="/admin/recipe">
+          <a href="/admin/recipe" class="list-group-item list-group-item-action border-0 py-2 ms-3 menu-item-hover" data-page="/admin/recipe">
             <i class="fas fa-utensils me-2"></i> Công thức
           </a>
 
           <!-- Recipe Pending - ĐÃ RÚT GỌN LINK VÀO DATA-PAGE -->
-          <a href="/admin/pending-recipes" class="list-group-item list-group-item-action border-0 py-2 ms-4 menu-item-hover" data-page="/admin/pending-recipes">
+          <a href="/admin/pending-recipes" class="list-group-item list-group-item-action border-0 py-2 ms-3 menu-item-hover" data-page="/admin/pending-recipes">
             <i class="fas fa-utensils me-2"></i> Công thức chờ duyệt
           </a>
 
-          <a href="/admin/ingredient" class="list-group-item list-group-item-action border-0 py-2 ms-4 menu-item-hover" data-page="/admin/ingredient">
+          <a href="/admin/ingredient" class="list-group-item list-group-item-action border-0 py-2 ms-3 menu-item-hover" data-page="/admin/ingredient">
             <i class="fas fa-apple-alt me-2"></i> Nguyên liệu
           </a>
 
         </div>
       </div>
     </div>
+    </div>
+
   </div>
 
   <style>

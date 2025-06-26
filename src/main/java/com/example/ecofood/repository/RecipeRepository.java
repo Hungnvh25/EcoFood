@@ -19,19 +19,16 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     List<Recipe> findByTitleContainingIgnoreCase(String keyword);
     Optional<Recipe> findById(Long id);
 
-    List<Recipe> findTop3ByOrderByLikeCountDesc();
+    List<Recipe> findTop3ByIsPendingRecipeFalseOrderByLikeCountDesc();
 
     List<Recipe> findTop5ByTitleContainingIgnoreCase(String keyword);
 
-    Page<Recipe> findByTitleContainingIgnoreCase(String title, Pageable pageable);
-
-    Page<Recipe> findByUserUserNameContainingIgnoreCase(String userName, Pageable pageable);
-
-    Page<Recipe> findByTitleContainingIgnoreCaseAndUserUserNameContainingIgnoreCase(String title, String userName, Pageable pageable);
 
     Page<Recipe> findByIsPendingRecipeFalse(Pageable pageable);
 
     Page<Recipe> findByIsPendingRecipeTrue(Pageable pageable);
+
+    List<Recipe> findByIsPendingRecipeFalse();
 
     Page<Recipe> findByTitleContainingIgnoreCaseAndIsPendingRecipeFalse(String title, Pageable pageable);
 
@@ -49,7 +46,7 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
     long countByIsPendingRecipeFalse();
 
-    @Query("SELECT SUM(r.likeCount) FROM Recipe r")
+    @Query("SELECT COALESCE(SUM(r.likeCount), 0) FROM Recipe r")
     long sumLikeCount();
 
     List<Recipe> findByUserId(Long id);

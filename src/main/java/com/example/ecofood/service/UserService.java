@@ -1,6 +1,7 @@
 package com.example.ecofood.service;
 
 import com.example.ecofood.DTO.UserDTO;
+import com.example.ecofood.Util.AppContext;
 import com.example.ecofood.domain.Category;
 import com.example.ecofood.domain.User;
 import com.example.ecofood.domain.UserActivity;
@@ -35,7 +36,7 @@ public class UserService {
     UserActivityRepository userActivityRepository;
     @Value("${passWord.mail}")
     String passWordEmail ;
-
+    AppContext appContext;
 
 
     public User findUserByUserName(String email) {
@@ -44,13 +45,23 @@ public class UserService {
 
     public void createUser(UserDTO userDTO) {
         String passWordHash = this.passwordEncoder.encode(userDTO.getPasswordHash());
+
+        // tao role
+        User.Role role = User.Role.CUSTOMER;
+
+        if (!appContext.isHasAdmin() && userDTO.getUserName().equals("admin")) {
+            role = User.Role.ADMIN;
+            appContext.setHasAdmin(true);
+        }
+
+        // Tạo người dùng mới
         User user = User.builder()
                 .userName(userDTO.getUserName())
                 .email(userDTO.getEmail())
                 .passwordHash(passWordHash)
                 .joinDate(userDTO.getJoinDate())
                 .premium(false)
-                .role(User.Role.CUSTOMER)
+                .role(role)
                 .build();
 
         this.userRepository.save(user);
@@ -96,7 +107,6 @@ public class UserService {
     }
 
     public void deleteUser(Long id) {
-        User user = findUserById(id);
         this.userRepository.deleteById(id);
     }
 
@@ -194,4 +204,7 @@ public class UserService {
         return user == null? false:true;
     }
 
+    public Boolean checkIfAdminExists(){
+        return userRepository.existsByRole(User.Role.ADMIN);
+    }
 }

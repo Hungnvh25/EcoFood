@@ -42,6 +42,7 @@ public class RecipeService {
     TextToSpeechService textToSpeechService;
 
     LevenshteinDistance levenshteinDistance;
+    CategoryService categoryService;
 
     public List<Recipe> getAllRecipes() {
         List<Recipe> recipeList = recipeRepository.findAll();
@@ -66,18 +67,22 @@ public class RecipeService {
                              List<String> ingredientUnits,
                              List<String> instructionDescriptions,
                              List<MultipartFile> instructionImages,
+                             List<String> instructionImageUrls,
                              String difficulty,
                              String mealType,
                              String region) {
 
-
         try {
+            if (recipe.getId() != null){
+                recipe = this.getRecipeById(recipe.getId());
+                recipe.setIsPendingRecipe(true);
+            }
 
             // Sửa tiêu đề
             String formatTile = recipeUtils.capitalizeFirstLetter(recipe.getTitle());
             recipe.setTitle(formatTile);
 
-            //set imagge
+            // Cập nhật hình ảnh chính của món ăn
             if (!imageFile.isEmpty()) {
                 String imageUrlRecipe = this.imageService.saveImage(imageFile, "Recipe");
                 recipe.setImageUrl(imageUrlRecipe);
@@ -86,12 +91,15 @@ public class RecipeService {
             User user = this.userService.getCurrentUser();
             recipe.setUser(user);
 
-            HashSet<RecipeIngredient> recipeIngredientHashSet = new HashSet<>();
+            // Xử lý nguyên liệu
+            if (recipe.getRecipeIngredients() != null) {
+                recipe.getRecipeIngredients().clear();
+            } else {
+                recipe.setRecipeIngredients(new HashSet<>());
+            }
 
-            // lưu nguyên liệu
             if (ingredientIds != null && !ingredientIds.isEmpty()) {
                 for (int i = 0; i < ingredientIds.size(); i++) {
-
                     Ingredient ingredient = this.ingredientRepository.findAllById(ingredientIds.get(i));
 
                     RecipeIngredient recipeIngredient = RecipeIngredient.builder()
@@ -100,53 +108,62 @@ public class RecipeService {
                             .quantity(ingredientQuantities.get(i))
                             .unit(RecipeIngredient.Unit.valueOf(ingredientUnits.get(i)))
                             .build();
-                    recipeIngredientHashSet.add(recipeIngredient);
 
+                    recipe.getRecipeIngredients().add(recipeIngredient);
                     saveNutrition(recipe, ingredient, recipeIngredient);
-
-
                 }
             }
 
-            recipe.setRecipeIngredients(recipeIngredientHashSet);
-
-            // Lưu bước làm
-
-            HashSet<Instruction> instructionHashSet = new HashSet<>();
+            // Xử lý các bước làm món
+            if (recipe.getInstructions() != null) {
+                recipe.getInstructions().clear();
+            } else {
+                recipe.setInstructions(new HashSet<>());
+            }
 
             if (instructionDescriptions != null && !instructionDescriptions.isEmpty()) {
                 for (int i = 0; i < instructionDescriptions.size(); i++) {
+                    String imageUrl = null;
 
-                    String imageUrl = this.imageService.saveImage(instructionImages.get(i), "instruction");
+                    // Nếu có file ảnh mới → upload
+                    if (instructionImages != null && i < instructionImages.size()
+                            && !instructionImages.get(i).isEmpty()) {
+                        imageUrl = this.imageService.saveImage(instructionImages.get(i), "instruction");
+                    }
+                    // Nếu không có file mới nhưng có URL cũ → giữ lại
+                    else if (instructionImageUrls != null && i < instructionImageUrls.size()) {
+                        imageUrl = instructionImageUrls.get(i);
+                    }
+
                     Instruction instruction = Instruction.builder()
                             .imageUrl(imageUrl)
                             .step((long) (i + 1))
                             .description(instructionDescriptions.get(i))
                             .build();
-                    instructionHashSet.add(instruction);
+
+                    recipe.getInstructions().add(instruction);
                 }
             }
 
-            recipe.setInstructions(instructionHashSet);
+            // Xử lý danh mục (category)
+            if (recipe.getCategory() != null) {
+                Category category = recipe.getCategory();
+                category.setRegion(Category.Region.valueOf(region));
+                category.setDifficulty(Category.Difficulty.valueOf(difficulty));
+                category.setMealType(Category.MealType.valueOf(mealType));
+                this.categoryService.save(category);
+            } else {
+                Category category = Category.builder()
+                        .difficulty(Category.Difficulty.valueOf(difficulty))
+                        .mealType(Category.MealType.valueOf(mealType))
+                        .region(Category.Region.valueOf(region))
+                        .recipe(recipe)
+                        .build();
+                recipe.setCategory(category);
+            }
 
-            // Lưu độ khó, ...
-            Category category = Category.builder()
-                    .difficulty(Category.Difficulty.valueOf(difficulty))
-                    .mealType(Category.MealType.valueOf(mealType))
-                    .region(Category.Region.valueOf(region))
-                    .recipe(recipe)
-                    .build();
-
-            recipe.setCategory(category);
-
-            // chuẩn hóa tên món
-            String tileName = recipeUtils.normalizeRecipeName(recipe.getTitle());
-            recipe.setTileName(tileName);
-
-
-            // tạo textAudio
+            // Tạo textAudio từ mô tả và các bước
             StringBuilder textBuilder = new StringBuilder();
-
             textBuilder.append("Tên món ăn: ").append(recipe.getTitle()).append(". ");
 
             if (recipe.getDescription() != null && !recipe.getDescription().isBlank()) {
@@ -160,23 +177,23 @@ public class RecipeService {
                 }
             }
 
-
             String textAudio = textBuilder.toString();
             System.out.println("📢 AudioText = " + textAudio);
 
             CompletableFuture<String> geminiTextAudioFuture = geminiService.generateTextAsync(textAudio);
+            String geminiTextAudio = geminiTextAudioFuture.get();
+            recipe.setTextAudio(geminiTextAudio);
 
+            // Chuẩn hóa tên món
+            String tileName = recipeUtils.normalizeRecipeName(recipe.getTitle());
+            recipe.setTileName(tileName);
+
+            // Lưu recipe cuối cùng
             this.recipeRepository.save(recipe);
-
-            String geminiTextAudio = geminiTextAudioFuture.get();  // Chờ kết quả trả về từ CompletableFuture
-            recipe.setTextAudio(geminiTextAudio);
-
-            recipe.setTextAudio(geminiTextAudio);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        this.recipeRepository.save(recipe);
     }
 
     public void createRecipeIsPendingNull(Recipe recipe, MultipartFile imageFile,
@@ -185,6 +202,7 @@ public class RecipeService {
                                           List<String> ingredientUnits,
                                           List<String> instructionDescriptions,
                                           List<MultipartFile> instructionImages,
+                                          List<String> instructionImageUrls,
                                           String difficulty,
                                           String mealType,
                                           String region) {
@@ -242,14 +260,20 @@ public class RecipeService {
             }
 
             HashSet<Instruction> instructionHashSet = new HashSet<>();
-            if (instructionDescriptions != null && instructionImages != null
-                    && instructionDescriptions.size() == instructionImages.size()) {
+
+            if (instructionDescriptions != null) {
                 for (int i = 0; i < instructionDescriptions.size(); i++) {
                     if (instructionDescriptions.get(i) != null && !instructionDescriptions.get(i).isBlank()) {
                         String imageUrl = null;
-                        if (instructionImages.get(i) != null && !instructionImages.get(i).isEmpty()) {
+
+                        if (instructionImages != null && i < instructionImages.size()
+                                && instructionImages.get(i) != null && !instructionImages.get(i).isEmpty()) {
                             imageUrl = this.imageService.saveImage(instructionImages.get(i), "instruction");
                         }
+                        else if (instructionImageUrls != null && i < instructionImageUrls.size()) {
+                            imageUrl = instructionImageUrls.get(i);
+                        }
+
                         Instruction instruction = Instruction.builder()
                                 .imageUrl(imageUrl)
                                 .step((long) (i + 1))
@@ -376,7 +400,7 @@ public class RecipeService {
     }
 
     public List<Recipe> findTop3ByOrderByLikeCountDesc() {
-        return this.recipeRepository.findTop3ByOrderByLikeCountDesc();
+        return this.recipeRepository.findTop3ByIsPendingRecipeFalseOrderByLikeCountDesc();
     }
 
     public List<Recipe> findTop4ByTileNameLike(String keyword) {
@@ -388,25 +412,10 @@ public class RecipeService {
     }
 
 
-    public Page<Recipe> getAllRecipes(Pageable pageable) {
-        return recipeRepository.findAll(pageable);
-    }
-
     public Page<Recipe> getAllApprovedRecipes(Pageable pageable) {
         return recipeRepository.findByIsPendingRecipeFalse(pageable); // Lấy công thức đã duyệt
     }
 
-    public Page<Recipe> searchRecipes(String title, String userName, Pageable pageable) {
-        if (title != null && !title.isEmpty() && userName != null && !userName.isEmpty()) {
-            return recipeRepository.findByTitleContainingIgnoreCaseAndUserUserNameContainingIgnoreCase(title, userName, pageable);
-        } else if (title != null && !title.isEmpty()) {
-            return recipeRepository.findByTitleContainingIgnoreCase(title, pageable);
-        } else if (userName != null && !userName.isEmpty()) {
-            return recipeRepository.findByUserUserNameContainingIgnoreCase(userName, pageable);
-        } else {
-            return recipeRepository.findAll(pageable);
-        }
-    }
 
     public Page<Recipe> searchApprovedRecipes(String title, String userName, Pageable pageable) {
         if (title != null && !title.isEmpty() && userName != null && !userName.isEmpty()) {
@@ -443,9 +452,6 @@ public class RecipeService {
         recipeRepository.save(recipe);
     }
 
-    public long getTotalRecipes() {
-        return recipeRepository.count();
-    }
 
     public long getTotalApprovedRecipes() {
         return recipeRepository.countByIsPendingRecipeFalse();
@@ -456,7 +462,9 @@ public class RecipeService {
     }
 
     public long getTotalLikes() {
-        return recipeRepository.sumLikeCount();
+
+        Long sumLike = recipeRepository.sumLikeCount();
+        return sumLike != null ? sumLike : 0L;
     }
 
     public List<Recipe> findByUserId(Long id) {
@@ -513,9 +521,6 @@ public class RecipeService {
         recipeRepository.save(recipe);
     }
 
-    public List<Recipe> findTop5ByTitleContainingIgnoreCase(String title) {
-        return recipeRepository.findTop5ByTitleContainingIgnoreCase(title);
-    }
 
     public void setParentRecipe(Long recipeId, Long parentId) {
         Recipe recipe = recipeRepository.findById(recipeId)
@@ -525,7 +530,7 @@ public class RecipeService {
     }
 
     public List<Recipe> findTopSimilarByTileName(String text, int top) {
-        List<Recipe> allRecipes = recipeRepository.findAll();
+        List<Recipe> allRecipes = recipeRepository.findByIsPendingRecipeFalse();
 
         Map<Recipe, Integer> distanceMap = new HashMap<>();
         for (Recipe recipe : allRecipes) {
@@ -644,4 +649,9 @@ public class RecipeService {
         return recipes;
     }
 
+    public List<Recipe> remoteRecipeIsPendingRecipeNull(List<Recipe> recipes) {
+        return recipes.stream()
+                .filter(recipe -> recipe.getIsPendingRecipe() != null && !recipe.getIsPendingRecipe())
+                .toList();
+    }
 }

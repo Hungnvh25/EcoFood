@@ -159,12 +159,9 @@ public class RecipeAdminController {
             }
             Long recipeId = Long.parseLong(id);
             Recipe recipe = this.recipeService.getRecipeById(recipeId);
-            if (!recipe.getIsPendingRecipe()) {
-                redirectAttributes.addFlashAttribute("error", "Chỉ có thể xóa công thức đang chờ duyệt.");
-                return "redirect:/admin/pending-recipes";
-            }
-            this.recipeService.deleteRecipe(recipeId);
-            redirectAttributes.addFlashAttribute("success", "Công thức đã được xóa thành công.");
+            recipe.setIsPendingRecipe(null);
+            this.recipeService.saveRecipe(recipe);
+            redirectAttributes.addFlashAttribute("success", "Công thức đã được xóa khỏi hàng đợi.");
         } catch (NumberFormatException e) {
             redirectAttributes.addFlashAttribute("error", "ID công thức không hợp lệ.");
         } catch (Exception e) {
