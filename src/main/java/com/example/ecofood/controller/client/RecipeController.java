@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -55,6 +56,8 @@ public class RecipeController {
             Model model) {
 
         List<Recipe> searchResults = this.recipeService.searchRecipesByTitleAndFilters(keyword, difficulty, mealType, region);
+
+        searchResults = this.recipeService.remoteRecipeIsPendingRecipeNull(searchResults);
 
         model.addAttribute("searchResults", searchResults);
         model.addAttribute("keyword", keyword);

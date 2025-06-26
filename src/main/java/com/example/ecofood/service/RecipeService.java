@@ -79,6 +79,7 @@ public class RecipeService {
                 recipe.setIsPendingRecipe(true);
             }
 
+
             // Sửa tiêu đề
             String formatTile = recipeUtils.capitalizeFirstLetter(recipe.getTitle());
             recipe.setTitle(formatTile);
@@ -183,7 +184,7 @@ public class RecipeService {
             recipe.setTextAudio(geminiTextAudio);
 
             recipe.setTextAudio(geminiTextAudio);
-
+            this.recipeRepository.save(recipe);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -387,7 +388,7 @@ public class RecipeService {
     }
 
     public List<Recipe> findTop3ByOrderByLikeCountDesc() {
-        return this.recipeRepository.findTop3ByOrderByLikeCountDesc();
+        return this.recipeRepository.findTop3ByIsPendingRecipeFalseOrderByLikeCountDesc();
     }
 
     public List<Recipe> findTop4ByTileNameLike(String keyword) {
@@ -399,25 +400,10 @@ public class RecipeService {
     }
 
 
-    public Page<Recipe> getAllRecipes(Pageable pageable) {
-        return recipeRepository.findAll(pageable);
-    }
-
     public Page<Recipe> getAllApprovedRecipes(Pageable pageable) {
         return recipeRepository.findByIsPendingRecipeFalse(pageable); // Lấy công thức đã duyệt
     }
 
-    public Page<Recipe> searchRecipes(String title, String userName, Pageable pageable) {
-        if (title != null && !title.isEmpty() && userName != null && !userName.isEmpty()) {
-            return recipeRepository.findByTitleContainingIgnoreCaseAndUserUserNameContainingIgnoreCase(title, userName, pageable);
-        } else if (title != null && !title.isEmpty()) {
-            return recipeRepository.findByTitleContainingIgnoreCase(title, pageable);
-        } else if (userName != null && !userName.isEmpty()) {
-            return recipeRepository.findByUserUserNameContainingIgnoreCase(userName, pageable);
-        } else {
-            return recipeRepository.findAll(pageable);
-        }
-    }
 
     public Page<Recipe> searchApprovedRecipes(String title, String userName, Pageable pageable) {
         if (title != null && !title.isEmpty() && userName != null && !userName.isEmpty()) {
@@ -454,9 +440,6 @@ public class RecipeService {
         recipeRepository.save(recipe);
     }
 
-    public long getTotalRecipes() {
-        return recipeRepository.count();
-    }
 
     public long getTotalApprovedRecipes() {
         return recipeRepository.countByIsPendingRecipeFalse();
@@ -526,9 +509,6 @@ public class RecipeService {
         recipeRepository.save(recipe);
     }
 
-    public List<Recipe> findTop5ByTitleContainingIgnoreCase(String title) {
-        return recipeRepository.findTop5ByTitleContainingIgnoreCase(title);
-    }
 
     public void setParentRecipe(Long recipeId, Long parentId) {
         Recipe recipe = recipeRepository.findById(recipeId)
@@ -538,7 +518,7 @@ public class RecipeService {
     }
 
     public List<Recipe> findTopSimilarByTileName(String text, int top) {
-        List<Recipe> allRecipes = recipeRepository.findAll();
+        List<Recipe> allRecipes = recipeRepository.findByIsPendingRecipeFalse();
 
         Map<Recipe, Integer> distanceMap = new HashMap<>();
         for (Recipe recipe : allRecipes) {
@@ -657,4 +637,9 @@ public class RecipeService {
         return recipes;
     }
 
+    public List<Recipe> remoteRecipeIsPendingRecipeNull(List<Recipe> recipes) {
+        return recipes.stream()
+                .filter(recipe -> recipe.getIsPendingRecipe() != null && !recipe.getIsPendingRecipe())
+                .toList();
+    }
 }

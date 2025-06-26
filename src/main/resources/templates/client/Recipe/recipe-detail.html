@@ -117,7 +117,7 @@
                             </div>
 
                             <!-- Kiểm tra isPendingRecipe và hiển thị icon + thông báo -->
-                            <div th:if="${recipe.isPendingRecipe == true}" class="col-md-6 d-flex align-items-center">
+                            <div th:if="${!recipe.isPendingRecipe}" class="col-md-6 d-flex align-items-center">
                                 <i class="fa-solid fa-medal text-success me-2" style="font-size: 1.2rem;"></i>
                                 <span class="text-success">Món ăn đã được kiểm duyệt</span>
                             </div>
