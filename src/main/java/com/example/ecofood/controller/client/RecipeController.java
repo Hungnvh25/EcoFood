@@ -129,7 +129,6 @@ public class RecipeController {
                         instructionDescriptions == null || instructionDescriptions.isEmpty()) {
                     return "client/Recipe/add";
                 }
-                recipe.setIsPendingRecipe(true);
                 this.notificationService.createRecipePendingNotification(recipe);
                 this.recipeService.createRecipe(recipe, imageFile, ingredientIds, ingredientQuantities, ingredientUnits,
                         instructionDescriptions, instructionImages, difficulty, mealType, region);

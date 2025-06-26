@@ -49,7 +49,7 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
     long countByIsPendingRecipeFalse();
 
-    @Query("SELECT SUM(r.likeCount) FROM Recipe r")
+    @Query("SELECT COALESCE(SUM(r.likeCount), 0) FROM Recipe r")
     long sumLikeCount();
 
     List<Recipe> findByUserId(Long id);

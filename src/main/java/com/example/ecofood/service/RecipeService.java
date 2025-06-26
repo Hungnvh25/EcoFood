@@ -42,6 +42,7 @@ public class RecipeService {
     TextToSpeechService textToSpeechService;
 
     LevenshteinDistance levenshteinDistance;
+    CategoryService categoryService;
 
     public List<Recipe> getAllRecipes() {
         List<Recipe> recipeList = recipeRepository.findAll();
@@ -73,6 +74,11 @@ public class RecipeService {
 
         try {
 
+            if (recipe.getId() != null){
+                recipe = this.getRecipeById(recipe.getId());
+                recipe.setIsPendingRecipe(true);
+            }
+
             // Sửa tiêu đề
             String formatTile = recipeUtils.capitalizeFirstLetter(recipe.getTitle());
             recipe.setTitle(formatTile);
@@ -86,12 +92,14 @@ public class RecipeService {
             User user = this.userService.getCurrentUser();
             recipe.setUser(user);
 
-            HashSet<RecipeIngredient> recipeIngredientHashSet = new HashSet<>();
-
-            // lưu nguyên liệu
+            if (recipe.getRecipeIngredients() != null) {
+                recipe.getRecipeIngredients().clear();
+            } else {
+                recipe.setRecipeIngredients(new HashSet<>());
+            }
+            // Thêm mới từng nguyên liệu
             if (ingredientIds != null && !ingredientIds.isEmpty()) {
                 for (int i = 0; i < ingredientIds.size(); i++) {
-
                     Ingredient ingredient = this.ingredientRepository.findAllById(ingredientIds.get(i));
 
                     RecipeIngredient recipeIngredient = RecipeIngredient.builder()
@@ -100,44 +108,49 @@ public class RecipeService {
                             .quantity(ingredientQuantities.get(i))
                             .unit(RecipeIngredient.Unit.valueOf(ingredientUnits.get(i)))
                             .build();
-                    recipeIngredientHashSet.add(recipeIngredient);
+                    recipe.getRecipeIngredients().add(recipeIngredient);
 
                     saveNutrition(recipe, ingredient, recipeIngredient);
-
-
                 }
             }
 
-            recipe.setRecipeIngredients(recipeIngredientHashSet);
-
             // Lưu bước làm
 
-            HashSet<Instruction> instructionHashSet = new HashSet<>();
-
+            if (recipe.getInstructions() != null) {
+                recipe.getInstructions().clear();
+            } else {
+                recipe.setInstructions(new HashSet<>());
+            }
+            // Thêm mới từng bước làm
             if (instructionDescriptions != null && !instructionDescriptions.isEmpty()) {
                 for (int i = 0; i < instructionDescriptions.size(); i++) {
-
                     String imageUrl = this.imageService.saveImage(instructionImages.get(i), "instruction");
                     Instruction instruction = Instruction.builder()
                             .imageUrl(imageUrl)
                             .step((long) (i + 1))
                             .description(instructionDescriptions.get(i))
                             .build();
-                    instructionHashSet.add(instruction);
+                    recipe.getInstructions().add(instruction);
                 }
             }
 
-            recipe.setInstructions(instructionHashSet);
 
-            // Lưu độ khó, ...
-            Category category = Category.builder()
-                    .difficulty(Category.Difficulty.valueOf(difficulty))
-                    .mealType(Category.MealType.valueOf(mealType))
-                    .region(Category.Region.valueOf(region))
-                    .recipe(recipe)
-                    .build();
-
-            recipe.setCategory(category);
+            if(recipe.getCategory() != null){
+                Category  category = recipe.getCategory();
+                category.setRegion(Category.Region.valueOf(region));
+                category.setDifficulty(Category.Difficulty.valueOf(difficulty));
+                category.setMealType(Category.MealType.valueOf(mealType));
+                this.categoryService.save(category);
+            }else {
+                // Lưu độ khó, ...
+              Category category = Category.builder()
+                        .difficulty(Category.Difficulty.valueOf(difficulty))
+                        .mealType(Category.MealType.valueOf(mealType))
+                        .region(Category.Region.valueOf(region))
+                        .recipe(recipe)
+                        .build();
+                recipe.setCategory(category);
+            }
 
             // chuẩn hóa tên món
             String tileName = recipeUtils.normalizeRecipeName(recipe.getTitle());
@@ -166,9 +179,7 @@ public class RecipeService {
 
             CompletableFuture<String> geminiTextAudioFuture = geminiService.generateTextAsync(textAudio);
 
-            this.recipeRepository.save(recipe);
-
-            String geminiTextAudio = geminiTextAudioFuture.get();  // Chờ kết quả trả về từ CompletableFuture
+            String geminiTextAudio = geminiTextAudioFuture.get();
             recipe.setTextAudio(geminiTextAudio);
 
             recipe.setTextAudio(geminiTextAudio);
@@ -456,7 +467,9 @@ public class RecipeService {
     }
 
     public long getTotalLikes() {
-        return recipeRepository.sumLikeCount();
+
+        Long sumLike = recipeRepository.sumLikeCount();
+        return sumLike != null ? sumLike : 0L;
     }
 
     public List<Recipe> findByUserId(Long id) {
