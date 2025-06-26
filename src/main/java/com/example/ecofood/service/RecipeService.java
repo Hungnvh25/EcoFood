@@ -67,24 +67,22 @@ public class RecipeService {
                              List<String> ingredientUnits,
                              List<String> instructionDescriptions,
                              List<MultipartFile> instructionImages,
+                             List<String> instructionImageUrls,
                              String difficulty,
                              String mealType,
                              String region) {
 
-
         try {
-
             if (recipe.getId() != null){
                 recipe = this.getRecipeById(recipe.getId());
                 recipe.setIsPendingRecipe(true);
             }
 
-
             // Sửa tiêu đề
             String formatTile = recipeUtils.capitalizeFirstLetter(recipe.getTitle());
             recipe.setTitle(formatTile);
 
-            //set imagge
+            // Cập nhật hình ảnh chính của món ăn
             if (!imageFile.isEmpty()) {
                 String imageUrlRecipe = this.imageService.saveImage(imageFile, "Recipe");
                 recipe.setImageUrl(imageUrlRecipe);
@@ -93,12 +91,13 @@ public class RecipeService {
             User user = this.userService.getCurrentUser();
             recipe.setUser(user);
 
+            // Xử lý nguyên liệu
             if (recipe.getRecipeIngredients() != null) {
                 recipe.getRecipeIngredients().clear();
             } else {
                 recipe.setRecipeIngredients(new HashSet<>());
             }
-            // Thêm mới từng nguyên liệu
+
             if (ingredientIds != null && !ingredientIds.isEmpty()) {
                 for (int i = 0; i < ingredientIds.size(); i++) {
                     Ingredient ingredient = this.ingredientRepository.findAllById(ingredientIds.get(i));
@@ -109,42 +108,52 @@ public class RecipeService {
                             .quantity(ingredientQuantities.get(i))
                             .unit(RecipeIngredient.Unit.valueOf(ingredientUnits.get(i)))
                             .build();
-                    recipe.getRecipeIngredients().add(recipeIngredient);
 
+                    recipe.getRecipeIngredients().add(recipeIngredient);
                     saveNutrition(recipe, ingredient, recipeIngredient);
                 }
             }
 
-            // Lưu bước làm
-
+            // Xử lý các bước làm món
             if (recipe.getInstructions() != null) {
                 recipe.getInstructions().clear();
             } else {
                 recipe.setInstructions(new HashSet<>());
             }
-            // Thêm mới từng bước làm
+
             if (instructionDescriptions != null && !instructionDescriptions.isEmpty()) {
                 for (int i = 0; i < instructionDescriptions.size(); i++) {
-                    String imageUrl = this.imageService.saveImage(instructionImages.get(i), "instruction");
+                    String imageUrl = null;
+
+                    // Nếu có file ảnh mới → upload
+                    if (instructionImages != null && i < instructionImages.size()
+                            && !instructionImages.get(i).isEmpty()) {
+                        imageUrl = this.imageService.saveImage(instructionImages.get(i), "instruction");
+                    }
+                    // Nếu không có file mới nhưng có URL cũ → giữ lại
+                    else if (instructionImageUrls != null && i < instructionImageUrls.size()) {
+                        imageUrl = instructionImageUrls.get(i);
+                    }
+
                     Instruction instruction = Instruction.builder()
                             .imageUrl(imageUrl)
                             .step((long) (i + 1))
                             .description(instructionDescriptions.get(i))
                             .build();
+
                     recipe.getInstructions().add(instruction);
                 }
             }
 
-
-            if(recipe.getCategory() != null){
-                Category  category = recipe.getCategory();
+            // Xử lý danh mục (category)
+            if (recipe.getCategory() != null) {
+                Category category = recipe.getCategory();
                 category.setRegion(Category.Region.valueOf(region));
                 category.setDifficulty(Category.Difficulty.valueOf(difficulty));
                 category.setMealType(Category.MealType.valueOf(mealType));
                 this.categoryService.save(category);
-            }else {
-                // Lưu độ khó, ...
-              Category category = Category.builder()
+            } else {
+                Category category = Category.builder()
                         .difficulty(Category.Difficulty.valueOf(difficulty))
                         .mealType(Category.MealType.valueOf(mealType))
                         .region(Category.Region.valueOf(region))
@@ -153,14 +162,8 @@ public class RecipeService {
                 recipe.setCategory(category);
             }
 
-            // chuẩn hóa tên món
-            String tileName = recipeUtils.normalizeRecipeName(recipe.getTitle());
-            recipe.setTileName(tileName);
-
-
-            // tạo textAudio
+            // Tạo textAudio từ mô tả và các bước
             StringBuilder textBuilder = new StringBuilder();
-
             textBuilder.append("Tên món ăn: ").append(recipe.getTitle()).append(". ");
 
             if (recipe.getDescription() != null && !recipe.getDescription().isBlank()) {
@@ -174,21 +177,23 @@ public class RecipeService {
                 }
             }
 
-
             String textAudio = textBuilder.toString();
             System.out.println("📢 AudioText = " + textAudio);
 
             CompletableFuture<String> geminiTextAudioFuture = geminiService.generateTextAsync(textAudio);
-
             String geminiTextAudio = geminiTextAudioFuture.get();
             recipe.setTextAudio(geminiTextAudio);
 
-            recipe.setTextAudio(geminiTextAudio);
+            // Chuẩn hóa tên món
+            String tileName = recipeUtils.normalizeRecipeName(recipe.getTitle());
+            recipe.setTileName(tileName);
+
+            // Lưu recipe cuối cùng
             this.recipeRepository.save(recipe);
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        this.recipeRepository.save(recipe);
     }
 
     public void createRecipeIsPendingNull(Recipe recipe, MultipartFile imageFile,
@@ -197,6 +202,7 @@ public class RecipeService {
                                           List<String> ingredientUnits,
                                           List<String> instructionDescriptions,
                                           List<MultipartFile> instructionImages,
+                                          List<String> instructionImageUrls,
                                           String difficulty,
                                           String mealType,
                                           String region) {
@@ -254,14 +260,20 @@ public class RecipeService {
             }
 
             HashSet<Instruction> instructionHashSet = new HashSet<>();
-            if (instructionDescriptions != null && instructionImages != null
-                    && instructionDescriptions.size() == instructionImages.size()) {
+
+            if (instructionDescriptions != null) {
                 for (int i = 0; i < instructionDescriptions.size(); i++) {
                     if (instructionDescriptions.get(i) != null && !instructionDescriptions.get(i).isBlank()) {
                         String imageUrl = null;
-                        if (instructionImages.get(i) != null && !instructionImages.get(i).isEmpty()) {
+
+                        if (instructionImages != null && i < instructionImages.size()
+                                && instructionImages.get(i) != null && !instructionImages.get(i).isEmpty()) {
                             imageUrl = this.imageService.saveImage(instructionImages.get(i), "instruction");
                         }
+                        else if (instructionImageUrls != null && i < instructionImageUrls.size()) {
+                            imageUrl = instructionImageUrls.get(i);
+                        }
+
                         Instruction instruction = Instruction.builder()
                                 .imageUrl(imageUrl)
                                 .step((long) (i + 1))

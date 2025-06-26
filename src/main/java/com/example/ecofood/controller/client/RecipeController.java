@@ -42,7 +42,11 @@ public class RecipeController {
         // Lấy danh sách recipes từ service
         List<Recipe> recipes = this.recipeService.getAllRecipesIsPendingFalse();
         recipes = this.recipeService.remoteRecipeListIsPremiumNull(recipes);
-        model.addAttribute("recipes", recipes);
+
+        Collections.shuffle(recipes);
+        List<Recipe> randomRecipes = recipes.size() > 10 ? recipes.subList(0, 10) : recipes;
+
+        model.addAttribute("recipes", randomRecipes);
 
         return "index";
     }
@@ -115,6 +119,7 @@ public class RecipeController {
             @RequestParam(value = "ingredientUnits", required = false) List<String> ingredientUnits,
             @RequestParam(value = "instructionDescriptions", required = false) List<String> instructionDescriptions,
             @RequestParam(value = "image", required = false) List<MultipartFile> instructionImages,
+            @RequestParam(value = "instructionImageUrls", required = false) List<String> instructionImageUrls,
             @RequestParam(value = "difficulty", required = true) String difficulty,
             @RequestParam(value = "mealType", required = true) String mealType,
             @RequestParam(value = "region", required = true) String region,
@@ -134,12 +139,12 @@ public class RecipeController {
                 }
                 this.notificationService.createRecipePendingNotification(recipe);
                 this.recipeService.createRecipe(recipe, imageFile, ingredientIds, ingredientQuantities, ingredientUnits,
-                        instructionDescriptions, instructionImages, difficulty, mealType, region);
+                        instructionDescriptions, instructionImages,instructionImageUrls, difficulty, mealType, region);
                 message = "Món ăn của bạn đang được chờ duyệt";
             } else {
                 // Gọi hàm lưu không kiểm tra bắt buộc khi không publish
                 this.recipeService.createRecipeIsPendingNull(recipe, imageFile, ingredientIds, ingredientQuantities, ingredientUnits,
-                        instructionDescriptions, instructionImages, difficulty, mealType, region);
+                        instructionDescriptions, instructionImages,instructionImageUrls, difficulty, mealType, region);
                 message = "Món ăn lưu thành công vào món nháp";
 
             }
