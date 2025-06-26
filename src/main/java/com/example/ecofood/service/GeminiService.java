@@ -80,7 +80,7 @@ public class GeminiService {
             resultString = callGeminiAPI(input);
             int outputStepCount = countStepsInText(resultString);
 
-            if (outputStepCount == inputStepCount) {
+            if (outputStepCount == inputStepCount || inputStepCount == 0) {
                 break;
             }
 

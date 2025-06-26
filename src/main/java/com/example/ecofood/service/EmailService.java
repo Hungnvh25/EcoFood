@@ -16,7 +16,7 @@ public class EmailService {
     private JavaMailSender mailSender;
 
 
-
+    @Async
     public void sendRegistrationSuccessNotification(UserDTO user, String confirmPassword) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("ecofood.2025@gmail.com"); // Email của bạn

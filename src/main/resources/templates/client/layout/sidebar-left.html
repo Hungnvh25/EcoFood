@@ -35,7 +35,9 @@
     </a>
 
     <!-- Menu Admin -->
-    <div>
+    <div th:if="${currentUser.role.name() == 'ADMIN'}" >
+
+      <div>
       <a href="#adminSubMenu" class="list-group-item list-group-item-action border-0 py-3 ms-4 menu-item-hover"
          data-bs-toggle="collapse" id="adminToggle">
         <i class="fas fa-user-tie me-2"></i> Quản trị viên
@@ -64,6 +66,8 @@
         </div>
       </div>
     </div>
+    </div>
+
   </div>
 
   <style>
