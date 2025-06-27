@@ -54,14 +54,14 @@ public class RecipeAdminController {
         if (result.hasErrors()) {
             StringBuilder errorMessage = new StringBuilder();
             result.getAllErrors().forEach(error -> errorMessage.append(error.getDefaultMessage()).append("; "));
-            redirectAttributes.addFlashAttribute("error", errorMessage.toString());
+            redirectAttributes.addFlashAttribute("false", errorMessage.toString());
             return "redirect:/admin/recipe";
         }
         try {
             this.recipeService.saveRecipe(recipe);
             redirectAttributes.addFlashAttribute("success", "Công thức đã được cập nhật thành công.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Không thể cập nhật công thức: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("false", "Không thể cập nhật công thức: " + e.getMessage());
         }
         return "redirect:/admin/recipe";
     }
@@ -70,37 +70,13 @@ public class RecipeAdminController {
     public String deleteRecipe(@RequestParam("id") String id, RedirectAttributes redirectAttributes) {
         try {
             if (id == null || id.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "Yêu cầu ID công thức.");
+                redirectAttributes.addFlashAttribute("false", "Yêu cầu ID công thức.");
                 return "redirect:/admin/recipe";
             }
             this.recipeService.deleteRecipe(Long.parseLong(id));
             redirectAttributes.addFlashAttribute("success", "Công thức đã được xóa thành công.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Không thể xóa công thức: " + e.getMessage());
-        }
-        return "redirect:/admin/recipe";
-    }
-
-    @GetMapping("/recipe/create")
-    public String showAddRecipeForm(Model model) {
-        model.addAttribute("newRecipe", new Recipe());
-        return "admin/recipe/addRecipe";
-    }
-
-    @PostMapping("/recipe/add")
-    public String addRecipe(@Valid @ModelAttribute("newRecipe") Recipe recipe, BindingResult result, RedirectAttributes redirectAttributes) {
-        if (result.hasErrors()) {
-            StringBuilder errorMessage = new StringBuilder();
-            result.getAllErrors().forEach(error -> errorMessage.append(error.getDefaultMessage()).append("; "));
-            redirectAttributes.addFlashAttribute("error", errorMessage.toString());
-            return "admin/recipe/addRecipe";
-        }
-
-        try {
-            this.recipeService.createRecipe(recipe);
-            redirectAttributes.addFlashAttribute("success", "Công thức đã được thêm thành công.");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Không thể thêm công thức: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("false", "Không thể xóa công thức: " + e.getMessage());
         }
         return "redirect:/admin/recipe";
     }
@@ -130,22 +106,22 @@ public class RecipeAdminController {
     @PostMapping("/recipe/approve")
     public String approveRecipe(@RequestParam("id") String id, RedirectAttributes redirectAttributes) {
         try {
-            if (id == null || id.isEmpty()) {redirectAttributes.addFlashAttribute("error", "Yêu cầu ID công thức.");
+            if (id == null || id.isEmpty()) {redirectAttributes.addFlashAttribute("false", "Yêu cầu ID công thức.");
                 return "redirect:/admin/pending-recipes";
             }
             Long recipeId = Long.parseLong(id);
             Recipe recipe = this.recipeService.getRecipeById(recipeId);
             if (!recipe.getIsPendingRecipe()) {
-                redirectAttributes.addFlashAttribute("error", "Công thức này không ở trạng thái đang chờ duyệt.");
+                redirectAttributes.addFlashAttribute("false", "Công thức này không ở trạng thái đang chờ duyệt.");
                 return "redirect:/admin/pending-recipes";
             }
             this.recipeService.approveRecipe(recipeId);
             this.notificationService.createRecipeStatusNotification(recipe,true);
             redirectAttributes.addFlashAttribute("success", "Công thức được phê duyệt thành công.");
         } catch (NumberFormatException e) {
-            redirectAttributes.addFlashAttribute("error", "ID công thức không hợp lệ.");
+            redirectAttributes.addFlashAttribute("false", "ID công thức không hợp lệ.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Không thể phê duyệt công thức: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("false", "Không thể phê duyệt công thức: " + e.getMessage());
         }
         return "redirect:/admin/pending-recipes";
     }
@@ -154,7 +130,7 @@ public class RecipeAdminController {
     public String deletePendingRecipe(@RequestParam("id") String id, RedirectAttributes redirectAttributes) {
         try {
             if (id == null || id.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "Yêu cầu ID công thức.");
+                redirectAttributes.addFlashAttribute("false", "Yêu cầu ID công thức.");
                 return "redirect:/admin/pending-recipes";
             }
             Long recipeId = Long.parseLong(id);
@@ -163,9 +139,9 @@ public class RecipeAdminController {
             this.recipeService.saveRecipe(recipe);
             redirectAttributes.addFlashAttribute("success", "Công thức đã được xóa khỏi hàng đợi.");
         } catch (NumberFormatException e) {
-            redirectAttributes.addFlashAttribute("error", "ID công thức không hợp lệ.");
+            redirectAttributes.addFlashAttribute("false", "ID công thức không hợp lệ.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Không thể xóa công thức: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("false", "Không thể xóa công thức: " + e.getMessage());
         }
         return "redirect:/admin/pending-recipes";
     }
@@ -191,7 +167,7 @@ public class RecipeAdminController {
                                   RedirectAttributes redirectAttributes) {
         try {
             if (recipeId == null || recipeId.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "Yêu cầu ID công thức.");
+                redirectAttributes.addFlashAttribute("false", "Yêu cầu ID công thức.");
                 return "redirect:/admin/pending-recipes";
             }
             Long recipeIdLong = Long.parseLong(recipeId);
@@ -199,16 +175,16 @@ public class RecipeAdminController {
             if (parentIdLong != null) {
                 Recipe parentRecipe = this.recipeService.getRecipeById(parentIdLong);
                 if (parentRecipe.getIsPendingRecipe()) {
-                    redirectAttributes.addFlashAttribute("error", "Công thức cha không được ở trạng thái đang chờ duyệt.");
+                    redirectAttributes.addFlashAttribute("false", "Công thức cha không được ở trạng thái đang chờ duyệt.");
                     return "redirect:/admin/pending-recipes";
                 }
             }
             this.recipeService.setParentRecipe(recipeIdLong, parentIdLong);
             redirectAttributes.addFlashAttribute("success", "Công thức cha được thiết lập thành công.");
         } catch (NumberFormatException e) {
-            redirectAttributes.addFlashAttribute("error", "ID công thức hoặc ID công thức cha không hợp lệ.");
+            redirectAttributes.addFlashAttribute("false", "ID công thức hoặc ID công thức cha không hợp lệ.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Không thể thiết lập công thức cha: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("false", "Không thể thiết lập công thức cha: " + e.getMessage());
         }
         return "redirect:/admin/pending-recipes";
     }

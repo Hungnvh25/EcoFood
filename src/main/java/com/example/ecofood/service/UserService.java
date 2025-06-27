@@ -184,8 +184,7 @@ public class UserService {
 
     }
 
-    public Boolean isNewPassWord(){
-        User user = this.getCurrentUser();
+    public Boolean isNewPassWord(User user){
         return  this.passwordEncoder.matches(this.passWordEmail, user.getPasswordHash());
     }
 

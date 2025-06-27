@@ -44,6 +44,7 @@ public class UserController {
 
         // Thêm dữ liệu vào model
         model.addAttribute("users", users);
+        model.addAttribute("newUser", new User());
         model.addAttribute("totalUsers", this.userService.getTotalUsers());
         model.addAttribute("revenue", "$12,345");
         model.addAttribute("totalProducts", 567);
@@ -68,7 +69,7 @@ public class UserController {
 
         // Cập nhật user
         this.userService.saveUser(user);
-        redirectAttributes.addFlashAttribute("success", "User updated successfully.");
+        redirectAttributes.addFlashAttribute("success", "Cập nhật người dùng thành công.");
         return "redirect:/admin/user";
     }
 
@@ -76,34 +77,30 @@ public class UserController {
     public String deleteUser(@RequestParam("id") String id, RedirectAttributes redirectAttributes) {
         try {
             if (id == null) {
-                redirectAttributes.addFlashAttribute("error", "User ID is required.");
+                redirectAttributes.addFlashAttribute("failed", "ID người dùng không tồn tại");
                 return "redirect:/admin/user";
             }
             this.userService.deleteUser(Long.parseLong(id));
-            redirectAttributes.addFlashAttribute("success", "User deleted successfully.");
+            redirectAttributes.addFlashAttribute("success", "Xóa người dùng thành công");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Failed to delete user: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("failed", "Lỗi xóa người dùng " + e.getMessage());
         }
         return "redirect:/admin/user";
     }
 
 
-    @GetMapping("/user/create")
-    public String showAddUserForm(Model model) {
-        User user = this.userService.getCurrentUser();
-        model.addAttribute("newUser", new User());
-        model.addAttribute("user", user);
-
-        return "admin/user/addUser";
-    }
-
     // API để xử lý thêm user
     @PostMapping("/user/create")
     public String addUser(@Valid @ModelAttribute("newUser") User user, BindingResult result, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
-            return "admin/user/addUser";
+            redirectAttributes.addFlashAttribute("failed", "Thêm người dùng thất bại");
+            return "redirect:/admin/user";
         }
 
+        if(this.userService.isEmailExist(user.getEmail())){
+            redirectAttributes.addFlashAttribute("failed", "Thêm người dùng thất bại email đã tồn tại");
+            return "redirect:/admin/user";
+        }
         UserDTO userDTO = UserDTO.builder()
                 .userName(user.getUserName())
                 .email(user.getEmail())
@@ -112,7 +109,7 @@ public class UserController {
                 .build();
         // Lưu user mới
         this.userService.createUser(userDTO);
-        redirectAttributes.addFlashAttribute("success", "User added successfully.");
+        redirectAttributes.addFlashAttribute("success", "Thêm người dùng thành công");
         return "redirect:/admin/user";
     }
 }

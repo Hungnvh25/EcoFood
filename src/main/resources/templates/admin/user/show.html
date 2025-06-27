@@ -58,15 +58,6 @@
             <!-- Bảng người dùng -->
             <div class="mt-4">
                 <h2>Người dùng</h2>
-                <!-- Thông báo lỗi/thành công -->
-                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <span th:text="${error}"></span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
-                </div>
-                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-                    <span th:text="${success}"></span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
-                </div>
                 <!-- Form tìm kiếm -->
                 <form th:action="@{/admin/user}" method="get" class="mb-3">
                     <div class="row">
@@ -82,7 +73,7 @@
                             <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
                         </div>
                         <div class="col-md-2">
-                            <a th:href="@{/admin/user/create}" style="background-color: #C3E66E" class="btn w-100">Thêm người dùng</a>
+                            <button type="button" class="btn w-100" style="background-color: #C3E66E" data-bs-toggle="modal" data-bs-target="#addUserModal">Thêm người dùng</button>
                         </div>
                     </div>
                 </form>
@@ -127,6 +118,8 @@
                                        data-bs-target="#userDetailModal">Chi tiết</a></li>
                                 <li><a class="dropdown-item delete-user-btn" data-bs-toggle="modal"
                                        data-bs-target="#deleteConfirmModal">Xóa</a></li>
+
+
                             </ul>
                         </td>
                     </tr>
@@ -205,7 +198,7 @@
                         </div>
                         <div class="col-md-4 text-center">
                             <label class="form-label">Ảnh đại diện</label>
-                            <img id="detail-image" class="img-fluid rounded shadow-sm" alt="Ảnh đại diện" style="max-height: 200px;" th:src="${editUser != null && editUser.userSetting != null ? editUser.userSetting.urlImage : '/uploads/default.jpg'}">
+                            <img id="detail-image" class="img-fluid rounded shadow-sm" alt="Ảnh đại diện" style="max-height: 200px;" th:src="${editUser != null && editUser.userSetting != null ? editUser.userSetting.urlImage : '/Uploads/default.jpg'}">
                         </div>
                     </div>
                 </form>
@@ -214,6 +207,56 @@
             <div class="modal-footer bg-light">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                 <button type="submit" form="editUserForm" class="btn btn-primary">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal thêm người dùng -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addUserModalLabel">Thêm người dùng mới</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm" th:action="@{/admin/user/create}" method="post" th:object="${newUser}">
+                    <div class="mb-3">
+                        <label for="add-userName" class="form-label">Tên hiển thị</label>
+                        <input type="text" class="form-control" id="add-userName" th:field="*{userName}" placeholder="Tên hiển thị">
+                        <span th:if="${#fields.hasErrors('userName')}" th:errors="*{userName}" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="add-email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="add-email" th:field="*{email}" placeholder="Email">
+                        <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="add-passwordHash" class="form-label">Mật khẩu</label>
+                        <input type="password" class="form-control" id="add-passwordHash" th:field="*{passwordHash}" placeholder="Mật khẩu">
+                        <span th:if="${#fields.hasErrors('passwordHash')}" th:errors="*{passwordHash}" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="add-role" class="form-label">Vai trò</label>
+                        <select class="form-select" id="add-role" th:field="*{role}">
+                            <option value="CUSTOMER">KHÁCH HÀNG</option>
+                            <option value="ADMIN">QUẢN TRỊ VIÊN</option>
+                        </select>
+                        <span th:if="${#fields.hasErrors('role')}" th:errors="*{role}" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="add-premium" class="form-label">Premium</label>
+                        <select class="form-select" id="add-premium" th:field="*{premium}">
+                            <option value="true">Có</option>
+                            <option value="false">Không</option>
+                        </select>
+                        <span th:if="${#fields.hasErrors('premium')}" th:errors="*{premium}" class="text-danger"></span>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" form="addUserForm" class="btn btn-primary">Thêm người dùng</button>
             </div>
         </div>
     </div>
@@ -241,6 +284,8 @@
 </div>
 <!-- Import footer scripts -->
 <th:block th:replace="~{admin/layout/footer :: footer-scripts}"></th:block>
+<div th:replace="~{client/layout/toast :: toast(failed=${failed}, success=${success})}"></div>
+
 </body>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -306,6 +351,16 @@
                     });
                     deleteConfirmModal.show();
                 });
+            });
+
+            // Xử lý modal thêm người dùng
+            const addUserModal = document.getElementById('addUserModal');
+            addUserModal.addEventListener('hidden.bs.modal', function () {
+                // Xóa dữ liệu form khi modal đóng
+                document.getElementById('addUserForm').reset();
+                // Xóa thông báo lỗi
+                const errorElements = addUserModal.querySelectorAll('.text-danger');
+                errorElements.forEach(element => element.remove());
             });
 
             // Hàm làm sạch backdrop

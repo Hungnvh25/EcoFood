@@ -447,11 +447,6 @@ public class RecipeService {
         recipeRepository.deleteById(id);
     }
 
-    public void createRecipe(Recipe recipe) {
-        recipe.setCreatedDate(java.time.LocalDate.now());
-        recipeRepository.save(recipe);
-    }
-
 
     public long getTotalApprovedRecipes() {
         return recipeRepository.countByIsPendingRecipeFalse();

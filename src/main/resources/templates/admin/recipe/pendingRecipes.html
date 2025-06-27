@@ -63,16 +63,6 @@
             <!-- Bảng công thức đang chờ -->
             <div class="mt-4">
                 <h2>Công thức đang chờ duyệt</h2>
-
-                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <span th:text="${error}"></span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-                    <span th:text="${success}"></span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-
                 <!-- Form tìm kiếm -->
                 <form th:action="@{/admin/pending-recipes}" method="get" class="mb-3">
                     <div class="row g-2">

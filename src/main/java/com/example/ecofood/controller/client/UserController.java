@@ -91,14 +91,14 @@ public class UserController {
                                  @RequestParam("confirmPassword") String confirmPassword,
                                  HttpServletRequest request,RedirectAttributes redirectAttributes) {
         String refererUrl = request.getHeader("Referer");
-
+        User user = this.userService.getCurrentUser();
         try {
-            if (this.userService.isNewPassWord()){
+            if (this.userService.isNewPassWord(user)){
                 this.userService.setPassWordNewUser(confirmPassword);
                 redirectAttributes.addFlashAttribute("success", "Cập nhật mật khẩu thành công");
                 return "redirect:" + refererUrl;
             } else {
-                User user = this.userService.getCurrentUser();
+
                 if (this.passwordEncoder.matches(currentPassword, user.getPasswordHash()) && newPassword.equals(confirmPassword)){
                     this.userService.setPassWordNewUser(confirmPassword);
                     redirectAttributes.addFlashAttribute("success", "Cập nhật mật khẩu thành công");
