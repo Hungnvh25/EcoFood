@@ -61,7 +61,6 @@
 
             <div class="mt-4">
                 <h2>Nguyên liệu</h2>
-
                 <form th:action="@{/admin/ingredient}" method="get" class="mb-3">
                     <div class="row">
                         <div class="col-md-4">
@@ -98,7 +97,8 @@
                         th:data-calories="${ingredient.caloriesPer100g}"
                         th:data-protein="${ingredient.proteinPer100g}"
                         th:data-fat="${ingredient.fatPer100g}"
-                        th:data-carbohydrates="${ingredient.carbohydratesPer100g}">
+                        th:data-carbohydrates="${ingredient.carbohydratesPer100g}"
+                        th:data-avgG="${ingredient.avgG}">
                         <td th:text="${ingredient.id}"></td>
                         <td th:text="${ingredient.name}"></td>
                         <td th:text="${ingredient.description}"></td>
@@ -155,7 +155,7 @@
                 </div>
                 <form id="addIngredientForm" th:action="@{/admin/ingredient/add}" method="post" th:object="${newIngredient}" enctype="multipart/form-data">
                     <div class="row">
-                        <div class="col-md-8">
+                        <div class="col-md-4">
                             <div class="mb-3">
                                 <label for="add-name" class="form-label">Tên</label>
                                 <input type="text" class="form-control" id="add-name" th:field="*{name}" th:value="${newIngredient?.name ?: ''}" placeholder="Nhập tên nguyên liệu" required>
@@ -167,11 +167,6 @@
                                 <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="text-danger"></span>
                             </div>
                             <div class="mb-3">
-                                <label for="add-imageFile" class="form-label">Hình ảnh Nguyên liệu</label>
-                                <input type="file" class="form-control" id="add-imageFile" name="imageFile" accept="image/*">
-                                <span th:if="${#fields.hasErrors('urlImage')}" th:errors="*{urlImage}" class="text-danger"></span>
-                            </div>
-                            <div class="mb-3">
                                 <label for="add-caloriesPer100g" class="form-label">Calo (trên 100g)</label>
                                 <input type="number" step="0.1" class="form-control" id="add-caloriesPer100g" th:field="*{caloriesPer100g}" th:value="${newIngredient?.caloriesPer100g ?: ''}" placeholder="Nhập calo" required>
                                 <span th:if="${#fields.hasErrors('caloriesPer100g')}" th:errors="*{caloriesPer100g}" class="text-danger"></span>
@@ -181,6 +176,8 @@
                                 <input type="number" step="0.1" class="form-control" id="add-proteinPer100g" th:field="*{proteinPer100g}" th:value="${newIngredient?.proteinPer100g ?: ''}" placeholder="Nhập protein" required>
                                 <span th:if="${#fields.hasErrors('proteinPer100g')}" th:errors="*{proteinPer100g}" class="text-danger"></span>
                             </div>
+                        </div>
+                        <div class="col-md-4">
                             <div class="mb-3">
                                 <label for="add-fatPer100g" class="form-label">Chất béo (trên 100g)</label>
                                 <input type="number" step="0.1" class="form-control" id="add-fatPer100g" th:field="*{fatPer100g}" th:value="${newIngredient?.fatPer100g ?: ''}" placeholder="Nhập chất béo" required>
@@ -195,6 +192,11 @@
                                 <label for="add-avgG" class="form-label">avgG (1 piece)</label>
                                 <input type="number" step="0.1" class="form-control" id="add-avgG" th:field="*{avgG}" th:value="${newIngredient?.avgG ?: ''}" placeholder="Nhập avgG" required>
                                 <span th:if="${#fields.hasErrors('avgG')}" th:errors="*{avgG}" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label for="add-imageFile" class="form-label">Hình ảnh Nguyên liệu</label>
+                                <input type="file" class="form-control" id="add-imageFile" name="imageFile" accept="image/*">
+                                <span th:if="${#fields.hasErrors('urlImage')}" th:errors="*{urlImage}" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-md-4 text-center">
@@ -296,6 +298,7 @@
         </div>
     </div>
 </div>
+<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <th:block th:replace="~{admin/layout/footer :: footer-scripts}"></th:block>
 <div th:replace="~{client/layout/toast :: toast(failed=${failed}, success=${success})}"></div>

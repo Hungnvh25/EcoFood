@@ -75,6 +75,10 @@ public class HomePage {
             return "client/register";
         }
 
+        if(this.userService.isEmailExist(userDTO.getEmail())){
+            result.rejectValue("email", "error.user", "Email đã tồn tại");
+            return "client/register";
+        }
 
         this.userService.createUser(userDTO);
         this.emailService.sendRegistrationSuccessNotification(userDTO,confirmPassword);
