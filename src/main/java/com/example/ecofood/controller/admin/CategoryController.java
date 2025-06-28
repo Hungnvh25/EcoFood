@@ -23,7 +23,6 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
-    // Hiển thị danh sách category với tìm kiếm và phân trang
     @GetMapping
     public String listCategories(
             @RequestParam(value = "name", required = false) String name,

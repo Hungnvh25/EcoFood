@@ -6,6 +6,20 @@
     <title>Nguyên liệu - Bảng điều khiển Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .dropdown-item:hover .dropdown-menu {
+            display: block;
+        }
+        .dropdown-item:hover > .dropdown-menu {
+            left: -100%;
+            right: auto;
+            top: 0;
+            transform: none;
+        }
+        .sidebarRight {
+            padding-right: 40px;
+        }
+    </style>
 </head>
 <body>
 <th:block th:replace="~{admin/layout/header :: header}"></th:block>
@@ -61,16 +75,6 @@
 
             <div class="mt-4">
                 <h2>Nguyên liệu</h2>
-
-                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <span th:text="${error}"></span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
-                </div>
-                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-                    <span th:text="${success}"></span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
-                </div>
-
                 <form th:action="@{/admin/ingredient}" method="get" class="mb-3">
                     <div class="row">
                         <div class="col-md-4">
@@ -83,7 +87,7 @@
                             <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
                         </div>
                         <div class="col-md-2">
-                            <a th:href="@{/admin/ingredient/add}" style="background-color: #C3E66E" class="btn w-100">Thêm Nguyên liệu</a>
+                            <button type="button" class="btn w-100" style="background-color: #C3E66E" data-bs-toggle="modal" data-bs-target="#addIngredientModal">Thêm Nguyên liệu</button>
                         </div>
                     </div>
                 </form>
@@ -107,7 +111,8 @@
                         th:data-calories="${ingredient.caloriesPer100g}"
                         th:data-protein="${ingredient.proteinPer100g}"
                         th:data-fat="${ingredient.fatPer100g}"
-                        th:data-carbohydrates="${ingredient.carbohydratesPer100g}">
+                        th:data-carbohydrates="${ingredient.carbohydratesPer100g}"
+                        th:data-avgG="${ingredient.avgG}">
                         <td th:text="${ingredient.id}"></td>
                         <td th:text="${ingredient.name}"></td>
                         <td th:text="${ingredient.description}"></td>
@@ -148,8 +153,82 @@
     </div>
 </div>
 
-<th:block th:replace="~{admin/layout/footer :: footer-modal}"></th:block>
+<!-- Modal thêm nguyên liệu -->
+<div class="modal fade" id="addIngredientModal" tabindex="-1" aria-labelledby="addIngredientModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addIngredientModalLabel">Thêm Nguyên liệu Mới</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Hiển thị thông báo lỗi -->
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+                <form id="addIngredientForm" th:action="@{/admin/ingredient/add}" method="post" th:object="${newIngredient}" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="add-name" class="form-label">Tên</label>
+                                <input type="text" class="form-control" id="add-name" th:field="*{name}" th:value="${newIngredient?.name ?: ''}" placeholder="Nhập tên nguyên liệu" required>
+                                <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label for="add-description" class="form-label">Mô tả</label>
+                                <textarea class="form-control" id="add-description" th:field="*{description}" th:value="${newIngredient?.description ?: ''}" rows="3" placeholder="Nhập mô tả"></textarea>
+                                <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label for="add-caloriesPer100g" class="form-label">Calo (trên 100g)</label>
+                                <input type="number" step="0.1" class="form-control" id="add-caloriesPer100g" th:field="*{caloriesPer100g}" th:value="${newIngredient?.caloriesPer100g ?: ''}" placeholder="Nhập calo" required>
+                                <span th:if="${#fields.hasErrors('caloriesPer100g')}" th:errors="*{caloriesPer100g}" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label for="add-proteinPer100g" class="form-label">Protein (trên 100g)</label>
+                                <input type="number" step="0.1" class="form-control" id="add-proteinPer100g" th:field="*{proteinPer100g}" th:value="${newIngredient?.proteinPer100g ?: ''}" placeholder="Nhập protein" required>
+                                <span th:if="${#fields.hasErrors('proteinPer100g')}" th:errors="*{proteinPer100g}" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="add-fatPer100g" class="form-label">Chất béo (trên 100g)</label>
+                                <input type="number" step="0.1" class="form-control" id="add-fatPer100g" th:field="*{fatPer100g}" th:value="${newIngredient?.fatPer100g ?: ''}" placeholder="Nhập chất béo" required>
+                                <span th:if="${#fields.hasErrors('fatPer100g')}" th:errors="*{fatPer100g}" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label for="add-carbohydratesPer100g" class="form-label">Carbohydrate (trên 100g)</label>
+                                <input type="number" step="0.1" class="form-control" id="add-carbohydratesPer100g" th:field="*{carbohydratesPer100g}" th:value="${newIngredient?.carbohydratesPer100g ?: ''}" placeholder="Nhập carbohydrate" required>
+                                <span th:if="${#fields.hasErrors('carbohydratesPer100g')}" th:errors="*{carbohydratesPer100g}" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label for="add-avgG" class="form-label">avgG (1 piece)</label>
+                                <input type="number" step="0.1" class="form-control" id="add-avgG" th:field="*{avgG}" th:value="${newIngredient?.avgG ?: ''}" placeholder="Nhập avgG" required>
+                                <span th:if="${#fields.hasErrors('avgG')}" th:errors="*{avgG}" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label for="add-imageFile" class="form-label">Hình ảnh Nguyên liệu</label>
+                                <input type="file" class="form-control" id="add-imageFile" name="imageFile" accept="image/*">
+                                <span th:if="${#fields.hasErrors('urlImage')}" th:errors="*{urlImage}" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <label class="form-label">Xem trước Hình ảnh</label>
+                            <img id="add-preview-image" class="img-fluid rounded shadow-sm" th:src="${newIngredient?.urlImage != null ? newIngredient.urlImage : '/Uploads/default.jpg'}" alt="Hình ảnh Nguyên liệu" style="max-height: 200px;">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="submit" form="addIngredientForm" class="btn btn-primary">Lưu Nguyên liệu</button>
+            </div>
+        </div>
+    </div>
+</div>
 
+<!-- Modal chi tiết nguyên liệu -->
 <div class="modal fade" id="ingredientDetailModal" tabindex="-1" aria-labelledby="ingredientDetailModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -160,7 +239,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
             </div>
             <div class="modal-body">
-                <form id="editIngredientForm" th:action="@{/admin/ingredient/update}" method="post" th:object="${editIngredient}">
+                <form id="editIngredientForm" th:action="@{/admin/ingredient/update}" method="post" th:object="${editIngredient}" enctype="multipart/form-data">
                     <input type="hidden" name="id" id="detail-id-input" th:field="*{id}" />
                     <div class="row">
                         <div class="col-md-8">
@@ -170,23 +249,31 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Mô tả</label>
-                                <input type="text" class="form-control" id="detail-description-input" th:field="*{description}">
+                                <textarea class="form-control" id="detail-description-input" th:field="*{description}" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="detail-imageFile" class="form-label">Hình ảnh Nguyên liệu</label>
+                                <input type="file" class="form-control" id="detail-imageFile" name="imageFile" accept="image/*">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Calo (trên 100g)</label>
-                                <input type="number" step="0.01" class="form-control" id="detail-calories-input" th:field="*{caloriesPer100g}">
+                                <input type="number" step="0.1" class="form-control" id="detail-calories-input" th:field="*{caloriesPer100g}">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Protein (trên 100g)</label>
-                                <input type="number" step="0.01" class="form-control" id="detail-protein-input" th:field="*{proteinPer100g}">
+                                <input type="number" step="0.1" class="form-control" id="detail-protein-input" th:field="*{proteinPer100g}">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Chất béo (trên 100g)</label>
-                                <input type="number" step="0.01" class="form-control" id="detail-fat-input" th:field="*{fatPer100g}">
+                                <input type="number" step="0.1" class="form-control" id="detail-fat-input" th:field="*{fatPer100g}">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Carbohydrate (trên 100g)</label>
-                                <input type="number" step="0.01" class="form-control" id="detail-carbohydrates-input" th:field="*{carbohydratesPer100g}">
+                                <input type="number" step="0.1" class="form-control" id="detail-carbohydrates-input" th:field="*{carbohydratesPer100g}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">avgG (1 piece)</label>
+                                <input type="number" step="0.1" class="form-control" id="detail-avgG-input" th:field="*{avgG}">
                             </div>
                         </div>
                         <div class="col-md-4 text-center">
@@ -204,6 +291,7 @@
     </div>
 </div>
 
+<!-- Modal xác nhận xóa -->
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -226,27 +314,155 @@
 </div>
 
 <th:block th:replace="~{admin/layout/footer :: footer-scripts}"></th:block>
+<div th:replace="~{client/layout/toast :: toast(failed=${failed}, success=${success})}"></div>
 
 <script>
-    document.querySelectorAll('.detail-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            const row = this.closest('tr');
-            document.getElementById('detail-id-input').value = row.dataset.id;
-            document.getElementById('detail-name-input').value = row.dataset.name;
-            document.getElementById('detail-description-input').value = row.dataset.description;
-            document.getElementById('detail-calories-input').value = row.dataset.calories;
-            document.getElementById('detail-protein-input').value = row.dataset.protein;
-            document.getElementById('detail-fat-input').value = row.dataset.fat;
-            document.getElementById('detail-carbohydrates-input').value = row.dataset.carbohydrates;
-            document.getElementById('detail-image').src = row.dataset.urlimage || '/Uploads/default.jpg';
-        });
-    });
+    document.addEventListener('DOMContentLoaded', function () {
+        try {
+            // Khởi tạo dropdown của Bootstrap
+            const dropdowns = document.querySelectorAll('.dropdown-toggle');
+            if (dropdowns.length === 0) {
+                console.warn('Không tìm thấy nút dropdown-toggle.');
+            } else {
+                console.log(`Tìm thấy ${dropdowns.length} nút dropdown-toggle.`);
+                dropdowns.forEach(dropdown => {
+                    try {
+                        new bootstrap.Dropdown(dropdown);
+                    } catch (e) {
+                        console.error('Lỗi khi khởi tạo dropdown:', e);
+                    }
+                });
+            }
 
-    document.querySelectorAll('.delete-ingredient-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const ingredientId = this.closest('tr').dataset.id;
-            document.getElementById('delete-ingredient-id').value = ingredientId;
-        });
+            // Xử lý nút Chi tiết
+            const detailButtons = document.querySelectorAll('.detail-btn');
+            if (detailButtons.length === 0) console.warn('Không tìm thấy nút detail-btn');
+            detailButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const row = this.closest('tr');
+                    if (!row) {
+                        console.error('Không tìm thấy hàng chứa nút Detail');
+                        return;
+                    }
+                    document.getElementById('detail-id-input').value = row.dataset.id || '';
+                    document.getElementById('detail-name-input').value = row.dataset.name || '';
+                    document.getElementById('detail-description-input').value = row.dataset.description || '';
+                    document.getElementById('detail-calories-input').value = row.dataset.calories || '';
+                    document.getElementById('detail-protein-input').value = row.dataset.protein || '';
+                    document.getElementById('detail-fat-input').value = row.dataset.fat || '';
+                    document.getElementById('detail-carbohydrates-input').value = row.dataset.carbohydrates || '';
+                    document.getElementById('detail-avgG-input').value = row.dataset.avgG || '';
+                    document.getElementById('detail-image').src = row.dataset.urlimage || '/Uploads/default.jpg';
+                    const ingredientDetailModal = new bootstrap.Modal(document.getElementById('ingredientDetailModal'), {
+                        keyboard: true,
+                        focus: true
+                    });
+                    ingredientDetailModal.show();
+                });
+            });
+
+            // Xử lý nút Xóa
+            const deleteButtons = document.querySelectorAll('.delete-ingredient-btn');
+            if (deleteButtons.length === 0) console.warn('Không tìm thấy nút delete-ingredient-btn');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const row = this.closest('tr');
+                    if (!row) {
+                        console.error('Không tìm thấy hàng chứa nút Delete');
+                        return;
+                    }
+                    document.getElementById('delete-ingredient-id').value = row.dataset.id || '';
+                    const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'), {
+                        keyboard: true,
+                        focus: true
+                    });
+                    deleteConfirmModal.show();
+                });
+            });
+
+            // Xử lý nút Thêm Nguyên liệu
+            const addIngredientButton = document.querySelector('button[data-bs-target="#addIngredientModal"]');
+            if (addIngredientButton) {
+                addIngredientButton.addEventListener('click', function () {
+                    const form = document.getElementById('addIngredientForm');
+                    if (form) {
+                        // Chỉ reset form nếu không có lỗi
+                        if (!/*[[${showAddIngredientModal}]]*/ false) {
+                            form.reset();
+                            document.getElementById('add-preview-image').src = '/Uploads/default.jpg';
+                            const errorSpans = form.querySelectorAll('.text-danger');
+                            errorSpans.forEach(span => span.textContent = '');
+                        }
+                    }
+                    const addIngredientModal = new bootstrap.Modal(document.getElementById('addIngredientModal'), {
+                        keyboard: true,
+                        focus: true
+                    });
+                    addIngredientModal.show();
+                });
+            } else {
+                console.warn('Không tìm thấy nút thêm nguyên liệu');
+            }
+
+            // Tự động mở modal nếu có lỗi
+            const showAddIngredientModal = /*[[${showAddIngredientModal}]]*/ false;
+            console.log('showAddIngredientModal:', showAddIngredientModal);
+            if (showAddIngredientModal) {
+                const addIngredientModal = new bootstrap.Modal(document.getElementById('addIngredientModal'), {
+                    keyboard: true,
+                    focus: true
+                });
+                addIngredientModal.show();
+            }
+
+            // Preview ảnh khi chọn file
+            const imageInput = document.getElementById('add-imageFile');
+            if (imageInput) {
+                imageInput.addEventListener('change', function (e) {
+                    const file = e.target.files[0];
+                    const previewImage = document.getElementById('add-preview-image');
+                    if (file) {
+                        previewImage.src = URL.createObjectURL(file);
+                    } else {
+                        previewImage.src = '/Uploads/default.jpg';
+                    }
+                });
+            }
+
+            // Preview ảnh cho modal chỉnh sửa
+            const detailImageInput = document.getElementById('detail-imageFile');
+            if (detailImageInput) {
+                detailImageInput.addEventListener('change', function (e) {
+                    const file = e.target.files[0];
+                    const previewImage = document.getElementById('detail-image');
+                    if (file) {
+                        previewImage.src = URL.createObjectURL(file);
+                    } else {
+                        previewImage.src = document.getElementById('detail-image').dataset.urlimage || '/Uploads/default.jpg';
+                    }
+                });
+            }
+
+            // Hàm làm sạch backdrop
+            function fixModalBackdrop() {
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(backdrop => backdrop.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+            }
+
+            // Gắn sự kiện ẩn modal để làm sạch backdrop
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                modal.addEventListener('hidden.bs.modal', function () {
+                    console.log(`Modal ${this.id} đã ẩn`);
+                    fixModalBackdrop();
+                });
+            });
+        } catch (error) {
+            console.error('Lỗi trong sự kiện DOMContentLoaded:', error);
+        }
     });
 </script>
 </body>

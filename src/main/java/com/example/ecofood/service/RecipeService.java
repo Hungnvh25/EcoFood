@@ -43,6 +43,7 @@ public class RecipeService {
 
     LevenshteinDistance levenshteinDistance;
     CategoryService categoryService;
+    AudioService audioService;
 
     public List<Recipe> getAllRecipes() {
         List<Recipe> recipeList = recipeRepository.findAll();
@@ -75,9 +76,9 @@ public class RecipeService {
         try {
             if (recipe.getId() != null){
                 recipe = this.getRecipeById(recipe.getId());
-                recipe.setIsPendingRecipe(true);
-            }
 
+            }
+            recipe.setIsPendingRecipe(true);
             // Sửa tiêu đề
             String formatTile = recipeUtils.capitalizeFirstLetter(recipe.getTitle());
             recipe.setTitle(formatTile);
@@ -181,14 +182,13 @@ public class RecipeService {
             System.out.println("📢 AudioText = " + textAudio);
 
             CompletableFuture<String> geminiTextAudioFuture = geminiService.generateTextAsync(textAudio);
-            String geminiTextAudio = geminiTextAudioFuture.get();
-            recipe.setTextAudio(geminiTextAudio);
 
-            // Chuẩn hóa tên món
-            String tileName = recipeUtils.normalizeRecipeName(recipe.getTitle());
-            recipe.setTileName(tileName);
-
-            // Lưu recipe cuối cùng
+            Recipe finalRecipe = recipe;
+            geminiTextAudioFuture.thenAccept(geminiTextAudio -> {
+                finalRecipe.setTextAudio(geminiTextAudio);
+                this.recipeRepository.save(finalRecipe);
+                System.out.println("📢 GEMINI TEXT = " + geminiTextAudio);
+            });
             this.recipeRepository.save(recipe);
 
         } catch (Exception e) {
@@ -329,15 +329,13 @@ public class RecipeService {
 
             CompletableFuture<String> geminiTextAudioFuture = geminiService.generateTextAsync(textAudio);
 
-            String geminiTextAudio = geminiTextAudioFuture.get();
-            recipe.setTextAudio(geminiTextAudio);
-            System.out.println("📢 GEMINI TEXT = " + geminiTextAudio);
-
-            recipe.setTextAudio(geminiTextAudio);
-
-            // Lưu công thức
+            Recipe finalRecipe = recipe;
+            geminiTextAudioFuture.thenAccept(geminiTextAudio -> {
+                finalRecipe.setTextAudio(geminiTextAudio);
+                this.recipeRepository.save(finalRecipe);
+                System.out.println("📢 GEMINI TEXT = " + geminiTextAudio);
+            });
             this.recipeRepository.save(recipe);
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -447,11 +445,6 @@ public class RecipeService {
         recipeRepository.deleteById(id);
     }
 
-    public void createRecipe(Recipe recipe) {
-        recipe.setCreatedDate(java.time.LocalDate.now());
-        recipeRepository.save(recipe);
-    }
-
 
     public long getTotalApprovedRecipes() {
         return recipeRepository.countByIsPendingRecipeFalse();
@@ -494,32 +487,35 @@ public class RecipeService {
     public void approveRecipe(Long id) throws IOException {
         Recipe recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
-        recipe.setIsPendingRecipe(false);
-
         User user = recipe.getUser();
         String voidCode = String.valueOf(user.getUserSetting().getAccent());
+        String geminiTextAudio = recipe.getTextAudio();
+        recipe.setIsPendingRecipe(false);
+        CompletableFuture<String> urlAudioFuture = this.textToSpeechService.convertTextToSpeechAsync(geminiTextAudio, voidCode, 1.0F);
 
-        // Kiểm tra nếu recipe chưa có audios hoặc rỗng → tạo mới
-        if (recipe.getAudios() == null || recipe.getAudios().isEmpty()) {
-            String geminiTextAudio = recipe.getTextAudio();
-            String urlAudio = this.textToSpeechService.convertTextToSpeech(geminiTextAudio, voidCode, 1.0F);
+        urlAudioFuture.thenAccept(urlAudio -> {
+            try {
+                System.out.println("Audio URL: " + urlAudio);
+                Recipe recipeToUpdate = recipeRepository.findById(id)
+                        .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
 
-            Audio audio = Audio.builder()
-                    .accent(UserSetting.Accent.fromValue(voidCode))
-                    .urlAudio(urlAudio)
-                    .voiceGender(user.getUserSetting().getVoiceGender())
-                    .recipe(recipe)
-                    .build();
-
-            recipe.getAudios().clear(); // Đảm bảo không bị duplicate
-            recipe.getAudios().add(audio);
-        } else {
-            // Nếu đã có audio → giữ nguyên, không làm gì thêm
-            // Có thể log lại hoặc cập nhật thông tin nếu cần
-        }
-
+                Audio audio = Audio.builder()
+                        .accent(UserSetting.Accent.fromValue(voidCode))
+                        .urlAudio(urlAudio)
+                        .voiceGender(user.getUserSetting().getVoiceGender())
+                        .recipe(recipeToUpdate)
+                        .build();
+                this.audioService.saveAudio(audio);
+                recipeRepository.save(recipeToUpdate);
+                System.out.println("Create Audio done");
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Lỗi khi lưu Audio vào Recipe: " + e.getMessage());
+            }
+        });
         recipeRepository.save(recipe);
     }
+
 
 
     public void setParentRecipe(Long recipeId, Long parentId) {

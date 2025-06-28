@@ -43,7 +43,7 @@ public class GlobalModelAttribute {
         Boolean isPassWord = false;
         if (user != null) {
             List<Long> recipeIdView = this.userActivityService.findAllRecipesByUser_Id(user.getId());
-            isPassWord = this.userService.isNewPassWord();
+            isPassWord = this.userService.isNewPassWord(user);
             for (Long id : recipeIdView) {
                 Recipe recipe = this.recipeService.getRecipeById(id);
                 recipeList.add(recipe);

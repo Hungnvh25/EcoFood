@@ -77,7 +77,7 @@ public class Recipe {
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<SaveRecipe> saveRecipes = new HashSet<>();
 
-    @OneToMany(mappedBy = "recipe",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     Set<Audio> audios = new HashSet<>();
 
     @OneToOne(mappedBy = "recipe", cascade = CascadeType.ALL)

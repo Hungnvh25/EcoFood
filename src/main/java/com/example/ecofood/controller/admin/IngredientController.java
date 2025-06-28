@@ -46,6 +46,7 @@ public class IngredientController {
         }
 
         model.addAttribute("ingredients", ingredients);
+        model.addAttribute("newIngredient", new Ingredient());
         model.addAttribute("totalUsers", this.userService.getTotalUsers());
         model.addAttribute("revenue", "$12,345");
         model.addAttribute("totalIngredients", this.ingredientService.getTotalIngredients());
@@ -56,11 +57,6 @@ public class IngredientController {
         return "admin/ingredient/show";
     }
 
-    @GetMapping("/ingredient/add")
-    public String showAddIngredientForm(Model model) {
-        model.addAttribute("newIngredient", new Ingredient());
-        return "admin/ingredient/addIngredient";
-    }
 
     @PostMapping("/ingredient/add")
     public String addIngredient(
@@ -70,23 +66,13 @@ public class IngredientController {
             RedirectAttributes redirectAttributes) {
 
         if (result.hasErrors()) {
-            return "admin/ingredient/addIngredient";
-        }
-
-        try {
-
-            if (!imageFile.isEmpty()) {
-                String imagePath = this.imageService.saveImage(imageFile, "ingredients");
-                ingredient.setUrlImage(imagePath);
-            }
-        } catch (IOException e) {
-            redirectAttributes.addFlashAttribute("error", "Failed to upload image: " + e.getMessage());
-            return "admin/ingredient/addIngredient";
+            redirectAttributes.addFlashAttribute("false", "Thêm nguyên thất bại");
+            return "redirect:/admin/ingredient";
         }
 
         // Lưu ingredient vào database
         this.ingredientService.saveIngredient(ingredient);
-        redirectAttributes.addFlashAttribute("success", "Ingredient added successfully.");
+        redirectAttributes.addFlashAttribute("success", "Thêm nguyên liệu thành công");
         return "redirect:/admin/ingredient";
     }
 
@@ -97,20 +83,27 @@ public class IngredientController {
             result.getAllErrors().forEach(error -> {
                 errorMessage.append(error.getDefaultMessage()).append("; ");
             });
-            redirectAttributes.addFlashAttribute("error", errorMessage.toString());
+            redirectAttributes.addFlashAttribute("false", errorMessage.toString());
             return "redirect:/admin/ingredient";
         }
 
 
         this.ingredientService.updateIngredient(ingredient);
-        redirectAttributes.addFlashAttribute("success", "Ingredient updated successfully.");
+        redirectAttributes.addFlashAttribute("success", "Cập nhật nguyên liệu thành công");
         return "redirect:/admin/ingredient";
     }
 
     @PostMapping("/ingredient/delete")
     public String deleteIngredient(@RequestParam("id") Long id, RedirectAttributes redirectAttributes) {
-        this.ingredientService.deleteIngredient(id);
-        redirectAttributes.addFlashAttribute("success", "Ingredient deleted successfully.");
-        return "redirect:/admin/ingredient";
+
+
+        try {
+            this.ingredientService.deleteIngredient(id);
+            redirectAttributes.addFlashAttribute("success", "Xóa nguyên liệu thành công");
+            return "redirect:/admin/ingredient";
+        }catch (Exception e){
+            redirectAttributes.addFlashAttribute("false", "Xóa nguyên thất bại "+ e.getMessage());
+            return "redirect:/admin/ingredient";
+        }
     }
 }
