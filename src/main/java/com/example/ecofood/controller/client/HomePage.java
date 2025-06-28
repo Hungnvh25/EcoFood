@@ -108,7 +108,6 @@ public class HomePage {
             cookie.setMaxAge(21600); // 6h
             cookie.setPath("/");
             response.addCookie(cookie);
-
             // lưu currentUser
             User user = this.userService.getCurrentUser();
             session.setAttribute("currentUser", user);

@@ -31,7 +31,7 @@ public class JwtUtil {
         return jwsObject.serialize();
     }
 
-    public static String getUsernameFromToken(String token) throws ParseException {
+    public static String getEmailFromToken(String token) throws ParseException {
         SignedJWT signedJWT = SignedJWT.parse(token);
         return signedJWT.getJWTClaimsSet().getSubject();
     }

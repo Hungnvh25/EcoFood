@@ -15,7 +15,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
-import com.example.ecofood.auth.JwtUtil;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Collections;
@@ -33,11 +32,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = extractTokenFromCookies(request);
 
             if (token != null && JwtUtil.isTokenValid(token)) {
-                String email = JwtUtil.getUsernameFromToken(token);
+                String email = JwtUtil.getEmailFromToken(token);
                 User user = this.userService.findByEmail(email);
 
                 if (user != null) {
-                    request.setAttribute("user", user);
 
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             user,
