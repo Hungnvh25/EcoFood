@@ -23,7 +23,7 @@ public class TextToSpeechService {
     private String TOKEN;
 
     @Async
-    public CompletableFuture<String> convertTextToSpeechAsync(String text, String voiceCode, float speed) throws IOException {
+    public CompletableFuture<String> convertTextToSpeechAsync(String text, String voiceCode, float speed) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 return convertTextToSpeech(text, voiceCode, speed);

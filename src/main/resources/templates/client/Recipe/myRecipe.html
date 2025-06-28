@@ -89,8 +89,8 @@
                                    style="min-width: 110px; background-color: #C3E66E">
                                     Xem chi tiết
                                 </a>
-                                <button id="deleteButton"
-                                        class="btn btn-danger flex-grow-1"
+                                <button
+                                        class="btn btn-danger flex-grow-1 deleteButton"
                                         style="background-color: #FFCB65; color: black; min-width: 120px;"
                                         data-bs-toggle="modal"
                                         data-bs-target="#confirmDeleteModal"
@@ -196,15 +196,20 @@
 </script>
 
 <script>
-    document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
-        // Lấy ID của công thức từ data-bs-id của nút Xóa
-        const recipeId = document.getElementById('deleteButton').getAttribute('data-bs-id');
+    let currentDeleteId = null;
 
-        if (recipeId == null || recipeId <= 0) {
+    // Khi bấm vào bất kỳ nút Xóa nào, lưu id vào biến tạm
+    document.querySelectorAll('.deleteButton').forEach(btn => {
+        btn.addEventListener('click', function () {
+            currentDeleteId = this.getAttribute('data-bs-id');
+        });
+    });
+
+    document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+        if (currentDeleteId == null || currentDeleteId <= 0) {
             alert("Không tìm thấy ID món ăn!");
             return;
         }
-
         // Tạo form ảo để submit POST
         const form = document.createElement('form');
         form.method = 'POST';
@@ -213,7 +218,7 @@
         const input = document.createElement('input');
         input.type = 'hidden';
         input.name = 'id';
-        input.value = recipeId;
+        input.value = currentDeleteId;
 
         form.appendChild(input);
         document.body.appendChild(form);

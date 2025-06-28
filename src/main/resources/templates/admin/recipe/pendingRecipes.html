@@ -128,9 +128,9 @@
                                     Tùy chọn
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton_${recipe.id}">
+                                    <li><a class="dropdown-item view-details-btn" href="#" data-bs-toggle="modal" data-bs-target="#recipeModal">Xem chi tiết</a></li>
                                     <li><a class="dropdown-item approve-btn" href="#" data-bs-toggle="modal" data-bs-target="#approveModal">Phê duyệt</a></li>
                                     <li><a class="dropdown-item select-parent-btn" href="#" data-bs-toggle="modal" data-bs-target="#parentSelectModal">Chọn công thức cha</a></li>
-                                    <li><a class="dropdown-item view-details-btn" href="#" data-bs-toggle="modal" data-bs-target="#recipeModal">Xem chi tiết</a></li>
                                     <li><a class="dropdown-item delete-recipe-btn" href="#" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">Xóa</a></li>
                                 </ul>
                             </div>
@@ -292,11 +292,11 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">Xác nhận xóa</h5>
+                <h5 class="modal-title">Xác nhận xóa hàng đợi</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                Bạn có chắc chắn muốn xóa công thức này?
+                Bạn có chắc chắn muốn xóa công thức này khỏi hàng đợi?
             </div>
             <div class="modal-footer">
                 <form id="deleteRecipeForm" method="post" th:action="@{/admin/recipe/pending/delete}">
