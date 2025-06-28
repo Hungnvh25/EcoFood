@@ -44,6 +44,7 @@ public class RecipeService {
     LevenshteinDistance levenshteinDistance;
     CategoryService categoryService;
     AudioService audioService;
+    GeminiWorkerService geminiWorkerService;
 
     public List<Recipe> getAllRecipes() {
         List<Recipe> recipeList = recipeRepository.findAll();
@@ -325,17 +326,13 @@ public class RecipeService {
             }
 
             String textAudio = textBuilder.toString();
-            System.out.println("📢 AudioText = " + textAudio);
-
-            CompletableFuture<String> geminiTextAudioFuture = geminiService.generateTextAsync(textAudio);
-
-            Recipe finalRecipe = recipe;
-            geminiTextAudioFuture.thenAccept(geminiTextAudio -> {
-                finalRecipe.setTextAudio(geminiTextAudio);
-                this.recipeRepository.save(finalRecipe);
-                System.out.println("📢 GEMINI TEXT = " + geminiTextAudio);
-            });
             this.recipeRepository.save(recipe);
+
+            geminiWorkerService.addToQueue(textAudio, recipe.getId());
+
+            System.out.println("Yêu cầu đã được nhận! ID: " + recipe.getId());
+
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
