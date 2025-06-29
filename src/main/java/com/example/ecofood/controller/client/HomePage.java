@@ -8,6 +8,7 @@ import com.example.ecofood.DTO.UserDTO;
 import com.example.ecofood.domain.User;
 import com.example.ecofood.service.EmailService;
 import com.example.ecofood.service.RecipeService;
+import com.example.ecofood.service.RedisCacheService;
 import com.example.ecofood.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,9 +23,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Controller
 @RequiredArgsConstructor
@@ -36,6 +39,7 @@ public class HomePage {
     EmailService emailService;
     RandomStringGenerator randomStringGenerator;
     PasswordEncoder passwordEncoder;
+    RedisCacheService redisCacheService;
 
 
     @GetMapping("/login")
@@ -104,7 +108,6 @@ public class HomePage {
             cookie.setMaxAge(21600); // 6h
             cookie.setPath("/");
             response.addCookie(cookie);
-
             // lưu currentUser
             User user = this.userService.getCurrentUser();
             session.setAttribute("currentUser", user);
@@ -140,7 +143,7 @@ public class HomePage {
 
     @PostMapping("/forgot-password/send-otp")
     @ResponseBody
-    public Map<String, Object> sendOtp(@RequestParam("email") String email, HttpSession session) {
+    public Map<String, Object> sendOtp(@RequestParam("email") String email) {
         Map<String, Object> response = new HashMap<>();
 
         if (!this.userService.isEmailExist(email)) {
@@ -150,8 +153,8 @@ public class HomePage {
         }
 
         String otp = this.randomStringGenerator.generateOtp();
-        session.setAttribute("otp", otp);
-        session.setAttribute("email", email);
+        redisCacheService.set(email,otp,5L, TimeUnit.MINUTES);
+
 
         try {
             this.emailService.sendOtpEmail(email, otp);
@@ -167,12 +170,14 @@ public class HomePage {
 
     @PostMapping("/forgot-password/verify-otp")
     @ResponseBody
-    public Map<String, Object> verifyOtp(@RequestParam("otp") String otp, HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
-        String storedOtp = (String) session.getAttribute("otp");
-        String email = (String) session.getAttribute("email");
+    public Map<String, Object> verifyOtp(@RequestParam("otp") String otp,@RequestParam("email") String email) {
 
-        if (storedOtp == null || email == null) {
+        Map<String, Object> response = new HashMap<>();
+
+        String storedOtp = this.redisCacheService.get(email);
+
+
+        if (storedOtp == null) {
             response.put("success", false);
             response.put("message", "Phiên làm việc hết hạn. Vui lòng thử lại.");
             return response;
@@ -193,9 +198,8 @@ public class HomePage {
     public Map<String, Object> resetPassword(
             @RequestParam("newPassword") String newPassword,
             @RequestParam("confirmPassword") String confirmPassword,
-            HttpSession session) {
+            @RequestParam("email") String email, RedirectAttributes redirectAttributes) {
         Map<String, Object> response = new HashMap<>();
-        String email = (String) session.getAttribute("email");
 
         if (email == null) {
             response.put("success", false);
@@ -215,12 +219,10 @@ public class HomePage {
         this.userService.saveUser(user);
 
         System.out.println("Cập nhật mật khẩu mới cho " + email + ": " + encodedPassword);
-
-        session.removeAttribute("otp");
-        session.removeAttribute("email");
-
+        this.redisCacheService.delete(email);
         response.put("success", true);
         response.put("message", "Mật khẩu đã được đặt lại thành công!");
+
         return response;
     }
 

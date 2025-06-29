@@ -2,6 +2,7 @@ package com.example.ecofood.service;
 
 import com.example.ecofood.DTO.UserDTO;
 import com.example.ecofood.Util.AppContext;
+import com.example.ecofood.auth.JwtUtil;
 import com.example.ecofood.domain.Category;
 import com.example.ecofood.domain.User;
 import com.example.ecofood.domain.UserActivity;
@@ -32,7 +33,6 @@ public class UserService {
     UserRepository userRepository;
     UserSettingService userSettingService;
     PasswordEncoder passwordEncoder;
-    HttpServletRequest request;
     UserActivityRepository userActivityRepository;
     @Value("${passWord.mail}")
     String passWordEmail ;
@@ -110,18 +110,12 @@ public class UserService {
         this.userRepository.deleteById(id);
     }
 
-    public User getCurrentUser(){
-        User user = (User) this.request.getAttribute("user");
-        if (user!=null){
-            return user;
+    public User getCurrentUser()  {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof User) {
+            return (User) auth.getPrincipal();
         }
-        else {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.getPrincipal() instanceof User) {
-                return (User) auth.getPrincipal();
-            }
-        }
-         return null;
+        return null;
     }
 
     public User findByEmail(String email){
