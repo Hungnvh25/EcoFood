@@ -116,7 +116,7 @@ public class RecipeAdminController {
                 return "redirect:/admin/pending-recipes";
             }
             this.recipeService.approveRecipe(recipeId);
-            this.notificationService.createRecipeStatusNotification(recipe,true);
+//            this.notificationService.createRecipeStatusNotification(recipe,true);
             redirectAttributes.addFlashAttribute("success", "Công thức được phê duyệt thành công.");
         } catch (NumberFormatException e) {
             redirectAttributes.addFlashAttribute("false", "ID công thức không hợp lệ.");

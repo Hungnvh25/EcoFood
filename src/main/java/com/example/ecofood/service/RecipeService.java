@@ -22,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,7 +43,7 @@ public class RecipeService {
     LevenshteinDistance levenshteinDistance;
     CategoryService categoryService;
     AudioService audioService;
-    GeminiWorkerService geminiWorkerService;
+    RedisWorkerService redisWorkerService;
 
     public List<Recipe> getAllRecipes() {
         List<Recipe> recipeList = recipeRepository.findAll();
@@ -328,7 +327,7 @@ public class RecipeService {
             String textAudio = textBuilder.toString();
             this.recipeRepository.save(recipe);
 
-            geminiWorkerService.addToQueue(textAudio, recipe.getId());
+            redisWorkerService.addToQueue(textAudio, recipe.getId());
 
             System.out.println("Yêu cầu đã được nhận! ID: " + recipe.getId());
 
@@ -484,32 +483,11 @@ public class RecipeService {
     public void approveRecipe(Long id) throws IOException {
         Recipe recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
-        User user = recipe.getUser();
-        String voidCode = String.valueOf(user.getUserSetting().getAccent());
+
         String geminiTextAudio = recipe.getTextAudio();
         recipe.setIsPendingRecipe(false);
-        CompletableFuture<String> urlAudioFuture = this.textToSpeechService.convertTextToSpeechAsync(geminiTextAudio, voidCode, 1.0F);
+        redisWorkerService.addToQueueVietTelAI(geminiTextAudio,recipe.getId());
 
-        urlAudioFuture.thenAccept(urlAudio -> {
-            try {
-                System.out.println("Audio URL: " + urlAudio);
-                Recipe recipeToUpdate = recipeRepository.findById(id)
-                        .orElseThrow(() -> new IllegalArgumentException("Recipe not found"));
-
-                Audio audio = Audio.builder()
-                        .accent(UserSetting.Accent.fromValue(voidCode))
-                        .urlAudio(urlAudio)
-                        .voiceGender(user.getUserSetting().getVoiceGender())
-                        .recipe(recipeToUpdate)
-                        .build();
-                this.audioService.saveAudio(audio);
-                recipeRepository.save(recipeToUpdate);
-                System.out.println("Create Audio done");
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("Lỗi khi lưu Audio vào Recipe: " + e.getMessage());
-            }
-        });
         recipeRepository.save(recipe);
     }
 
