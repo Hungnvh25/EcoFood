@@ -23,7 +23,7 @@ public class JwtUtil {
                 .subject(email)
                 .issuer("Akina")
                 .issueTime(new Date())
-                .expirationTime(Date.from(Instant.now().plusSeconds(3600)))
+                .expirationTime(Date.from(Instant.now().plusSeconds(21600))) // 6h
                 .build();
 
         JWSObject jwsObject = new JWSObject(header, new Payload(claimsSet.toJSONObject()));
