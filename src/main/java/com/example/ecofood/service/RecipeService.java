@@ -38,11 +38,10 @@ public class RecipeService {
     RecipeUtils recipeUtils = new RecipeUtils();
 
     GeminiService geminiService;
-    TextToSpeechService textToSpeechService;
 
     LevenshteinDistance levenshteinDistance;
     CategoryService categoryService;
-    AudioService audioService;
+    NotificationService notificationService;
     RedisWorkerService redisWorkerService;
 
     public List<Recipe> getAllRecipes() {
@@ -74,7 +73,7 @@ public class RecipeService {
                              String region) {
 
         try {
-            if (recipe.getId() != null){
+            if (recipe.getId() != null) {
                 recipe = this.getRecipeById(recipe.getId());
 
             }
@@ -208,7 +207,7 @@ public class RecipeService {
                                           String region) {
 
         try {
-            if (recipe.getId() != null){
+            if (recipe.getId() != null) {
                 recipe = this.getRecipeById(recipe.getId());
             }
 
@@ -255,7 +254,7 @@ public class RecipeService {
             recipe.getRecipeIngredients().addAll(recipeIngredientHashSet);
 
             // Lưu bước làm nếu có
-            if (recipe.getInstructions().isEmpty()){
+            if (recipe.getInstructions().isEmpty()) {
                 recipe.getInstructions().clear();
             }
 
@@ -269,8 +268,7 @@ public class RecipeService {
                         if (instructionImages != null && i < instructionImages.size()
                                 && instructionImages.get(i) != null && !instructionImages.get(i).isEmpty()) {
                             imageUrl = this.imageService.saveImage(instructionImages.get(i), "instruction");
-                        }
-                        else if (instructionImageUrls != null && i < instructionImageUrls.size()) {
+                        } else if (instructionImageUrls != null && i < instructionImageUrls.size()) {
                             imageUrl = instructionImageUrls.get(i);
                         }
 
@@ -286,12 +284,12 @@ public class RecipeService {
             recipe.setInstructions(instructionHashSet);
 
             // Lưu danh mục nếu các trường không null
-            if(recipe.getCategory() != null){
+            if (recipe.getCategory() != null) {
                 recipe.getCategory().setRecipe(recipe);
                 recipe.getCategory().setDifficulty(Category.Difficulty.valueOf(difficulty));
                 recipe.getCategory().setMealType(Category.MealType.valueOf(mealType));
                 recipe.getCategory().setRegion(Category.Region.valueOf(region));
-            }else {
+            } else {
                 if (!difficulty.isEmpty() && !mealType.isEmpty() && !region.isEmpty()) {
                     Category category = Category.builder()
                             .difficulty(Category.Difficulty.valueOf(difficulty))
@@ -437,7 +435,7 @@ public class RecipeService {
             this.userActivityService.saveUserActivity(userActivity);
         }
 
-        System.out.println("Deleted recipe "+ recipe.getTitle() + ": ID "+ recipe.getId());
+        System.out.println("Deleted recipe " + recipe.getTitle() + ": ID " + recipe.getId());
         recipeRepository.deleteById(id);
     }
 
@@ -486,11 +484,11 @@ public class RecipeService {
 
         String geminiTextAudio = recipe.getTextAudio();
         recipe.setIsPendingRecipe(false);
-        redisWorkerService.addToQueueVietTelAI(geminiTextAudio,recipe.getId());
-
+        redisWorkerService.addToQueueVietTelAI(geminiTextAudio, recipe.getId());
+        this.notificationService.createRecipeStatusNotification(recipe, true);
+        System.out.println("Yêu cầu duyệt món đã được nhận! ID: " + recipe.getId());
         recipeRepository.save(recipe);
     }
-
 
 
     public void setParentRecipe(Long recipeId, Long parentId) {
