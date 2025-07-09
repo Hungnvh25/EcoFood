@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -117,7 +119,8 @@ public class RecipeController {
             @RequestParam(value = "ingredientId", required = false) List<Long> ingredientIds,
             @RequestParam(value = "ingredientQuantities", required = false) List<Float> ingredientQuantities,
             @RequestParam(value = "ingredientUnits", required = false) List<String> ingredientUnits,
-            @RequestParam(value = "instructionDescriptions", required = false) List<String> instructionDescriptions,
+//            @RequestParam(value = "instructionDescriptions", required = false) List<String> instructionDescriptions,
+            HttpServletRequest request,
             @RequestParam(value = "image", required = false) List<MultipartFile> instructionImages,
             @RequestParam(value = "instructionImageUrls", required = false) List<String> instructionImageUrls,
             @RequestParam(value = "difficulty", required = true) String difficulty,
@@ -126,6 +129,9 @@ public class RecipeController {
             @RequestParam(value = "publish", defaultValue = "false") boolean publish,RedirectAttributes redirectAttributes) {
 
         try {
+            String[] instructionDescriptionsArray = request.getParameterValues("instructionDescriptions");
+            List<String> instructionDescriptions = (instructionDescriptionsArray != null) ? Arrays.asList(instructionDescriptionsArray) : new ArrayList<>();
+
             String message ;
             if (publish) {
                 if (result.hasErrors() || recipe.getTitle() == null || recipe.getTitle().isBlank() ||
