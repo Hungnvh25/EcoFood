@@ -82,7 +82,7 @@ public class PremiumController {
 //            final String returnUrl = baseUrl + "/premium/success";
             final String returnUrl = baseUrl + "/premium/success";
             final String cancelUrl = baseUrl + "/premium/cancel";
-            final int price = 2000;
+            final int price = 25000;
             // Gen order code
             String currentTimeString = String.valueOf(new Date().getTime());
             long orderCode = Long.parseLong(currentTimeString.substring(currentTimeString.length() - 6));
