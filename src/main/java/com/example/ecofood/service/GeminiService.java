@@ -130,7 +130,8 @@ public class GeminiService {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return "Lỗi khi gọi Gemini: " + e.getMessage();
+            System.out.println("Lỗi khi gọi Gemini: " + e.getMessage());
+            return input;
         }
 
         return resultString;

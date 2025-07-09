@@ -19,10 +19,9 @@ import java.util.List;
 public class NotificationService {
 
     NotificationRepository notificationRepository;
-    RecipeService recipeService;
     UserService userService;
 
-    public List<Notification> findNotificationsByEmail(String email){
+    public List<Notification> findNotificationsByEmail(String email) {
 
         List<Notification> notificationList = this.notificationRepository.findByUserEmail(email);
 
@@ -54,7 +53,7 @@ public class NotificationService {
     public void createFeedbackNotification(String userName, String titleFee, String description) {
 
 
-        String title = "Góp ý mới từ người dùng " ;
+        String title = "Góp ý mới từ người dùng ";
         String content = String.format("Người dùng %s đã gửi góp ý: %s.",
                 userName, description);
 
@@ -63,7 +62,7 @@ public class NotificationService {
 
         for (User admin : admins) {
             Notification notification = Notification.builder()
-                    .title(title+ titleFee)
+                    .title(title + titleFee)
                     .content(content)
                     .user(admin)
                     .createdDate(LocalDate.now())

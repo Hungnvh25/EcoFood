@@ -50,7 +50,7 @@ public class RecipeAdminController {
     }
 
     @PostMapping("/recipe/update")
-    public String updateRecipe(@Valid @ModelAttribute("editRecipe") Recipe recipe, BindingResult result, RedirectAttributes redirectAttributes) {
+    public String updateRecipe(@Valid @ModelAttribute("editRecipe") Recipe recipeNew, BindingResult result, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             StringBuilder errorMessage = new StringBuilder();
             result.getAllErrors().forEach(error -> errorMessage.append(error.getDefaultMessage()).append("; "));
@@ -58,6 +58,13 @@ public class RecipeAdminController {
             return "redirect:/admin/recipe";
         }
         try {
+            Recipe recipe = this.recipeService.getRecipeById(recipeNew.getId());
+
+            recipe.setTitle(recipeNew.getTitle());
+            recipe.setDescription(recipeNew.getDescription());
+            recipe.setIsPendingRecipe(recipeNew.getIsPendingRecipe());
+            recipe.setCookingTime(recipeNew.getCookingTime());
+            recipe.setServingSize(recipeNew.getServingSize());
             this.recipeService.saveRecipe(recipe);
             redirectAttributes.addFlashAttribute("success", "Công thức đã được cập nhật thành công.");
         } catch (Exception e) {
