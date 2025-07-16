@@ -178,17 +178,10 @@ public class RecipeService {
             }
 
             String textAudio = textBuilder.toString();
-            System.out.println("📢 AudioText = " + textAudio);
-
-            CompletableFuture<String> geminiTextAudioFuture = geminiService.generateTextAsync(textAudio);
-
-            Recipe finalRecipe = recipe;
-            geminiTextAudioFuture.thenAccept(geminiTextAudio -> {
-                finalRecipe.setTextAudio(geminiTextAudio);
-                this.recipeRepository.save(finalRecipe);
-                System.out.println("📢 GEMINI TEXT = " + geminiTextAudio);
-            });
             this.recipeRepository.save(recipe);
+
+            redisWorkerService.addToQueue(textAudio, recipe.getId(), user.getRole());
+
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -302,32 +295,7 @@ public class RecipeService {
 
             }
 
-
-            // Tạo textAudio nếu có dữ liệu
-            StringBuilder textBuilder = new StringBuilder();
-            if (recipe.getTitle() != null && !recipe.getTitle().isBlank()) {
-                textBuilder.append("Tên món ăn: ").append(recipe.getTitle()).append(". ");
-            }
-
-            if (recipe.getDescription() != null && !recipe.getDescription().isBlank()) {
-                textBuilder.append("Thông tin món ăn: ").append(recipe.getDescription()).append(". ");
-            }
-
-            if (instructionDescriptions != null && !instructionDescriptions.isEmpty()) {
-                for (int i = 0; i < instructionDescriptions.size(); i++) {
-                    if (instructionDescriptions.get(i) != null && !instructionDescriptions.get(i).isBlank()) {
-                        textBuilder.append("Bước ").append(i + 1).append(": ")
-                                .append(instructionDescriptions.get(i)).append(". ");
-                    }
-                }
-            }
-
-            String textAudio = textBuilder.toString();
             this.recipeRepository.save(recipe);
-
-            redisWorkerService.addToQueue(textAudio, recipe.getId());
-
-            System.out.println("Yêu cầu đã được nhận! ID: " + recipe.getId());
 
 
         } catch (Exception e) {
@@ -486,7 +454,6 @@ public class RecipeService {
         recipe.setIsPendingRecipe(false);
         redisWorkerService.addToQueueVietTelAI(geminiTextAudio, recipe.getId());
         this.notificationService.createRecipeStatusNotification(recipe, true);
-        System.out.println("Yêu cầu duyệt món đã được nhận! ID: " + recipe.getId());
         recipeRepository.save(recipe);
     }
 

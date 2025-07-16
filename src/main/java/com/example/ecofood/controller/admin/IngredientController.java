@@ -48,7 +48,7 @@ public class IngredientController {
         model.addAttribute("ingredients", ingredients);
         model.addAttribute("newIngredient", new Ingredient());
         model.addAttribute("totalUsers", this.userService.getTotalUsers());
-        model.addAttribute("revenue", "$12,345");
+        model.addAttribute("revenue", "50.000");
         model.addAttribute("totalIngredients", this.ingredientService.getTotalIngredients());
 
         if (!model.containsAttribute("editIngredient")) {

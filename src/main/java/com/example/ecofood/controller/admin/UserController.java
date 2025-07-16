@@ -46,8 +46,8 @@ public class UserController {
         model.addAttribute("users", users);
         model.addAttribute("newUser", new User());
         model.addAttribute("totalUsers", this.userService.getTotalUsers());
-        model.addAttribute("revenue", "$12,345");
-        model.addAttribute("totalProducts", 567);
+        model.addAttribute("revenue", "50.000");
+        model.addAttribute("totalProducts", 10);
 
         if (!model.containsAttribute("editUser")) {
             model.addAttribute("editUser", new User());

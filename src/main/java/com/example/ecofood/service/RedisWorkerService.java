@@ -25,21 +25,21 @@
     public class RedisWorkerService {
 
          StringRedisTemplate redisTemplate;
-
-
          GeminiService geminiService;
-
+         NotificationService notificationService;
          RecipeRepository recipeRepository;
          TextToSpeechService textToSpeechService;
          AudioService audioService;
 
         private final ThreadPoolExecutor workerPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(6);
-        public void addToQueue(String input, Long recipeId) {
-            String job = String.format("input;%s|recipeId;%d", input, recipeId);
+        public void addToQueue(String input, Long recipeId, User.Role role) {
+            System.out.println("Nhận yêu cầu xử lý Id: "+ recipeId+" tới Gemini");
+            String job = String.format("input;%s|recipeId;%d|role;%s", input, recipeId, role.name());
             redisTemplate.opsForList().leftPush("gemini_queue", job);
         }
 
         public void addToQueueVietTelAI(String input, Long recipeId) {
+            System.out.println("Nhận yêu cầu xử lý Id: "+ recipeId+" tới VietTel AI");
             String job = String.format("input;%s|recipeId;%d", input, recipeId);
             redisTemplate.opsForList().leftPush("viettelAI_queue", job);
         }
@@ -66,10 +66,12 @@
                     String[] parts = job.split("\\|");
                     String input = parts[0].split(";")[1];
                     Long recipeId = Long.valueOf(parts[1].split(";")[1]);
+                    String roleStr = parts[2].split(";")[1];
                     int retry = 0;
-                    if (parts.length > 2 && parts[2].startsWith("retry;")) {
-                        retry = Integer.parseInt(parts[2].split(";")[1]);
+                    if (parts.length > 3 && parts[3].startsWith("retry;")) {
+                        retry = Integer.parseInt(parts[3].split(";")[1]);
                     }
+
 
                     try {
                         CompletableFuture<String> result = geminiService.generateTextAsync(input);
@@ -81,15 +83,24 @@
 
                         recipeRepository.save(recipe);
 
-                        System.out.println("Hoàn tất xử lý job: " + recipeId);
+                        System.out.println("Đã xử lý yêu cầu Id: "+ recipeId+" tới Gemini");
+
+                        if (roleStr.equals("ADMIN")){
+                            recipe.setIsPendingRecipe(false);
+                            addToQueueVietTelAI(textAudio, recipe.getId());
+                            this.notificationService.createRecipeStatusNotification(recipe, true);
+                            recipeRepository.save(recipe);
+                        }
+
+
                     } catch (Exception e) {
                         e.printStackTrace();
                         // tối đa 3 lần
                         if (retry < 3) {
-                            String retryJob = String.format("input;%s|recipeId;%d|retry;%d", input, recipeId, retry + 1);
+                            String retryJob = String.format("input;%s|recipeId;%d|role;%s|retry;%d", input, recipeId,roleStr, retry + 1);
                             redisTemplate.opsForList().rightPush("gemini_queue", retryJob);
                         } else {
-                            String deadJob = String.format("input;%s|recipeId;%d|retry;%d", input, recipeId, retry + 1);
+                            String deadJob = String.format("input;%s|recipeId;%d|role;%s|retry;%d", input, recipeId,roleStr, retry + 1);
                             redisTemplate.opsForList().leftPush("gemini_dead_jobs", deadJob);
                             System.err.println("Job chết, chuyển vào dead_jobs; " + deadJob);
                         }
@@ -135,7 +146,7 @@
                         audioService.saveAudio(audio);
                         recipe.setIsPendingRecipe(false);
                         recipeRepository.save(recipe);
-                        System.out.println("ViettelAI audio đã xử lý xong cho recipeId=" + recipeId + ", url=" + urlAudio);
+                        System.out.println("Đã xử lý yêu cầu Id: "+ recipeId+" tới VietTel AI");
                     } catch (Exception e) {
                         e.printStackTrace();
                         if (retry < 3) {

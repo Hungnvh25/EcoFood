@@ -150,6 +150,7 @@
                 </configuration>
             </plugin>
         </plugins>
+        <finalName>EcoFood-service</finalName>
     </build>
 
 </project>
